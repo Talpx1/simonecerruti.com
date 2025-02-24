@@ -15,7 +15,7 @@
 >
     <testsuites>
         <testsuite name="Arch">
-            <file>tests/ArchTets.php</directory>
+            <file>tests/ArchTets.php</file>
         </testsuite>
     </testsuites>
     <source>
