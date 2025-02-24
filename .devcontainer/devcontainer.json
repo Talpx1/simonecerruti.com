@@ -1,0 +1,53 @@
+// https://aka.ms/devcontainer.json
+{
+    "name": "SimoneCerruti - Existing Docker Compose (Extend)",
+    "dockerComposeFile": [
+        "../docker-compose.yml"
+    ],
+    "service": "laravel.test",
+    "workspaceFolder": "/var/www/html",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "neptunedesign.vs-sequential-number",
+                "Gruntfuggly.todo-tree",
+                "wayou.vscode-todo-highlight",
+                "bradlc.vscode-tailwindcss",
+                "SanderRonde.phpstan-vscode",
+                "DEVSENSE.profiler-php-vscode",
+                "DEVSENSE.phptools-vscode",
+                "christian-kohler.path-intellisense",
+                "IBM.output-colorizer",
+                "PKief.material-icon-theme",
+                "pgl.laravel-jump-controller",
+                "naoray.laravel-goto-components",
+                "cjhowe7.laravel-blade",
+                "open-southeners.laravel-pint",
+                "codingyu.laravel-goto-view",
+                "amiralizadeh9480.laravel-extra-intellisense",
+                "austenc.laravel-blade-spacer",
+                "shufo.vscode-blade-formatter",
+                "laravel.vscode-laravel",
+                "streetsidesoftware.code-spell-checker-italian",
+                "DEVSENSE.intelli-php-vscode",
+                "oderwat.indent-rainbow",
+                "eamodio.gitlens",
+                "github.vscode-github-actions",
+                "EditorConfig.EditorConfig",
+                "mikestead.dotenv",
+                "ms-azuretools.vscode-docker",
+                "streetsidesoftware.code-spell-checker",
+                "m1guelpf.better-pest",
+                "aaron-bond.better-comments",
+                "DEVSENSE.composer-php-vscode",
+                "neilbrayfield.php-docblocker"
+            ],
+            "settings": {}
+        }
+    },
+    "remoteUser": "sail",
+    "postCreateCommand": "chown -R 1000:1000 /var/www/html 2>/dev/null || true"
+    // "forwardPorts": [],
+    // "runServices": [],
+    // "shutdownAction": "none",
+}
