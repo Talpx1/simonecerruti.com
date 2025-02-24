@@ -14,19 +14,15 @@
     displayDetailsOnTestsThatTriggerWarnings="true"
 >
     <testsuites>
-        <testsuite name="Unit">
-            <directory>tests/Unit</directory>
-        </testsuite>
-        <testsuite name="Feature">
-            <directory>tests/Feature</directory>
-        </testsuite>
         <testsuite name="Arch">
-            <directory>tests/Arch</directory>
+            <file>tests/ArchTets.php</directory>
         </testsuite>
     </testsuites>
     <source>
         <include>
             <directory>app</directory>
+            <directory>config</directory>
+            <directory>routes</directory>
         </include>
     </source>
     <php>

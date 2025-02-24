@@ -54,6 +54,5 @@ expect()->intercept('toBe', Model::class, function (Model $expected) {
 |
 */
 
-function something() {
-    // ..
-}
+require_once __DIR__.'/utils/helpers.php';
+require_once __DIR__.'/utils/schema_assertions.php';

@@ -6,14 +6,12 @@ use Rector\Config\RectorConfig;
 
 return RectorConfig::configure()
     ->withPaths([
+        __DIR__.'/app',
+        __DIR__.'/bootstrap/app.php',
         __DIR__.'/config',
-        __DIR__.'/src',
-        __DIR__.'/tests',
         __DIR__.'/database',
+        __DIR__.'/public',
     ])
-    // uncomment to reach your current PHP version
-    // ->withPhpSets()
-    // ->withTypeCoverageLevel(0)
     ->withPreparedSets(
         deadCode: true,
         codeQuality: true,
@@ -23,4 +21,5 @@ return RectorConfig::configure()
         earlyReturn: true,
         strictBooleans: true,
         rectorPreset: true,
-    );
+    )
+    ->withPhpSets();
