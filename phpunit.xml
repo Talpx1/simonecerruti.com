@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
-         colors="true"
+    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    bootstrap="vendor/autoload.php"
+    colors="true"
+    failOnWarning="true"
+    failOnNotice="true"
+    failOnRisky="true"
+    displayDetailsOnIncompleteTests="true"
+    displayDetailsOnSkippedTests="true"
+    displayDetailsOnTestsThatTriggerDeprecations="true"
+    displayDetailsOnTestsThatTriggerErrors="true"
+    displayDetailsOnTestsThatTriggerNotices="true"
+    displayDetailsOnTestsThatTriggerWarnings="true"
 >
     <testsuites>
+        <!-- <testsuite name="Arch">
+            <file>tests/ArchTest.php</file>
+        </testsuite> -->
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
@@ -15,6 +27,8 @@
     <source>
         <include>
             <directory>app</directory>
+            <directory>config</directory>
+            <directory>routes</directory>
         </include>
     </source>
     <php>
