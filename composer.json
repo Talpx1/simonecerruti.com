@@ -1,29 +1,51 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/vue-starter-kit",
+    "name": "talp1/personal-website",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Personal website of Talp1",
     "keywords": [
-        "laravel",
-        "framework"
+        "website",
+        "blog",
+        "portfolio",
+        "talp1"
     ],
     "license": "MIT",
+    "homepage": "https://simonecerruti.com",
+    "authors": [
+        {
+            "name": "Simone Cerruti",
+            "email": "hello@simonecerruti.com",
+            "homepage": "https://simonecerruti.com",
+            "role": "Owner"
+        }
+    ],
+    "funding": [
+        {
+            "type": "other",
+            "url": "https://buymeacoffee.com/talp1"
+        }
+    ],
     "require": {
         "php": "^8.2",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
+        "thecodingmachine/safe": "^3.1",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.4",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.18",
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
         "pestphp/pest": "^3.8",
-        "pestphp/pest-plugin-laravel": "^3.2"
+        "pestphp/pest-plugin-laravel": "^3.2",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "thecodingmachine/phpstan-safe-rule": "^1.4"
     },
     "autoload": {
         "psr-4": {
@@ -78,7 +100,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "phpstan/extension-installer": true
         }
     },
     "minimum-stability": "stable",
