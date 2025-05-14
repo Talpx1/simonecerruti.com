@@ -3,7 +3,7 @@ import AppLogo from '@/components/AppLogo.vue';
 </script>
 
 <template>
-    <header class="grid max-h-48 w-full grid-cols-5 text-2xl">
+    <header class="grid max-h-48 w-full grid-cols-5 text-2xl uppercase">
         <div class="border-dark dark:border-light col-span-2 flex items-center justify-center border-r border-b py-10">
             <a :href="route('home')">
                 <AppLogo weight="bold" />
@@ -46,19 +46,19 @@ import AppLogo from '@/components/AppLogo.vue';
 
         <div class="border-dark dark:border-light flex flex-col border-r">
             <div class="border-dark dark:border-light relative flex h-1/2 items-center justify-center border-b">
-                <a href="#">ABOUT</a>
+                <a href="#">{{ $t('About') }}</a>
             </div>
             <div class="flex h-1/2 items-center justify-center">
-                <a href="#">PROGETTI</a>
+                <a href="#">{{ $t('Projects') }}</a>
             </div>
         </div>
 
         <div class="flex flex-col">
             <div class="border-dark dark:border-light relative flex h-1/2 items-center justify-center border-b">
-                <a href="#">BLOG</a>
+                <a href="#">{{ $t('Blog') }}</a>
             </div>
             <div class="bg-dark dark:bg-light text-light dark:text-dark flex h-1/2 items-center justify-center font-extrabold italic">
-                <a href="#">HIRE</a>
+                <a href="#">{{ $t('Hire') }}</a>
             </div>
         </div>
     </header>
