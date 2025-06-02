@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import FormattedTranslation from '@/components/FormattedTranslation.vue';
 import { Head } from '@inertiajs/vue3';
+import BgDots from './components/BgDots.vue';
 import HomeFooter from './components/HomeFooter.vue';
 import HomeHeader from './components/HomeHeader.vue';
 </script>
 
 <template>
     <Head title="Welcome" />
-    <div class="bg-light dark:bg-dark text-dark dark:text-light flex min-h-screen flex-col justify-between">
+    <div class="bg-light dark:bg-dark text-dark dark:text-light relative flex min-h-screen flex-col justify-between">
+        <BgDots />
+
         <HomeHeader />
 
         <main>
