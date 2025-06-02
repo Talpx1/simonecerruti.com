@@ -8,7 +8,7 @@ import HomeHeader from './components/HomeHeader.vue';
 
 <template>
     <Head title="Welcome" />
-    <div class="bg-light dark:bg-dark text-dark dark:text-light relative flex min-h-screen flex-col justify-between">
+    <div class="relative flex min-h-screen flex-col justify-between" id="homepage">
         <BgDots />
 
         <HomeHeader />

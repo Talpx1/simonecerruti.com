@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import AppLogo from '@/components/AppLogo.vue';
+import { Link } from '@inertiajs/vue3';
 </script>
 
 <template>
     <header class="grid max-h-48 w-full grid-cols-5 text-2xl uppercase">
         <div class="border-dark dark:border-light col-span-2 flex items-center justify-center border-r border-b py-10">
-            <a :href="route('home')">
+            <Link :href="route('home')">
                 <AppLogo weight="bold" />
-            </a>
+            </Link>
         </div>
 
         <div class="border-dark dark:border-light flex flex-col border-r">
             <div class="border-dark dark:border-light relative flex h-1/2 justify-center border-b">
                 <div class="bg-light dark:bg-dark absolute bottom-0 flex translate-y-1/2 items-center gap-2 px-2">
-                    <svg class="cursor-pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg class="interactable" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_208_98)">
                             <path
                                 d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z"
@@ -46,19 +47,19 @@ import AppLogo from '@/components/AppLogo.vue';
 
         <div class="border-dark dark:border-light flex flex-col border-r">
             <div class="border-dark dark:border-light relative flex h-1/2 items-center justify-center border-b">
-                <a href="#">{{ $t('About') }}</a>
+                <Link :href="route('about')">{{ $t('About') }}</Link>
             </div>
             <div class="flex h-1/2 items-center justify-center">
-                <a href="#">{{ $t('Projects') }}</a>
+                <Link :href="route('projects')">{{ $t('Projects') }}</Link>
             </div>
         </div>
 
         <div class="flex flex-col">
             <div class="border-dark dark:border-light relative flex h-1/2 items-center justify-center border-b">
-                <a href="#">{{ $t('Blog') }}</a>
+                <Link :href="route('blog')">{{ $t('Blog') }}</Link>
             </div>
             <div class="bg-dark dark:bg-light text-light dark:text-dark flex h-1/2 items-center justify-center font-extrabold italic">
-                <a href="#">{{ $t('Hire') }}</a>
+                <span class="interactable">{{ $t('Hire') }}</span>
             </div>
         </div>
     </header>
