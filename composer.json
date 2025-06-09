@@ -34,6 +34,7 @@
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {
+        "driftingly/rector-laravel": "^2.0",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.4",
         "laravel/pail": "^1.2.2",
@@ -45,6 +46,7 @@
         "pestphp/pest-plugin-laravel": "^3.2",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
+        "rector/rector": "^2.0",
         "thecodingmachine/phpstan-safe-rule": "^1.4"
     },
     "autoload": {
@@ -87,6 +89,12 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
+        ],
+        "rector": [
+            "./vendor/bin/rector"
+        ],
+        "dry-rector": [
+            "./vendor/bin/rector --dry-run"
         ]
     },
     "extra": {
