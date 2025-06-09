@@ -16,7 +16,8 @@ const trailY = ref(0);
 useRafFn(() => {
     if (!cursorTrail.value || !cursor.value) return;
 
-    const isInteracting = document.querySelectorAll('a:hover, button:hover, .interactable:hover').length > 0;
+    const isInteracting =
+        document.querySelectorAll('a:hover, button:hover, .interactable:hover, input:hover, select:hover, label:hover, textarea:hover').length > 0;
 
     cursor.value.classList.toggle('interacting', isInteracting);
     cursorTrail.value.classList.toggle('interacting', isInteracting);
@@ -45,12 +46,12 @@ useRafFn(() => {
     </div>
 
     <div
-        class="bg-light pointer-events-none absolute aspect-square w-12 -translate-1/2 overflow-hidden rounded-full mix-blend-difference transition-transform"
+        class="bg-light pointer-events-none absolute z-[999] aspect-square w-12 -translate-1/2 rounded-full mix-blend-difference transition-transform"
         ref="cursorTrail"
         id="cursorTrail"
     ></div>
     <div
-        class="bg-light pointer-events-none absolute aspect-square w-3 -translate-1/2 overflow-hidden rounded-full mix-blend-difference transition-transform"
+        class="bg-light pointer-events-none absolute z-[999] aspect-square w-3 -translate-1/2 rounded-full mix-blend-difference transition-transform"
         ref="cursor"
         id="cursor"
     ></div>

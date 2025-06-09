@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import FormattedTranslation from '@/components/FormattedTranslation.vue';
+import { Toaster } from '@/components/ui/sonner';
 import { Head } from '@inertiajs/vue3';
-import BgDots from './components/BgDots.vue';
+import { ref } from 'vue';
+import 'vue-sonner/style.css';
+import BgDotsAndCursor from './components/BgDotsAndCursor.vue';
+import ContactDialog from './components/ContactDialog.vue';
 import HomeFooter from './components/HomeFooter.vue';
 import HomeHeader from './components/HomeHeader.vue';
+
+const isContactDialogOpen = ref(false);
 </script>
 
 <template>
-    <Head title="Welcome" />
-    <div class="relative flex min-h-screen flex-col justify-between" id="homepage">
-        <BgDots />
+    <Head :title="$t('Welcome')" />
+    <Toaster />
+    <div class="relative flex min-h-screen flex-col justify-between overflow-hidden" id="homepage">
+        <BgDotsAndCursor />
 
-        <HomeHeader />
+        <HomeHeader @hire-clicked="isContactDialogOpen = true" />
 
         <main>
             <h1 class="px-5 text-6xl font-semibold tracking-tighter uppercase">
@@ -27,13 +34,15 @@ import HomeHeader from './components/HomeHeader.vue';
             </h1>
             <div class="to-dark dark:to-light mt-1 flex w-full justify-end bg-linear-to-r from-transparent to-60% py-4">
                 <h2 class="text-light dark:text-dark px-4 text-5xl font-black uppercase">
-                    <a href="#">{{ $t("Don't wait, let's talk") }} 🡒</a>
+                    <span class="interactable" @click="isContactDialogOpen = true">{{ $t("Don't wait, let's talk") }} 🡒</span>
                 </h2>
             </div>
         </main>
 
         <HomeFooter />
     </div>
+
+    <ContactDialog v-model="isContactDialogOpen" />
 </template>
 
 <style>

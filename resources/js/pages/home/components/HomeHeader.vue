@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import AppLogo from '@/components/AppLogo.vue';
+import Icon from '@/components/Icon.vue';
+import { useAppearance } from '@/composables/useAppearance';
+import { useLocale } from '@/composables/useLocale';
 import { Link } from '@inertiajs/vue3';
+
+defineEmits<{ hireClicked: [] }>();
+
+const { appearance, updateAppearance } = useAppearance();
+const { currentLocale, updateLocale } = useLocale();
 </script>
 
 <template>
@@ -13,33 +21,46 @@ import { Link } from '@inertiajs/vue3';
 
         <div class="border-dark dark:border-light flex flex-col border-r">
             <div class="border-dark dark:border-light relative flex h-1/2 justify-center border-b">
-                <div class="bg-light dark:bg-dark absolute bottom-0 flex translate-y-1/2 items-center gap-2 px-2">
-                    <svg class="interactable" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clip-path="url(#clip0_208_98)">
-                            <path
-                                d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z"
-                                stroke="#FDFFFC"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            />
-                            <path d="M12 1V3" stroke="#FDFFFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M12 21V23" stroke="#FDFFFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M4.22 4.21997L5.64 5.63997" stroke="#FDFFFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M18.36 18.36L19.78 19.78" stroke="#FDFFFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M1 12H3" stroke="#FDFFFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M21 12H23" stroke="#FDFFFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M4.22 19.78L5.64 18.36" stroke="#FDFFFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M18.36 5.63997L19.78 4.21997" stroke="#FDFFFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </g>
-                        <defs>
-                            <clipPath id="clip0_208_98">
-                                <rect width="24" height="24" fill="white" />
-                            </clipPath>
-                        </defs>
-                    </svg>
-
-                    <a href="#">ITA/ENG</a>
+                <div
+                    class="bg-light dark:bg-dark border-dark dark:border-light absolute bottom-0 flex translate-y-1/2 items-center gap-8 border px-1"
+                >
+                    <div class="flex gap-2">
+                        <Icon
+                            name="sun"
+                            class="interactable"
+                            :class="{ 'dark:bg-light bg-dark text-light dark:text-dark': appearance === 'light' }"
+                            :size="24"
+                            @click="updateAppearance('light')"
+                        />
+                        <Icon
+                            name="moon"
+                            class="interactable"
+                            :class="{ 'dark:bg-light bg-dark text-light dark:text-dark': appearance === 'dark' }"
+                            :size="24"
+                            @click="updateAppearance('dark')"
+                        />
+                        <Icon
+                            name="monitor"
+                            class="interactable"
+                            :class="{ 'dark:bg-light bg-dark text-light dark:text-dark': appearance === 'system' }"
+                            :size="24"
+                            @click="updateAppearance('system')"
+                        />
+                    </div>
+                    <div class="flex gap-2">
+                        <span
+                            class="interactable"
+                            :class="{ 'dark:bg-light bg-dark text-light dark:text-dark': currentLocale === 'it' }"
+                            @click="updateLocale('it')"
+                            >ITA</span
+                        >
+                        <span
+                            class="interactable"
+                            :class="{ 'dark:bg-light bg-dark text-light dark:text-dark': currentLocale === 'en' }"
+                            @click="updateLocale('en')"
+                            >ENG</span
+                        >
+                    </div>
                 </div>
             </div>
             <div class="h-1/2"></div>
@@ -59,7 +80,7 @@ import { Link } from '@inertiajs/vue3';
                 <Link :href="route('blog')">{{ $t('Blog') }}</Link>
             </div>
             <div class="bg-dark dark:bg-light text-light dark:text-dark flex h-1/2 items-center justify-center font-extrabold italic">
-                <span class="interactable">{{ $t('Hire') }}</span>
+                <span @click="$emit('hireClicked')" class="interactable">{{ $t('Hire') }}</span>
             </div>
         </div>
     </header>
