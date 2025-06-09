@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -18,3 +20,5 @@ Route::get('/blog', function () {
 Route::get('/projects', function () {
     return Inertia::render('projects/ProjectsPage');
 })->name('projects');
+
+Route::resource('contact-lead', \App\Http\Controllers\ContactLeadController::class)->only('store');
