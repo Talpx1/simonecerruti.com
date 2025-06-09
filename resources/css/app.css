@@ -96,8 +96,8 @@
 :root {
   --light: #FDFFFC;
   --dark: #040F0F;
-  --background: var(--dark);
-  --foreground: var(--light);
+  --background: var(--light);
+  --foreground: var(--dark);
   --card: hsl(0 0% 100%);
   --card-foreground: hsl(0 0% 3.9%);
   --popover: hsl(0 0% 100%);
@@ -134,8 +134,8 @@
 }
 
 .dark {
-  --background: hsl(0 0% 3.9%);
-  --foreground: hsl(0 0% 98%);
+  --background: var(--dark);
+  --foreground: var(--light);
   --card: hsl(0 0% 3.9%);
   --card-foreground: hsl(0 0% 98%);
   --popover: hsl(0 0% 3.9%);
@@ -191,24 +191,4 @@
   body {
     @apply bg-background text-foreground;
   }
-}
-
-#homepage {
-
-    cursor: none;
-
-
-    a:hover,
-    button:hover,
-    .interactable:hover {
-        cursor: none;
-    }
-}
-
-#cursor.interacting {
-    transform: scale(4);
-}
-
-#cursorTrail.interacting {
-    transform: scale(0);
 }

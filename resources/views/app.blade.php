@@ -23,11 +23,11 @@
     {{-- Inline style to set the HTML background color based on our theme in app.css --}}
     <style>
         html {
-            background-color: oklch(1 0 0);
+            background-color: var(--light);
         }
 
         html.dark {
-            background-color: oklch(0.145 0 0);
+            background-color: var(--dark);
         }
     </style>
 
@@ -39,8 +39,6 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Simone Cerruti" />
     <link rel="manifest" href="/favicon/site.webmanifest" />
-
-    <!-- //TODO: add font -->
 
     @routes
     @vite(['resources/js/app.ts'])
