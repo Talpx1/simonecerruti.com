@@ -1,4 +1,5 @@
 import { onMounted, ref } from 'vue';
+import useCookies from './useCookies';
 
 type Appearance = 'light' | 'dark' | 'system';
 
@@ -16,16 +17,6 @@ export function updateTheme(value: Appearance) {
         document.documentElement.classList.toggle('dark', value === 'dark');
     }
 }
-
-const setCookie = (name: string, value: string, days = 365) => {
-    if (typeof document === 'undefined') {
-        return;
-    }
-
-    const maxAge = days * 24 * 60 * 60;
-
-    document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
-};
 
 const mediaQuery = () => {
     if (typeof window === 'undefined') {
@@ -80,7 +71,7 @@ export function useAppearance() {
         localStorage.setItem('appearance', value);
 
         // Store in cookie for SSR...
-        setCookie('appearance', value);
+        useCookies().set('appearance', value);
 
         updateTheme(value);
     }
