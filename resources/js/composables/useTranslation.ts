@@ -1,7 +1,7 @@
 import { SharedData } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 
-export function useTranslation(key: string, tags: string[] = []) {
+export default function t(key: string, tags: string[] = []) {
     const translations = usePage<SharedData>().props.translations;
 
     const keyTranslationExists = Object.hasOwn(translations, key);

@@ -6,7 +6,7 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
-import { useTranslation } from './composables/useTranslation';
+import t from './composables/useTranslation';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -38,7 +38,7 @@ createInertiaApp({
         const app = createApp({ render: () => h(App, props) });
         app.use(plugin).use(ZiggyVue);
 
-        app.config.globalProperties.$t = useTranslation;
+        app.config.globalProperties.$t = t;
 
         app.mount(el);
     },
