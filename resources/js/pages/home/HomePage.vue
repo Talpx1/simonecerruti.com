@@ -5,6 +5,7 @@ import { ref } from 'vue';
 import 'vue-sonner/style.css';
 import BgDotsAndCursor from './components/BgDotsAndCursor.vue';
 import ContactDialog from './components/ContactDialog.vue';
+import AboutSection from './sections/about/AboutSection.vue';
 import FirstSection from './sections/first/FirstSection.vue';
 
 const isContactDialogOpen = ref(false);
@@ -19,6 +20,7 @@ const isContactDialogOpen = ref(false);
 
     <main class="overflow-x-hidden">
         <FirstSection @cta-click="isContactDialogOpen = true" />
+        <AboutSection />
     </main>
 </template>
 

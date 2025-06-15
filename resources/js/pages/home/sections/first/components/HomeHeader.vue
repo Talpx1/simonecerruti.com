@@ -68,10 +68,10 @@ const { currentLocale, updateLocale } = useLocale();
 
         <div class="border-dark dark:border-light flex flex-col border-r">
             <div class="border-dark dark:border-light relative flex h-1/2 items-center justify-center border-b">
-                <Link :href="route('about')">{{ $t('About') }}</Link>
+                <a href="#about">{{ $t('About') }}</a>
             </div>
             <div class="flex h-1/2 items-center justify-center">
-                <Link :href="route('projects')">{{ $t('Projects') }}</Link>
+                <a href="#projects">{{ $t('Projects') }}</a>
             </div>
         </div>
 
