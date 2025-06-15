@@ -34,10 +34,8 @@ function onSubmit() {
             }),
         onSuccess: () => {
             open.value = false;
-            toast.success(t('One step closer to the realization of your project'), {
-                description: t(
-                    'Stamp placed and letter sent! I will read your proposal and you will hear from me in a flash. Thanks for contacting me!',
-                ),
+            toast.success(t('Great! It already looks promising.'), {
+                description: t("I'll be in touch in a heartbeat. Thanks for reaching out!"),
             });
             form.reset();
         },
@@ -49,8 +47,8 @@ function onSubmit() {
     <Dialog v-model:open="open">
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>{{ $t("Let's get in touch") }}</DialogTitle>
-                <DialogDescription> {{ $t("Let's talk about how to make your idea a reality.") }} </DialogDescription>
+                <DialogTitle>{{ $t("Don't wait, let's talk") }}</DialogTitle>
+                <DialogDescription> {{ $t('It starts here. The rest, we build together.') }} </DialogDescription>
             </DialogHeader>
 
             <form @submit.prevent="onSubmit" class="space-y-4" id="dialogContactForm">
@@ -110,7 +108,7 @@ function onSubmit() {
             </form>
 
             <DialogFooter>
-                <Button :disabled="form.processing" type="submit" form="dialogContactForm">{{ $t("Let's call this a beginning") }}</Button>
+                <Button :disabled="form.processing" type="submit" form="dialogContactForm">{{ $t('Send, make it real.') }}</Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>
