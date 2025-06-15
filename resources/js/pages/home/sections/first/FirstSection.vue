@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import FormattedTranslation from '@/components/FormattedTranslation.vue';
-import 'vue-sonner/style.css';
 import FirstSectionFooter from './components/FirstSectionFooter.vue';
 import HomeHeader from './components/HomeHeader.vue';
 
