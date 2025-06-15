@@ -3,7 +3,8 @@ import { useMouse, useRafFn, useWindowSize } from '@vueuse/core';
 import { computed, ref, useTemplateRef } from 'vue';
 
 const { width, height } = useWindowSize();
-const dotsAmount = computed(() => Math.round(((width.value / 30) * height.value) / 30));
+
+const dotsAmount = computed(() => Math.round(((width.value / 40) * height.value) / 40));
 
 const cursorTrail = useTemplateRef('cursorTrail');
 const cursor = useTemplateRef('cursor');
@@ -31,9 +32,12 @@ useRafFn(() => {
     cursorTrail.value.style.top = `${trailY.value}px`;
     cursorTrail.value.style.left = `${trailX.value}px`;
 
-    ([...document.querySelectorAll('.bg-dot')] as HTMLElement[]).forEach((dot) => {
+    const dots = [...document.querySelectorAll('.bg-dot')] as HTMLElement[];
+
+    dots.forEach((dot) => {
+        const mouseYFixed = y.value - document.documentElement.scrollTop;
         const { x: dotX, y: dotY } = dot.getBoundingClientRect();
-        const distance = Math.sqrt(Math.pow(x.value - dotX, 2) + Math.pow(y.value - dotY, 2));
+        const distance = Math.sqrt(Math.pow(x.value - dotX, 2) + Math.pow(mouseYFixed - dotY, 2));
         const scale = (2 * (200 - distance)) / 100;
         dot.style.scale = scale < 0 ? '0' : `${scale}`;
     });
@@ -41,7 +45,7 @@ useRafFn(() => {
 </script>
 
 <template>
-    <div class="pointer-events-none absolute flex h-full w-full flex-wrap gap-10 overflow-hidden">
+    <div class="pointer-events-none fixed top-0 flex h-screen w-screen flex-wrap gap-[40px] overflow-hidden">
         <div v-for="i in Array(dotsAmount)" :key="i" class="bg-dark dark:bg-light bg-dot h-1 w-1 rounded-full opacity-5"></div>
     </div>
 

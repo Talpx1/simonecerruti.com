@@ -24,6 +24,7 @@ const isContactDialogOpen = ref(false);
 
 <style>
 body {
-    overflow: hidden;
+    position: relative;
+    overflow-x: hidden;
 }
 </style>
