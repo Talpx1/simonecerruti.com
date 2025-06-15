@@ -56,3 +56,23 @@ useRafFn(() => {
         id="cursor"
     ></div>
 </template>
+
+<style>
+* {
+    cursor: none;
+}
+
+a:hover,
+button:hover,
+.interactable:hover {
+    cursor: none;
+}
+
+#cursor.interacting {
+    transform: scale(4);
+}
+
+#cursorTrail.interacting {
+    transform: scale(0);
+}
+</style>

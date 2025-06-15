@@ -74,15 +74,15 @@ function hideContactAfterDelay(contact: Contact, delayInSeconds: number = 1) {
 
         <div class="text-2xl font-bold">
             <span @mouseover="showContact('email')" @mouseleave="hideContactAfterDelay('email')">
-                <a href="mailto:hello@simonecerruti.com">EMAIL</a>
+                <h3 class="contents"><a href="mailto:hello@simonecerruti.com">EMAIL</a></h3>
             </span>
             /
             <span @mouseover="showContact('linkedin')" @mouseleave="hideContactAfterDelay('linkedin')">
-                <a href="https://www.linkedin.com/in/simone-cerruti/">LINKEDIN</a>
+                <h3 class="contents"><a href="https://www.linkedin.com/in/simone-cerruti/">LINKEDIN</a></h3>
             </span>
             /
             <span @mouseover="showContact('github')" @mouseleave="hideContactAfterDelay('github')">
-                <a href="https://github.com/Talpx1/">GITHUB</a>
+                <h3 class="contents"><a href="https://github.com/Talpx1/">GITHUB</a></h3>
             </span>
         </div>
     </div>
