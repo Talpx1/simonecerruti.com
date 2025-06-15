@@ -28,7 +28,7 @@ const isContactDialogOpen = ref(false);
                 />
                 <br />
                 <FormattedTranslation
-                    translation-key="And what you didn't even know you <0>wanted</0>."
+                    translation-key="And what you didn't even know you <0>wished for</0>."
                     :tags="[`<span class='underline decoration-5 underline-offset-5'>`]"
                 />
             </h1>
