@@ -18,7 +18,7 @@ const isContactDialogOpen = ref(false);
     <BgDotsAndCursor />
     <ContactDialog v-model="isContactDialogOpen" />
 
-    <main class="overflow-x-hidden">
+    <main class="h-screen snap-y snap-mandatory overflow-x-hidden overflow-y-scroll scroll-smooth *:snap-center *:snap-always">
         <FirstSection @cta-click="isContactDialogOpen = true" />
         <AboutSection />
     </main>
