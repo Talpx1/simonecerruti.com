@@ -1,0 +1,44 @@
+@import url(https://fonts.bunny.net/css?family=archivo:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i);
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* FILAMENT */
+/* Required by all components */
+@import '../../vendor/filament/support/resources/css/index.css';
+
+/* Required by actions and tables */
+@import '../../vendor/filament/actions/resources/css/index.css';
+
+/* Required by actions, forms and tables */
+@import '../../vendor/filament/forms/resources/css/index.css';
+
+/* Required by actions, infolists, forms, schemas and tables */
+@import '../../vendor/filament/schemas/resources/css/index.css';
+
+/* Required by tables */
+@import '../../vendor/filament/tables/resources/css/index.css';
+
+@theme {
+    --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-light: #ffffff;
+    --color-dark: #000000;
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(0%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+.animate-marquee {
+    animation: marquee 25s linear infinite;
+}
