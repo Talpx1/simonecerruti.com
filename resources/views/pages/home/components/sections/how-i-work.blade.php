@@ -1,6 +1,6 @@
 <section class="flex flex-col justify-around min-h-screen h-screen max-h-screen">
     <div class="space-y-4">
-        <h2 class="container mx-auto text-8xl font-black uppercase">Come lavoro</h2>
+        <h2 class="container mx-auto text-8xl font-black uppercase">{{ __('How I work') }}</h2>
         <h3 class="container mx-auto text-4xl font-semibold">
             {!! __('I create software that adapts to your way of working, :tag not the other way around:close_tag.', [
                 'tag' => "<span class='underline decoration-4 underline-offset-3'>",
@@ -13,19 +13,19 @@
                 <span class="animate-marquee flex flex-nowrap gap-8 text-nowrap whitespace-nowrap">
                     <h4>{{ __('MANAGEMENT SOFTWARES') }}</h4>
                     /
-                    <h4>ERP</h4>
+                    <h4>{{ __('ERP') }}</h4>
                     /
-                    <h4>CRM</h4>
+                    <h4>{{ __('CRM') }}</h4>
                     /
                     <h4>{{ __('WEBSITES') }}</h4>
                     /
-                    <h4>E-COMMERCE</h4>
+                    <h4>{{ __('E-COMMERCE') }}</h4>
                     /
-                    <h4>SAAS</h4>
+                    <h4>{{ __('SAAS') }}</h4>
                     /
                     <h4>{{ __('WEB PLATFORMS') }}</h4>
                     /
-                    <h4>PWA</h4>
+                    <h4>{{ __('PWA') }}</h4>
                     /
                     <h4>{{ __('AND ANYTHING ELSE THAT COMES TO YOUR MIND') }}</h4>
                     <span class="mr-8">/</span>
@@ -33,19 +33,19 @@
                 <span class="animate-marquee flex flex-nowrap gap-8 text-nowrap whitespace-nowrap">
                     <span>{{ __('MANAGEMENT SOFTWARES') }}</span>
                     /
-                    <span>ERP</span>
+                    <span>{{ __('ERP') }}</span>
                     /
-                    <span>CRM</span>
+                    <span>{{ __('CRM') }}</span>
                     /
                     <span>{{ __('WEBSITES') }}</span>
                     /
-                    <span>E-COMMERCE</span>
+                    <span>{{ __('E-COMMERCE') }}</span>
                     /
-                    <span>SAAS</span>
+                    <span>{{ __('SAAS') }}</span>
                     /
                     <span>{{ __('WEB PLATFORMS') }}</span>
                     /
-                    <span>PWA</span>
+                    <span>{{ __('PWA') }}</span>
                     /
                     <span>{{ __('AND ANYTHING ELSE THAT COMES TO YOUR MIND') }}</span>
                     <span class="mr-8">/</span>
@@ -66,7 +66,7 @@
                 {{ __("just the way you're looking for them, just the way you imagine them.") }}</div>
         </div>
         <div class="text-2xl underline underline-offset-4">
-            {{ __('Un software può rivoluzionare la tua attività') }} 🡒</div>
+            {{ __('Software can revolutionize your business') }} 🡒</div>
     </div>
 
     <div class="container mx-auto grid grid-cols-[1fr_auto_1fr] text-4xl gap-8">

@@ -4,19 +4,19 @@
     <div class="grid place-content-center gap-16 z-10 mix-blend-difference">
         <h2 class="text-8xl font-black uppercase">{{ __('About Simone') }}</h2>
         <p class="text-2xl translate-x-16">
-            {{ __('Appassionato di informatica da... beh, da quando ho memoria.') }} <small
-                class="text-sm underline decoration-1 underline-offset-2">{{ __("Scopri l'aneddoto") }}
+            {{ __("I've been passionate about IT since... well, since I can remember.") }} <small
+                class="text-sm underline decoration-1 underline-offset-2">{{ __('Discover the anecdote') }}
                 🡒</small>
             <br>
             {!! __(
-                'Adesso ho :current_age anni e ADORO creare software che aiutano le aziende nelle loro attività quotidiane.',
+                'I\'m now :current_age years old and I LOVE creating software that helps businesses in their everyday work.',
                 [
                     'current_age' => floor(now()->diffInYears('03/04/2001', true)),
                 ],
             ) !!}
         </p>
-        <p class="translate-x-16 text-xl underline decoration-3 underline-offset-2 font-bold uppercase">Ti spiego come lo
-            faccio 🡒
+        <p class="translate-x-16 text-xl underline decoration-3 underline-offset-2 font-bold uppercase">
+            {{ __('Let me explain how I do it') }} 🡒
         </p>
     </div>
 </section>
