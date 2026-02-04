@@ -1,9 +1,9 @@
 <header id="main-header"
     {{ $attributes->merge(['class' => 'p-2 lg:p-4 flex justify-between items-center sticky top-0 z-[999] h-[100px] min-h-[100px] max-h-[100px] overflow-x-clip']) }}>
 
-    <a class="block h-full max-w-[180px] p-4 backdrop-blur-md rounded-2xl" id="header-logo" href="{{ route('home') }}"
-        wire:navigate>
-        <x-app-logo alt="{{ config('app.name') }} logo" class="aspect-auto h-full  " />
+    <a class="flex items-center h-full max-w-[180px] p-4 backdrop-blur-md rounded-2xl" id="header-logo"
+        href="{{ route('home') }}" wire:navigate>
+        <x-app-logo alt="{{ config('app.name') }} logo" class="aspect-auto h-1/2 lg:h-full" />
     </a>
 
 
