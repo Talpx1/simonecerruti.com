@@ -63,7 +63,7 @@
     </div>
 
     <div
-        class="flex flex-col w-fit md:w-auto mx-auto md:flex-row gap-8 md:gap-0 md:justify-between items-start md:items-center">
+        class="flex flex-col lg:flex-row w-fit lg:w-full md:w-auto mx-auto md:flex-row gap-8 md:gap-0 md:justify-between items-start md:items-center">
         <div>
             <a href="{{ config('company.socials.linkedin.link') }}">
                 <div class="flex gap-2 items-center">

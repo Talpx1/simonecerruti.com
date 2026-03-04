@@ -9,6 +9,7 @@ Route::group([
     'prefix' => LaravelLocalization::setLocale(),
     'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath'],
 ], function () {
-    Route::get('/', \App\Livewire\Pages\Home::class)->name('home');
-    Route::get('/contacts', \App\Livewire\Pages\Contacts::class)->name('contacts');
+    Route::livewire('/', \App\Livewire\Pages\Home::class)->name('home');
+    Route::livewire('/contacts', \App\Livewire\Pages\Contacts::class)->name('contacts');
+    Route::livewire('/about', \App\Livewire\Pages\About::class)->name('about');
 });

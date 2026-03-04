@@ -8,7 +8,8 @@
         <div class="text-xl lg:text-2xl lg:translate-x-16 space-y-4 lg:space-y-0">
             <p>
                 {{ __("I've been passionate about IT since... well, since I can remember.") }}
-                <a href="#" wire:navigate class="text-sm underline decoration-1 underline-offset-2">
+                <a href="{{ route('about') }}#about-how-i-started" wire:navigate
+                    class="text-sm underline decoration-1 underline-offset-2">
                     {{ __('Discover the anecdote') }} 🡒
                 </a>
             </p>

@@ -22,8 +22,7 @@ class Contacts extends Component implements HasSchemas {
     public function render(): View {
         return view('pages.contacts.contacts')
             ->layout('components.layouts.public.index', [
-                'title' => config()->string('app.name'),
-                'suffix' => false,
+                'title' => __('Contacts'),
             ]);
     }
 

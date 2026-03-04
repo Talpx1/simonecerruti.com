@@ -7,12 +7,11 @@ namespace App\Livewire\Pages;
 use Illuminate\View\View;
 use Livewire\Component;
 
-class Home extends Component {
+class About extends Component {
     public function render(): View {
-        return view('pages.home.home')
+        return view('pages.about.about')
             ->layout('components.layouts.public.index', [
-                'title' => config()->string('app.name'),
-                'suffix' => false,
+                'title' => __('About'),
             ]);
     }
 }
