@@ -11,8 +11,10 @@
     <div class="flex items-center gap-2 lg:gap-8" id="header-tools">
         <x-lang-switcher />
 
-        <button x-on:click="isMenuOpen=true" id="open-menu"
-            class="backdrop-blur-md p-2 lg:p-4 rounded-2xl uppercase text-xl cursor-pointer">MENU</button>
+        <button x-on:click="isMenuOpen=!isMenuOpen" id="open-menu"
+            class="backdrop-blur-md p-2 lg:p-4 rounded-2xl uppercase text-xl cursor-pointer w-24 min-w-24 max-w-24 overflow-hidden">
+            <span x-text="isMenuOpen ? '╳' : 'MENU'"></span>
+        </button>
     </div>
 </header>
 
@@ -27,8 +29,9 @@
 
             window.addEventListener("scroll", () => {
                 const currentScrollY = window.scrollY;
+                const menuOpen = document.body?._x_dataStack?.[0]?.isMenuOpen ?? false;
 
-                if (currentScrollY > lastScrollY && !isHidden && currentScrollY > 50) {
+                if (currentScrollY > lastScrollY && !isHidden && currentScrollY > 50 && !menuOpen) {
                     isHidden = true;
                     gsap.to(logo, {
                         x: "-100%",

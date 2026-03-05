@@ -32,23 +32,7 @@
             </div>
         </a>
 
-        <a href="{{ config('company.socials.linkedin.link') }}"
-            class="floating-contact hover:[&_.floating-contact-text]:opacity-100 hover:[&_.floating-contact-text]:visible block">
-            <div>
-                <span class="floating-contact-text">{{ config('company.socials.linkedin.username') }}</span>
-                <x-fab-linkedin class="w-5" />
-            </div>
-        </a>
-
-        <a href="{{ config('company.socials.github.link') }}"
-            class="floating-contact hover:[&_.floating-contact-text]:opacity-100 hover:[&_.floating-contact-text]:visible block">
-            <div>
-                <span class="floating-contact-text">{{ config('company.socials.github.username') }}</span>
-                <x-fab-github class="w-5" />
-            </div>
-        </a>
-
-        <a href="#" class="floating-contact rounded-r-full block font-black">
+        <a href="{{ route('contacts') }}" class="floating-contact rounded-r-full block font-black">
             HIRE
         </a>
     </div>
