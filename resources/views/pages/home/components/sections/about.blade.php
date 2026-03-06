@@ -18,15 +18,22 @@
                 {!! __(
                     'I\'m now :current_age years old and I LOVE creating software that helps businesses in their everyday work.',
                     [
-                        'current_age' => floor(now()->diffInYears('03/04/2001', true)),
+                        'current_age' => floor(
+                            now()->diffInYears(\Illuminate\Support\Carbon::createFromFormat('d/m/Y', '03/04/2001'), true),
+                        ),
                     ],
                 ) !!}
             </p>
         </div>
-        <a href="" wire:navigate
-            class="lg:translate-x-16 text-xl underline decoration-3 underline-offset-2 font-bold uppercase">
-            {{ __('Let me explain how I do it') }} 🡒
-        </a>
+        <div
+            class="lg:translate-x-16 text-xl underline decoration-3 underline-offset-2 font-bold uppercase flex flex-col lg:flex-row justify-between gap-4 lg:gap-0">
+            <a href="" wire:navigate>
+                {{ __('Let me explain how I do it') }} 🡒
+            </a>
+            <a href="{{ route('about') }}" wire:navigate>
+                {{ __('Find out more about me') }} 🡒
+            </a>
+        </div>
     </div>
 </section>
 

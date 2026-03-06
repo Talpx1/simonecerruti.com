@@ -10,7 +10,7 @@
             </div>
 
             <x-filament::button type="submit"
-                class="w-full xl:w-fit text-dark bg-light hover:opacity-80 transition-all duration-500 mt-4 rounded-none uppercase font-black text-2xl">
+                class="w-full xl:w-fit text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase font-black text-2xl">
                 {{ __('Let\'s talk') }} 🡒
             </x-filament::button>
         </form>
@@ -26,7 +26,7 @@
                 </p>
             </div>
             <button
-                class="text-dark bg-light hover:opacity-80 transition-all duration-500 mt-4 rounded-none uppercase p-4 w-full">
+                class="text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase p-4 w-full">
                 <h2 class="text-xl lg:text-2xl 2xl:text-4xl font-black">
                     {{ __('Book a call') }} 🡒
                 </h2>
@@ -39,7 +39,7 @@
                 <h2 class="text-xl lg:text-2xl 2xl:text-4xl font-semibold">{{ __('I also have an email') }}</h2>
             </div>
             <a href="mailto:{{ config('company.contacts.email') }}"
-                class="block text-dark bg-light hover:opacity-80 transition-all duration-500 mt-4 rounded-none uppercase p-4 underline decoration-4 underline-offset-4">
+                class="block text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase p-4 underline decoration-4 underline-offset-4">
                 <h3 class="text-lg md:text-xl lg:text-xl 2xl:text-4xl font-black">
                     {{ config('company.contacts.email') }}
                 </h3>
@@ -56,7 +56,7 @@
                 config()->string('company.contacts.whatsapp.number'),
                 urlencode(__(config()->string('company.contacts.whatsapp.default_message'))),
             ) }}"
-                class="block text-center text-xl lg:text-2xl 2xl:text-4xl font-black text-dark bg-light hover:opacity-80 transition-all duration-500 mt-4 rounded-none uppercase p-4">
+                class="block text-center text-xl lg:text-2xl 2xl:text-4xl font-black text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase p-4">
                 {{ __('Start a Chat') }} 🡒
             </a>
         </div>
