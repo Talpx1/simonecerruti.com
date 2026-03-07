@@ -26,8 +26,8 @@
             </p>
         </div>
         <div
-            class="lg:translate-x-16 text-xl underline decoration-3 underline-offset-2 font-bold uppercase flex flex-col lg:flex-row justify-between gap-4 lg:gap-0">
-            <a href="" wire:navigate>
+            class="lg:translate-x-16 text-xl underline decoration-3 underline-offset-2 font-bold uppercase flex flex-col xl:flex-row justify-between gap-4 xl:gap-0">
+            <a href="{{ route('how_i_work') }}" wire:navigate>
                 {{ __('Let me explain how I do it') }} 🡒
             </a>
             <a href="{{ route('about') }}" wire:navigate>

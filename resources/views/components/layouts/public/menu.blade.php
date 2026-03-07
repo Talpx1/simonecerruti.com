@@ -15,8 +15,8 @@
                     $routes = [
                         [__('Home'), route('home')],
                         [__('About'), route('about')],
-                        [__('Projects'), route('home')],
-                        [__('How I work'), route('home')],
+                        [__('Projects'), route('projects')],
+                        [__('How I work'), route('how_i_work')],
                         [__('Contacts'), route('contacts')],
                     ];
                 @endphp

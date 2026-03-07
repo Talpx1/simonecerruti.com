@@ -2,7 +2,7 @@
 
 <div class="grow flex flex-col">
     <div
-        class="p-4 bg-light lg:bg-linear-[to_right,var(--color-light),transparent] flex flex-col lg:flex-row items-center justify-between">
+        class="p-4 bg-light lg:bg-transparent lg:bg-linear-[to_right,var(--color-light),transparent] flex flex-col lg:flex-row items-center justify-between">
         <h3 class="text-2xl 2xl:text-4xl uppercase text-dark">
             {{ $heading }}
         </h3>

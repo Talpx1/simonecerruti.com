@@ -37,7 +37,8 @@
                     <span>{{ __('TypeScript') }}</span>
                     <span>{{ __('Tailwind') }}</span>
                 </div>
-                <a href="#" class="mt-2 block font-semibold text-sm uppercase underline underline-offset-4">
+                <a href="{{ route('how_i_work') }}"
+                    class="mt-4 block font-semibold text-sm uppercase underline underline-offset-4">
                     {{ __('Discover how I work') }} 🡒
                 </a>
             </div>
@@ -124,7 +125,7 @@
             </div>
 
             <div class="space-y-4">
-                <a href="{{ route('home') }}" class="border border-light/[.15] p-5 block">
+                <a href="{{ route('how_i_work') }}" class="border border-light/[.15] p-5 block">
                     <p class="text-[9px] tracking-[.2em] uppercase text-light/35 mb-2">
                         {{ __('Process & Method') }}
                     </p>
@@ -136,7 +137,7 @@
                     </p>
                 </a>
 
-                <a href="{{ route('home') }}" class="border border-light/[.15] p-5 block">
+                <a href="{{ route('projects') }}" class="border border-light/[.15] p-5 block">
                     <p class="text-[9px] tracking-[.2em] uppercase text-light/35 mb-2">{{ __('Portfolio') }}</p>
                     <p class="text-xl xl:text-2xl -tracking-tighter leading-none text-light uppercase">
                         {{ __('Projects') }} 🡒</p>
@@ -162,39 +163,24 @@
 
                 <div class="flex items-center gap-4 pt-4 border-t border-light/[.07]">
                     <a href="{{ config('company.socials.linkedin.link') }}" target="_blank" rel="noopener"
-                        class="social-link opacity-30 hover:opacity-100 text-light" title="LinkedIn">
-                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                            <path
-                                d="M20.447 20.452H16.893V14.883C16.893 13.555 16.866 11.846 15.041 11.846C13.188 11.846 12.905 13.291 12.905 14.785V20.452H9.351V9H12.765V10.561H12.811C13.288 9.661 14.448 8.711 16.181 8.711C19.782 8.711 20.448 11.081 20.448 14.166L20.447 20.452ZM5.337 7.433C4.193 7.433 3.274 6.507 3.274 5.368C3.274 4.23 4.194 3.305 5.337 3.305C6.477 3.305 7.401 4.23 7.401 5.368C7.401 6.507 6.476 7.433 5.337 7.433ZM7.119 20.452H3.555V9H7.119V20.452Z" />
-                        </svg>
+                        class="opacity-30 hover:opacity-100 text-light" title="LinkedIn">
+                        <x-fab-linkedin class="w-4" />
                     </a>
                     <a href="{{ config('company.socials.github.link') }}" target="_blank" rel="noopener"
-                        class="social-link opacity-30 hover:opacity-100 text-light" title="GitHub">
-                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                            <path
-                                d="M12 2C6.477 2 2 6.484 2 12.017C2 16.442 4.865 20.197 8.839 21.521C9.339 21.613 9.521 21.304 9.521 21.038C9.521 20.799 9.513 20.17 9.508 19.335C6.726 19.916 6.139 17.95 6.139 17.95C5.685 16.79 5.029 16.482 5.029 16.482C4.121 15.846 5.098 15.859 5.098 15.859C6.101 15.929 6.629 16.888 6.629 16.888C7.521 18.41 8.97 17.969 9.539 17.713C9.631 17.051 9.889 16.611 10.175 16.362C7.955 16.11 5.619 15.256 5.619 11.435C5.619 10.339 6.009 9.44 6.649 8.739C6.546 8.487 6.203 7.462 6.747 6.08C6.747 6.08 7.587 5.812 9.497 7.111C10.295 6.889 11.15 6.778 12 6.774C12.85 6.778 13.705 6.889 14.505 7.111C16.413 5.812 17.251 6.08 17.251 6.08C17.797 7.462 17.454 8.487 17.351 8.739C17.993 9.44 18.381 10.339 18.381 11.435C18.381 15.267 16.041 16.107 13.813 16.353C14.172 16.661 14.491 17.271 14.491 18.202C14.491 19.542 14.479 20.62 14.479 21.038C14.479 21.307 14.659 21.618 15.167 21.52C19.138 20.194 22 16.44 22 12.017C22 6.484 17.522 2 12 2Z" />
-                        </svg>
+                        class="opacity-30 hover:opacity-100 text-light" title="GitHub">
+                        <x-fab-github class="w-4" />
                     </a>
                     <a href="{{ config('company.socials.instagram.link') }}" target="_blank" rel="noopener"
-                        class="social-link opacity-30 hover:opacity-100 text-light" title="Instagram">
-                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                            <path
-                                d="M12 2.163C15.204 2.163 15.584 2.175 16.85 2.233C20.102 2.381 21.621 3.924 21.769 7.152C21.827 8.417 21.838 8.797 21.838 12.001C21.838 15.206 21.826 15.585 21.769 16.85C21.62 20.075 20.105 21.621 16.85 21.769C15.584 21.827 15.206 21.839 12 21.839C8.796 21.839 8.416 21.827 7.151 21.769C3.891 21.62 2.38 20.07 2.232 16.849C2.174 15.584 2.162 15.205 2.162 12C2.162 8.796 2.175 8.417 2.232 7.151C2.381 3.924 3.896 2.38 7.151 2.232C8.417 2.175 8.796 2.163 12 2.163ZM12 0C8.741 0 8.333 0.014 7.053 0.072C2.695 0.272 0.273 2.69 0.073 7.052C0.014 8.333 0 8.741 0 12C0 15.259 0.014 15.668 0.072 16.948C0.272 21.306 2.686 23.728 7.052 23.928C8.333 23.986 8.741 24 12 24C15.259 24 15.668 23.986 16.948 23.928C21.302 23.728 23.73 21.31 23.927 16.948C23.986 15.668 24 15.259 24 12C24 8.741 23.986 8.333 23.928 7.053C23.732 2.699 21.311 0.273 16.949 0.073C15.668 0.014 15.259 0 12 0ZM12 5.838C8.597 5.838 5.838 8.597 5.838 12C5.838 15.403 8.597 18.163 12 18.163C15.403 18.163 18.163 15.404 18.163 12C18.163 8.597 15.403 5.838 12 5.838ZM12 16C9.791 16 8 14.21 8 12C8 9.791 9.791 8 12 8C14.209 8 16 9.791 16 12C16 14.21 14.209 16 12 16ZM18.406 4.155C17.61 4.155 16.965 4.8 16.965 5.595C16.965 6.39 17.61 7.035 18.406 7.035C19.201 7.035 19.845 6.39 19.845 5.595C19.845 4.8 19.201 4.155 18.406 4.155Z" />
-                        </svg>
+                        class="opacity-30 hover:opacity-100 text-light" title="Instagram">
+                        <x-fab-instagram class="w-4" />
                     </a>
                     <a href="{{ config('company.socials.x.link') }}" target="_blank" rel="noopener"
-                        class="social-link opacity-30 hover:opacity-100 text-light" title="X / Twitter">
-                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                            <path
-                                d="M18.244 2.25H21.552L14.325 10.51L22.827 21.75H16.17L10.956 14.933L4.99 21.75H1.68L9.41 12.915L1.254 2.25H8.08L12.793 8.481L18.244 2.25ZM17.083 19.77H18.916L7.084 4.126H5.117L17.083 19.77Z" />
-                        </svg>
+                        class="opacity-30 hover:opacity-100 text-light" title="X / Twitter">
+                        <x-fab-x-twitter class="w-4" />
                     </a>
                     <a href="{{ config('company.socials.bluesky.link') }}" target="_blank" rel="noopener"
-                        class="social-link opacity-30 hover:opacity-100 text-light" title="BlueSky">
-                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                            <path
-                                d="M12 10.8C10.9 8.7 7.9 4.9 5.6 3.2C3.4 1.6 2 2.3 2 5.2C2 6.7 2.4 11.5 2.7 13.1C3.6 17.5 7.1 18.7 10.3 18.1C4.9 19 3.9 22 6.9 23.3C9.7 24.6 11.5 22.2 12 20.2C12.5 22.2 14.3 24.6 17.1 23.3C20.1 22 19.1 19 13.7 18.1C16.9 18.7 20.4 17.5 21.3 13.1C21.6 11.5 22 6.7 22 5.2C22 2.3 20.6 1.6 18.4 3.2C16.1 4.9 13.1 8.7 12 10.8Z" />
-                        </svg>
+                        class="opacity-30 hover:opacity-100 text-light" title="BlueSky">
+                        <x-fab-bluesky class="w-4" />
                     </a>
                 </div>
 
