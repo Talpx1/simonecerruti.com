@@ -32,7 +32,7 @@
             </div>
         </a>
 
-        <a href="{{ route('contacts') }}" class="floating-contact rounded-r-full block font-black">
+        <a wire:navigate href="{{ route('contacts') }}" class="floating-contact rounded-r-full block font-black">
             HIRE
         </a>
     </div>

@@ -51,11 +51,12 @@
                 <x-fab-whatsapp class="w-7" />
                 <h2 class="text-xl lg:text-2xl 2xl:text-4xl font-semibold">{{ __('Scrivimi su WhatsApp') }}</h2>
             </div>
-            <a href="{{ sprintf(
-                'https://wa.me/%s?text=%s',
-                config()->string('company.contacts.whatsapp.number'),
-                urlencode(__(config()->string('company.contacts.whatsapp.default_message'))),
-            ) }}"
+            <a target="_blank"
+                href="{{ sprintf(
+                    'https://wa.me/%s?text=%s',
+                    config()->string('company.contacts.whatsapp.number'),
+                    urlencode(__(config()->string('company.contacts.whatsapp.default_message'))),
+                ) }}"
                 class="block text-center text-xl lg:text-2xl 2xl:text-4xl font-black text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase p-4">
                 {{ __('Start a Chat') }} 🡒
             </a>
@@ -65,7 +66,7 @@
     <div
         class="flex flex-col lg:flex-row w-fit lg:w-full md:w-auto mx-auto md:flex-row gap-8 md:gap-0 md:justify-between items-start md:items-center">
         <div>
-            <a href="{{ config('company.socials.linkedin.link') }}">
+            <a target="_blank" rel="noopener" href="{{ config('company.socials.linkedin.link') }}">
                 <div class="flex gap-2 items-center">
                     <x-fab-linkedin class="w-7" />
                     <h2 class="text-xl font-semibold underline">{{ config('company.socials.linkedin.username') }}</h2>
@@ -75,7 +76,7 @@
             </a>
         </div>
         <div>
-            <a href="{{ config('company.socials.instagram.link') }}">
+            <a target="_blank" rel="noopener" href="{{ config('company.socials.instagram.link') }}">
                 <div class="flex gap-2 items-center">
                     <x-fab-instagram class="w-7" />
                     <h2 class="text-xl font-semibold underline">{{ config('company.socials.instagram.username') }}</h2>
@@ -85,7 +86,7 @@
             </a>
         </div>
         <div>
-            <a href="{{ config('company.socials.github.link') }}">
+            <a target="_blank" rel="noopener" href="{{ config('company.socials.github.link') }}">
                 <div class="flex gap-2 items-center">
                     <x-fab-github class="w-7" />
                     <h2 class="text-xl font-semibold underline">{{ config('company.socials.github.username') }}</h2>
@@ -95,7 +96,7 @@
             </a>
         </div>
         <div>
-            <a href="{{ config('company.socials.bluesky.link') }}">
+            <a target="_blank" rel="noopener" href="{{ config('company.socials.bluesky.link') }}">
                 <div class="flex gap-2 items-center">
                     <x-fab-bluesky class="w-7" />
                     <h2 class="text-xl font-semibold underline">{{ config('company.socials.bluesky.username') }}</h2>
@@ -105,7 +106,7 @@
             </a>
         </div>
         <div>
-            <a href="{{ config('company.socials.x.link') }}">
+            <a target="_blank" rel="noopener" href="{{ config('company.socials.x.link') }}">
                 <div class="flex gap-2 items-center">
                     <x-fab-x-twitter class="w-7" />
                     <h2 class="text-xl font-semibold underline">{{ config('company.socials.x.username') }}</h2>

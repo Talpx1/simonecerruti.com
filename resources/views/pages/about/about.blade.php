@@ -37,7 +37,7 @@
                     <span>{{ __('TypeScript') }}</span>
                     <span>{{ __('Tailwind') }}</span>
                 </div>
-                <a href="{{ route('how_i_work') }}"
+                <a wire:navigate href="{{ route('how_i_work') }}"
                     class="mt-4 block font-semibold text-sm uppercase underline underline-offset-4">
                     {{ __('Discover how I work') }} 🡒
                 </a>
@@ -125,7 +125,7 @@
             </div>
 
             <div class="space-y-4">
-                <a href="{{ route('how_i_work') }}" class="border border-light/[.15] p-5 block">
+                <a wire:navigate href="{{ route('how_i_work') }}" class="border border-light/[.15] p-5 block">
                     <p class="text-[9px] tracking-[.2em] uppercase text-light/35 mb-2">
                         {{ __('Process & Method') }}
                     </p>
@@ -137,7 +137,7 @@
                     </p>
                 </a>
 
-                <a href="{{ route('projects') }}" class="border border-light/[.15] p-5 block">
+                <a wire:navigate href="{{ route('projects') }}" class="border border-light/[.15] p-5 block">
                     <p class="text-[9px] tracking-[.2em] uppercase text-light/35 mb-2">{{ __('Portfolio') }}</p>
                     <p class="text-xl xl:text-2xl -tracking-tighter leading-none text-light uppercase">
                         {{ __('Projects') }} 🡒</p>
@@ -154,7 +154,7 @@
                     </a>
                 </div>
 
-                <a href="{{ route('contacts') }}"
+                <a wire:navigate href="{{ route('contacts') }}"
                     class="flex items-center justify-between bg-light text-dark px-5 py-4">
                     <span
                         class="font-display text-sm xl:text-lg tracking-wider uppercase">{{ __('Don\'t wait, let\'s talk') }}</span>

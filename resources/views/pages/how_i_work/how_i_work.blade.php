@@ -286,7 +286,7 @@
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4">
-                <a href="{{ route('contacts') }}"
+                <a wire:navigate href="{{ route('contacts') }}"
                     class="group relative overflow-hidden border border-light text-light flex items-center justify-between gap-8 px-8 py-5 hover:text-dark transition-colors duration-300">
                     <span
                         class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
@@ -295,7 +295,7 @@
                     <span class="z-10">🡒</span>
                 </a>
 
-                <a href="{{ route('projects') }}"
+                <a wire:navigate href="{{ route('projects') }}"
                     class="group relative overflow-hidden border border-light/20 text-light/50 flex items-center justify-between gap-8 px-8 py-5 hover:text-dark hover:border-light transition-colors duration-300">
                     <span
                         class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
