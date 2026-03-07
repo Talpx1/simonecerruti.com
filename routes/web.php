@@ -7,11 +7,15 @@ use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
-    'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath'],
+    'middleware' => ['localize', 'localeSessionRedirect', 'localizationRedirect'],
 ], function () {
     Route::livewire('/', \App\Livewire\Pages\Home::class)->name('home');
-    Route::livewire('/contacts', \App\Livewire\Pages\Contacts::class)->name('contacts');
-    Route::livewire('/about', \App\Livewire\Pages\About::class)->name('about');
-    Route::livewire('/how-i-work', \App\Livewire\Pages\HowIWork::class)->name('how_i_work');
-    Route::livewire('/projects', \App\Livewire\Pages\Projects::class)->name('projects');
+
+    Route::livewireLocalized('contacts', \App\Livewire\Pages\Contacts::class)->name('contacts');
+
+    Route::livewireLocalized('about', \App\Livewire\Pages\About::class)->name('about');
+
+    Route::livewireLocalized('how-i-work', \App\Livewire\Pages\HowIWork::class)->name('how_i_work');
+
+    Route::livewireLocalized('projects', \App\Livewire\Pages\Projects::class)->name('projects');
 });

@@ -68,6 +68,13 @@ class AppServiceProvider extends ServiceProvider {
             ) => LaravelLocalization::getLocalizedURL($locale, null, [], true)
         );
 
+        Route::macro('livewireLocalized',
+            fn (string $trans_name, string $component) => Route::livewire(
+                LaravelLocalization::transRoute("routes.{$trans_name}"),
+                $component
+            )
+        );
+
         TextInput::configureUsing(fn (TextInput $component) => $component->telRegex('/^\+[0-9]{1,4}[0-9]*$/'));
         DateTimePicker::configureUsing(fn (DateTimePicker $component) => $component->timezone(config()->string('app.actual_timezone')));
         DatePicker::configureUsing(fn (DatePicker $component) => $component->timezone(config()->string('app.actual_timezone')));
