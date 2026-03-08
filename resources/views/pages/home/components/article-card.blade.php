@@ -10,12 +10,11 @@
             Lorem ipsum dolor, sit amet consectetur adipisicing elit. Molestias eos earum saepe
             consequuntur at ipsam, provident aliquam commodi fugiat adipisci.
         </p>
-        <div
-            class="flex gap-4 items-center flex-wrap [&>a]:p-1 [&>a]:text-dark [&>a]:bg-light [&>a]:text-sm 2xl:[&>a]:text-lg [&>a]:underline [&>a]:underline-offset-1">
-            <a href="">{{ __('#tag1') }}</a>
-            <a href="">{{ __('#tag2') }}</a>
-            <a href="">{{ __('#tag3') }}</a>
-            <a href="">{{ __('#tag4') }}</a>
-        </div>
+        <x-post-tag-list :tags="[
+            __('#tag1') => '#',
+            __('#tag2') => '#',
+            __('#tag3') => '#',
+            __('#tag4') => '#',
+        ]" />
     </div>
 </div>

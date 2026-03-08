@@ -17,52 +17,17 @@
                 {{ __('Discover my method') }} 🡒
             </a>
         </div>
-        <div
-            class="max-w-full overflow-x-clip bg-linear-[to_right,transparent,var(--color-light)_35%,var(--color-light)_65%,transparent]">
-            <span
-                class="text-dark flex w-full max-w-full flex-nowrap text-2xl lg:text-4xl 2xl:text-6xl font-black uppercase py-4">
-                <span class="animate-marquee flex flex-nowrap gap-8 text-nowrap whitespace-nowrap">
-                    <h4>{{ __('MANAGEMENT SOFTWARES') }}</h4>
-                    /
-                    <h4>{{ __('ERP') }}</h4>
-                    /
-                    <h4>{{ __('CRM') }}</h4>
-                    /
-                    <h4>{{ __('WEBSITES') }}</h4>
-                    /
-                    <h4>{{ __('E-COMMERCE') }}</h4>
-                    /
-                    <h4>{{ __('SAAS') }}</h4>
-                    /
-                    <h4>{{ __('WEB PLATFORMS') }}</h4>
-                    /
-                    <h4>{{ __('PWA') }}</h4>
-                    /
-                    <h4>{{ __('AND ANYTHING ELSE THAT COMES TO YOUR MIND') }}</h4>
-                    <span class="mr-8">/</span>
-                </span>
-                <span class="animate-marquee flex flex-nowrap gap-8 text-nowrap whitespace-nowrap">
-                    <span>{{ __('MANAGEMENT SOFTWARES') }}</span>
-                    /
-                    <span>{{ __('ERP') }}</span>
-                    /
-                    <span>{{ __('CRM') }}</span>
-                    /
-                    <span>{{ __('WEBSITES') }}</span>
-                    /
-                    <span>{{ __('E-COMMERCE') }}</span>
-                    /
-                    <span>{{ __('SAAS') }}</span>
-                    /
-                    <span>{{ __('WEB PLATFORMS') }}</span>
-                    /
-                    <span>{{ __('PWA') }}</span>
-                    /
-                    <span>{{ __('AND ANYTHING ELSE THAT COMES TO YOUR MIND') }}</span>
-                    <span class="mr-8">/</span>
-                </span>
-            </span>
-        </div>
+        <x-marquee :entries="[
+            __('MANAGEMENT SOFTWARES'),
+            __('ERP'),
+            __('CRM'),
+            __('WEBSITES'),
+            __('E-COMMERCE'),
+            __('SAAS'),
+            __('WEB PLATFORMS'),
+            __('PWA'),
+            __('AND ANYTHING ELSE THAT COMES TO YOUR MIND'),
+        ]" entriesTag="h4" />
     </div>
 
     <div class="mx-auto flex flex-col gap-4 text-center w-fit">

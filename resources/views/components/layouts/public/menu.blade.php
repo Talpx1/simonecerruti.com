@@ -56,11 +56,7 @@
         <aside class="flex flex-col justify-between px-10 py-12 gap-8 lg:gap-0">
 
             <div>
-                <div class="flex items-center gap-2 text-[10px] tracking-widest uppercase text-light/40 mb-1">
-                    <span
-                        class="block w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px] shadow-emerald-400 animate-pulse"></span>
-                    {{ __('Available') }}
-                </div>
+                <x-ping-dot>{{ __('Available') }}</x-ping-dot>
                 <p class="text-xs text-light/30 tracking-wide leading-relaxed">
                     {!! __('Open to new projects<br>and collaborations.') !!}
                 </p>

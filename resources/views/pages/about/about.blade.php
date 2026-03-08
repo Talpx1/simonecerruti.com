@@ -20,23 +20,22 @@
                         {{ __("I'm not just a developer. I'm a technical partner. I step into your domain, truly understand how your business works, and guide you toward solutions that are often better than what you initially imagined.") }}
                     </p>
                 </div>
-                <div
-                    class="flex flex-wrap gap-2 mt-5 [&>span]:text-[10px] [&>span]:tracking-widest [&>span]:border [&>span]:border-light/20 [&>span]:px-2.5 [&>span]:py-1 [&>span]:text-light/40 [&>span]:uppercase">
-                    <span>{{ __('AI') }}</span>
-                    <span>{{ __('ERP') }}</span>
-                    <span>{{ __('CRM') }}</span>
-                    <span>{{ __('WEB PLATFORMS') }}</span>
-                    <span>{{ __('Automation') }}</span>
-                    <span>{{ __('PWA') }}</span>
-                    <span>{{ __('Laravel') }}</span>
-                    <span>{{ __('Livewire') }}</span>
-                    <span>{{ __('Filament') }}</span>
-                    <span>{{ __('PHP') }}</span>
-                    <span>{{ __('Vue') }}</span>
-                    <span>{{ __('Docker') }}</span>
-                    <span>{{ __('TypeScript') }}</span>
-                    <span>{{ __('Tailwind') }}</span>
-                </div>
+                <x-chip-list class="mt-5" :entries="[
+                    __('AI'),
+                    __('ERP'),
+                    __('CRM'),
+                    __('WEB PLATFORMS'),
+                    __('Automation'),
+                    __('PWA'),
+                    __('Laravel'),
+                    __('Livewire'),
+                    __('Filament'),
+                    __('PHP'),
+                    __('Vue'),
+                    __('Docker'),
+                    __('TypeScript'),
+                    __('Tailwind'),
+                ]" />
                 <a wire:navigate href="{{ route('how_i_work') }}"
                     class="mt-4 block font-semibold text-sm uppercase underline underline-offset-4">
                     {{ __('Discover how I work') }} 🡒
@@ -118,11 +117,9 @@
 
             <x-app-logo class="max-w-72 2xl:max-w-96" />
 
-            <div class="flex items-center gap-2 text-[10px] tracking-[.18em] uppercase text-light/40">
-                <span
-                    class="animate-pulse block w-[6px] h-[6px] rounded-full bg-emerald-400 shadow-[0_0_6px] shadow-emerald-400"></span>
+            <x-ping-dot>
                 {{ __('Available for new projects') }}
-            </div>
+            </x-ping-dot>
 
             <div class="space-y-4">
                 <a wire:navigate href="{{ route('how_i_work') }}" class="border border-light/[.15] p-5 block">
@@ -149,7 +146,7 @@
                 <div class="border border-light/[.15] p-5">
                     <p class="text-[9px] -tracking-tight uppercase text-light/35 mb-3">{{ __('Direct contact') }}</p>
                     <a href="mailto:{{ config('company.contacts.email') }}"
-                        class="block text-[16px] xl:text-lg tracking-wider text-light underline underline-offset-2 decoration-2 break-all">
+                        class="block text-[16px] xl:text-lg tracking-wider text-light underline underline-offset-2 decoration-2 break-all hover:opacity-60 transition-opacity duration-200">
                         {{ config('company.contacts.email') }}
                     </a>
                 </div>
