@@ -11,4 +11,5 @@ Illuminate\Support\Facades\Schedule::timezone(config()->string('app.actual_timez
 
     $schedule->command('telescope:prune')->dailyAt('23:00');
     $schedule->command('activitylog:clean --days=30')->dailyAt('00:00');
+    $schedule->command('app:sitemap-generate')->dailyAt('01:00');
 });

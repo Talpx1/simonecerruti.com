@@ -1,28 +1,59 @@
+# ========================
 # 1. BASE
+# ========================
 FROM php:8.4-apache AS base
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    nano supervisor cron libpq-dev libicu-dev libzip-dev unzip bash logrotate postgresql-client && \
+    nano \
+    supervisor \
+    cron \
+    libpq-dev \
+    libicu-dev \
+    libzip-dev \
+    unzip \
+    bash \
+    logrotate \
+    postgresql-client \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libwebp-dev \
+    libxpm-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN docker-php-ext-install pdo_pgsql opcache intl zip
+
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm && \
+    docker-php-ext-install pdo_pgsql opcache intl zip exif gd bcmath
+
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 WORKDIR /var/www/html
 
+# ========================
 # 2. VENDOR
+# ========================
 FROM base AS vendor
 COPY composer.json composer.lock ./
 RUN composer install --prefer-dist --no-progress --no-scripts --no-dev --optimize-autoloader
 
+# ========================
 # 3. ASSETS
+# ========================
 FROM node:24 AS assets
+
 WORKDIR /var/www/html
+
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts --no-audit --no-fund
+
 COPY . .
 COPY --from=vendor /var/www/html/vendor ./vendor
+
 RUN npm run build
 
+# ========================
 # 4. ACTUAL
+# ========================
 FROM base AS web
 
 ARG APP_ENV="production"
@@ -37,6 +68,9 @@ ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
+# Setup php.ini
+COPY ./docker/configs/php.ini $PHP_INI_DIR/php.ini
+
 # Add Apache config to log to Laravel's storage/logs
 RUN echo 'ErrorLog /var/www/html/storage/logs/apache_error.log' > /etc/apache2/conf-available/custom-logs.conf && \
     echo 'CustomLog /var/www/html/storage/logs/apache_access.log combined' >> /etc/apache2/conf-available/custom-logs.conf && \
@@ -47,6 +81,7 @@ COPY ./docker/configs/supervisord.conf /etc/supervisor/supervisord.conf
 
 # Setup cron supervisor (for Laravel scheduler)
 COPY ./docker/configs/crontab /etc/crontab
+RUN chmod 0644 /etc/crontab && crontab /etc/crontab
 COPY ./docker/configs/laravel-cron-supervisor.conf /etc/supervisor/conf.d/laravel-cron.conf
 
 # Setup worker supervisor (for Laravel queues)
@@ -100,7 +135,7 @@ RUN usermod -s /bin/bash www-data && \
 # Run setup for local development if app env is local
 RUN if [ "$APP_ENV" = "local" ] ; then \
     apt-get update && \
-    apt-get install -y --no-install-recommends git ssh && \
+    apt-get install -y --no-install-recommends git ssh xclip && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     docker-php-ext-install pcntl && \
     # install node

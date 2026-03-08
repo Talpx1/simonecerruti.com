@@ -12,6 +12,18 @@ IFS=$'\n\t'
     exit 1
     }
 
+    echo "Linking storage"
+    if [ ! -L "/var/www/html/public/storage" ]; then
+        if php artisan storage:link; then
+        echo "Storage linked"
+        else
+        echo "[WARN] php artisan storage:link failed (non-blocking)"
+        fi
+    else
+        echo "Storage was already linked"
+    fi
+
+
     echo "Running migrations"
     if php artisan migrate --force; then
     echo "Migrations run"
@@ -53,6 +65,13 @@ IFS=$'\n\t'
     echo "Restarted cron"
     else
     echo "[WARN] supervisorctl start laravel-cron failed (non-blocking)"
+    fi
+
+    echo "Reading crontab"
+    if crontab /etc/crontab; then
+    echo "crontab read"
+    else
+    echo "[WARN] crontab /etc/crontab failed (non-blocking)"
     fi
 
     echo "Restarting apache"

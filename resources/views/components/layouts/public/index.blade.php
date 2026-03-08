@@ -24,6 +24,14 @@
         @endif
     </title>
 
+    <link rel="canonical" href="{{ url()->current() }}">
+    @foreach (app()->supportedLocales() as $locale => $props)
+        <link rel="alternate" hreflang="{{ $locale }}"
+            href="{{ Route::localizedUrl(locale: $locale, force_default_location: true) }}">
+    @endforeach
+
+    @stack('seo')
+
     <style>
         [x-cloak] {
             display: none !important;
@@ -43,6 +51,8 @@
         @endif
 
         <main>
+            <x-layouts.public.missing-translations-badge />
+
             {{ $slot }}
         </main>
 
@@ -75,6 +85,27 @@
         }, {
             once: true
         })
+
+        loadRecaptcha();
+        document.addEventListener('livewire:navigated', loadRecaptcha);
+
+        function loadRecaptcha() {
+            const existingScript = document.querySelector('script[src*="google.com/recaptcha"]');
+            if (existingScript) {
+                existingScript.remove();
+            }
+
+            if (window.grecaptcha) {
+                delete window.grecaptcha;
+            }
+
+            const script = document.createElement('script');
+            script.src =
+                `{{ config()->string('services.recaptcha.base_url') }}/api.js?hl={{ app()->currentLocale() }}&render={{ config()->string('services.recaptcha.key') }}`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
     </script>
     @stack('scripts')
 </body>

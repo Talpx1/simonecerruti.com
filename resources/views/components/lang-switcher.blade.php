@@ -7,8 +7,8 @@
     </x-slot>
     <x-filament::dropdown.list>
         @foreach (App::supportedLocales() as $locale_code => $properties)
-            <a rel="alternate" hreflang="{{ $locale_code }}" href="{{ Route::localized($locale_code, null, [], true) }}"
-                wire:navigate>
+            <a rel="alternate" hreflang="{{ $locale_code }}"
+                href="{{ Route::localizedUrl(locale: $locale_code, force_default_location: true) }}" wire:navigate>
                 <x-filament::dropdown.list.item>
                     {{ $properties['native'] }}
                 </x-filament::dropdown.list.item>

@@ -23,9 +23,14 @@ class EditBlogArticle extends EditRecord {
         ];
     }
 
-    protected function beforeSave(): void {
-        if (! $this->data['published_at'] && $this->data['status'] === BlogArticleStatuses::PUBLISHED->value) {
-            $this->data['published_at'] = now();
+    protected function mutateFormDataBeforeSave(array $data): array {
+        $published_at = $data['published_at'] ?? null;
+        $is_published = $data['status'] ?? null === BlogArticleStatuses::PUBLISHED;
+
+        if (! $published_at && $is_published) {
+            $data['published_at'] = $this->data['published_at'] = now();
         }
+
+        return $data;
     }
 }
