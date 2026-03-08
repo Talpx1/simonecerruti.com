@@ -2,6 +2,7 @@
 
 {{ __('First name') }}: {{ $lead->first_name }}
 {{ __('Last name') }}: {{ $lead->last_name }}
+{{ __('Company name') }}: {{ $lead->company_name }}
 {{ __('Email') }}: {{ $lead->email }}
 {{ __('Phone') }}: {{ $lead->phone ?? '--' }}
 {{ __('Message') }}: {{ $lead->message }}
