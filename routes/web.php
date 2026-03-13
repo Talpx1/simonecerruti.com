@@ -20,4 +20,10 @@ Route::group([
     Route::livewireLocalized('projects', \App\Livewire\Pages\Projects::class)->name('projects');
 
     Route::livewireLocalized('blog', \App\Livewire\Pages\Blog::class)->name('blog');
+
+    Route::livewireLocalized('privacy-policy', \App\Livewire\Pages\PrivacyPolicy::class)->name('privacy_policy');
+
+    Route::livewireLocalized('cookie-policy', \App\Livewire\Pages\CookiePolicy::class)->name('cookie_policy');
+
+    Route::livewireLocalized('terms-and-conditions', \App\Livewire\Pages\TermsAndConditions::class)->name('terms_and_conditions');
 });

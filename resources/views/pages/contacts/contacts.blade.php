@@ -40,7 +40,7 @@
         <div class="px-0 2xl:px-8 py-4 2xl:py-16 md:grid md:place-content-center">
             <div class="flex gap-2 items-center">
                 <x-fab-whatsapp class="w-7" />
-                <h2 class="text-xl lg:text-2xl 2xl:text-4xl font-semibold">{{ __('Scrivimi su WhatsApp') }}</h2>
+                <h2 class="text-xl lg:text-2xl 2xl:text-4xl font-semibold">{{ __('Text me on WhatsApp') }}</h2>
             </div>
             <a target="_blank"
                 href="{{ sprintf(

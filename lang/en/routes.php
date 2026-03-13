@@ -7,4 +7,7 @@ return [
     'about' => 'about',
     'how-i-work' => 'how-i-work',
     'projects' => 'projects',
+    'privacy-policy' => 'privacy-policy',
+    'cookie-policy' => 'cookie-policy',
+    'terms-and-conditions' => 'terms-and-conditions',
 ];
