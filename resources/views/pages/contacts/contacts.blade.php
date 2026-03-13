@@ -16,12 +16,12 @@
                     {{ __('Prefer talking on writing?') }}
                 </p>
             </div>
-            <button
+            <a href="{{ config()->string('company.contacts.koalenda_url') }}" target="_blank" rel="noopener"
                 class="text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase p-4 w-full">
                 <h2 class="text-xl lg:text-2xl 2xl:text-4xl font-black">
                     {{ __('Book a call') }} 🡒
                 </h2>
-            </button>
+            </a>
         </div>
 
         <div class="px-0 2xl:px-8 py-4 2xl:py-16 xl:border-x xl:border-light md:grid md:place-content-center">

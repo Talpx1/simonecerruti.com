@@ -12,6 +12,7 @@ return [
             'number' => '+393473157114',
             'default_message' => 'Hi Simone! I\'d like to chat with you about...',
         ],
+        'koalenda_url' => 'https://koalendar.com/e/chiacchierata-con-simone-cerruti',
     ],
     'socials' => [
         'linkedin' => [
