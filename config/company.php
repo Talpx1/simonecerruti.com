@@ -23,20 +23,20 @@ return [
             'link' => 'https://github.com/Talpx1',
         ],
         'x' => [
-            'username' => 'Talpx1',
-            'link' => 'https://github.com/Talpx1',
+            'username' => 'simocerruti',
+            'link' => 'https://x.com/simocerruti',
         ],
         'bluesky' => [
-            'username' => 'Talpx1',
-            'link' => 'https://github.com/Talpx1',
+            'username' => 'simonecerruti.com',
+            'link' => 'https://bsky.app/profile/simonecerruti.com',
         ],
         'instagram' => [
-            'username' => 'Talpx1',
-            'link' => 'https://github.com/Talpx1',
+            'username' => 'simo.software',
+            'link' => 'https://www.instagram.com/simo.software/',
         ],
         'pinkary' => [
-            'username' => 'Talpx1',
-            'link' => 'https://github.com/Talpx1',
+            'username' => 'simocerruti',
+            'link' => 'https://pinkary.com/@simocerruti',
         ],
     ],
 ];
