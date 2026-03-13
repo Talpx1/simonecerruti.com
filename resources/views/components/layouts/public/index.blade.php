@@ -66,7 +66,7 @@
     @livewire('notifications')
 
     @filamentScripts
-    <script>
+    <script data-navigate-once>
         document.addEventListener('livewire:navigated', () => {
             window.listenersToRemove = []
         }, {
@@ -93,6 +93,13 @@
             if (existingScript) {
                 existingScript.remove();
             }
+
+            const badges = document.querySelectorAll('.grecaptcha-badge');
+            badges.forEach(badge => badge.parentElement?.remove());
+
+            const iframes = document.querySelectorAll('iframe[src*="google.com/recaptcha"]');
+            iframes.forEach(iframe => iframe.remove());
+
 
             if (window.grecaptcha) {
                 delete window.grecaptcha;
