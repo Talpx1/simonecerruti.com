@@ -36,7 +36,9 @@ class Blog extends Component {
             ->paginate($this->per_page);
 
         return view('pages.blog.blog')
-            ->title(__('Blog'))
+            ->layout('components.layouts.public.index', [
+                'title' => __('Blog'),
+            ])
             ->with([
                 'featured_articles' => $featured_articles,
                 'articles' => $articles,

@@ -18,6 +18,7 @@
                         [__('Projects'), route('projects')],
                         [__('How I work'), route('how_i_work')],
                         [__('Contacts'), route('contacts')],
+                        [__('Blog'), route('blog')],
                     ];
                 @endphp
                 @foreach ($routes as $i => [$label, $route])

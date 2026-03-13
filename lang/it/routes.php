@@ -10,4 +10,5 @@ return [
     'privacy-policy' => 'privacy-policy',
     'cookie-policy' => 'cookie-policy',
     'terms-and-conditions' => 'termini-e-condizioni',
+    'blog' => 'blog',
 ];
