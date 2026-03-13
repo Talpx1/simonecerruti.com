@@ -21,4 +21,9 @@ return [
             'description' => 'The article is not displayed on the website (searches, article list, etc.), is not accessible via link, and is not visible to search engines.',
         ],
     ],
+
+    'lead_read_status' => [
+        'read' => ['label' => 'Letto'],
+        'unread' => ['label' => 'Non letto'],
+    ],
 ];

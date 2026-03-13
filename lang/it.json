@@ -416,5 +416,6 @@
     "Here's a summary of your message:": "Ecco un riassunto del tuo messaggio:",
     "Sent at": "Inviato il",
     "You contacted :company_name!": "Hai contattato :company_name!",
-    "Company name": "Nome azienda"
+    "Company name": "Nome azienda",
+    "Captcha verification failed. Try again.": "Verifica captcha fallita. Prova di nuovo."
 }

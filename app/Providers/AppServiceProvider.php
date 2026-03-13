@@ -13,7 +13,6 @@ use Carbon\CarbonImmutable;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Field;
-use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -93,7 +92,6 @@ class AppServiceProvider extends ServiceProvider {
             )
         );
 
-        TextInput::configureUsing(fn (TextInput $component) => $component->telRegex('/^\+[0-9]{1,4}[0-9]*$/'));
         DateTimePicker::configureUsing(function (DateTimePicker $component) {
             if ($component->hasTime()) {
                 $component->timezone(config()->string('app.actual_timezone'));

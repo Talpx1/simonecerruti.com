@@ -65,7 +65,6 @@
 
     @livewire('notifications')
 
-
     @filamentScripts
     <script>
         document.addEventListener('livewire:navigated', () => {

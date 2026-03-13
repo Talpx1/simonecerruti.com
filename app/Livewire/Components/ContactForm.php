@@ -99,7 +99,7 @@ class ContactForm extends Component implements HasSchemas {
 
         Notification::make()
             ->title(__('Got it! I\'ll get back to you as soon as possible.'))
-            ->duration(5000)
+            ->duration(50000)
             ->success()
             ->send();
 

@@ -19,7 +19,7 @@
         role="main">
 
         <a href="{{ route('home') }}" wire:navigate style="margin-bottom: 42px;">
-            <x-app-logo style="max-width: 100%;">
+            <x-app-logo style="max-width: 100%;" />
         </a>
 
         <h1 style="color: white; font-size: 128px; font-weight: bolder; margin: 0;">
