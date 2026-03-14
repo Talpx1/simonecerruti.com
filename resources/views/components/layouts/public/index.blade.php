@@ -40,6 +40,19 @@
 
     @filamentStyles
     @vite(['resources/css/app.css', 'resources/js/public.js'])
+
+    <script>
+        window.__cookieConsent = {
+            given: {{ $cookieConsent['given'] ? 'true' : 'false' }},
+            necessary: true,
+            analytics: {{ $cookieConsent['analytics'] ? 'true' : 'false' }},
+            functional: {{ $cookieConsent['functional'] ? 'true' : 'false' }},
+            marketing: {{ $cookieConsent['marketing'] ? 'true' : 'false' }},
+        };
+
+        window.__appEnv = '{{ app()->environment() }}';
+        // window._clarityId = '{{ config('services.clarity.id') }}';
+    </script>
 </head>
 
 <body class="antialiased bg-dark text-light min-h-screen grid grid-cols-1 grid-rows-[auto_1fr_auto]"
@@ -114,7 +127,10 @@
             document.head.appendChild(script);
         }
     </script>
+    @vite('resources/js/cookie-consent.js')
     @stack('scripts')
+
+    <livewire:components.cookie-consent />
 </body>
 
 </html>

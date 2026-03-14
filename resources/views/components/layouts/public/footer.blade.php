@@ -29,6 +29,11 @@
         <a target="_blank" rel="noopener" href="{{ route('cookie_policy') }}">{{ __('Cookie Policy') }}</a>
         <a target="_blank" rel="noopener"
             href="{{ route('terms_and_conditions') }}">{{ __('Terms and Conditions') }}</a>
+
+        <button onclick="Livewire.dispatch('open-cookie-banner')" type="button"
+            class="hover:text-light/70 transition-colors duration-500 uppercase">
+            {{ __('Cookie preferences') }}
+        </button>
     </div>
 
     <p class="text-[10px] text-light/20 tracking-widest uppercase">

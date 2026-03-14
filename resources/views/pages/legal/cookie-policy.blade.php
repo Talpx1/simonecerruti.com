@@ -218,10 +218,15 @@
                         </a>
                     @endforeach
                 </div>
+                <button onclick="Livewire.dispatch('open-cookie-banner')" type="button"
+                    class="mt-2 col-span-full w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    {{ __('Cookie preferences') }}
+                </button>
             </section>
 
             {{-- Owner info --}}
-            <section class="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
+            <section
+                class="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
                 <h2 class="text-lg font-semibold text-amber-900 dark:text-amber-100 mb-2">
                     {{ __('Data Controller') }}
                 </h2>
