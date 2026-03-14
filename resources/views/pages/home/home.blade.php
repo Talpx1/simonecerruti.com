@@ -13,6 +13,9 @@
         document.addEventListener('resize', () => window.snap.resize())
 
         document.addEventListener('livewire:navigated', () => {
+            if (!window.isDesktop) {
+                return
+            }
             window.snap.addElements(document.querySelectorAll('#homepage>section'), {
                 align: ['start', 'end']
             })
