@@ -1,4 +1,5 @@
-<div class="fixed bottom-2 left-1/2 -translate-x-1/2 shadow-2xl z-50">
+<div class="fixed bottom-2 left-1/2 -translate-x-1/2 shadow-2xl z-50 transition-opacity duration-300"
+    id="floating-contacts">
     <div
         class="relative bg-light rounded-full p-1 flex items-center text-dark
             [&_*]:transition-all
@@ -37,3 +38,21 @@
         </a>
     </div>
 </div>
+
+@push('scripts')
+    <script data-navigate-once>
+        document.addEventListener('livewire:navigated', () => {
+            const widget = document.querySelector('#floating-contacts');
+            const footer = document.querySelector('#main-footer');
+
+            if (!widget || !footer) {
+                return
+            }
+
+            new IntersectionObserver(([entry]) => {
+                widget.classList.toggle('opacity-0', entry.isIntersecting);
+                widget.classList.toggle('pointer-events-none', entry.isIntersecting);
+            }).observe(footer);
+        })
+    </script>
+@endpush

@@ -1,5 +1,5 @@
-<footer
-    class="px-4 flex flex-col lg:flex-row gap-8 lg:gap-0 items-center justify-between py-4 border-t border-light/[.07]">
+<footer id="main-footer"
+    class="mt-2 px-4 flex flex-col lg:flex-row gap-8 lg:gap-0 items-center justify-between py-4 border-t border-light/[.07]">
     <div class="flex items-center gap-4">
         <a href="{{ config('company.socials.linkedin.link') }}" target="_blank" rel="noopener"
             class="opacity-30 hover:opacity-100 text-light" title="LinkedIn">
