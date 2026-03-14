@@ -9,8 +9,8 @@
             <p>
                 {{ __("I've been passionate about IT since... well, since I can remember.") }}
                 <a href="{{ route('about') }}#about-how-i-started" wire:navigate
-                    class="text-sm underline decoration-1 underline-offset-2">
-                    {{ __('Discover the anecdote') }} 🡒
+                    class="text-sm underline decoration-1 underline-offset-2 inline-flex gap-1 items-center">
+                    {{ __('Discover the anecdote') }} <x-ri-arrow-right-long-line class="w-4" />
                 </a>
             </p>
 
@@ -27,11 +27,11 @@
         </div>
         <div
             class="lg:translate-x-16 text-xl underline decoration-3 underline-offset-2 font-bold uppercase flex flex-col xl:flex-row justify-between gap-4 xl:gap-0">
-            <a href="{{ route('how_i_work') }}" wire:navigate>
-                {{ __('Let me explain how I do it') }} 🡒
+            <a href="{{ route('how_i_work') }}" wire:navigate class="flex gap-1 items-center">
+                {{ __('Let me explain how I do it') }} <x-ri-arrow-right-long-line class="w-6" />
             </a>
-            <a href="{{ route('about') }}" wire:navigate>
-                {{ __('Find out more about me') }} 🡒
+            <a href="{{ route('about') }}" wire:navigate class="flex gap-1 items-center">
+                {{ __('Find out more about me') }} <x-ri-arrow-right-long-line class="w-6" />
             </a>
         </div>
     </div>

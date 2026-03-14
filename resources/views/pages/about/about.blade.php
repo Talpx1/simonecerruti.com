@@ -37,8 +37,8 @@
                     __('Tailwind'),
                 ]" />
                 <a wire:navigate href="{{ route('how_i_work') }}"
-                    class="mt-4 block font-semibold text-sm uppercase underline underline-offset-4">
-                    {{ __('Discover how I work') }} 🡒
+                    class="mt-4 font-semibold text-sm uppercase underline underline-offset-4 flex items gap-1">
+                    {{ __('Discover how I work') }} <x-ri-arrow-right-long-line class="w-4" />
                 </a>
             </div>
 
@@ -126,8 +126,9 @@
                     <p class="text-[9px] tracking-[.2em] uppercase text-light/35 mb-2">
                         {{ __('Process & Method') }}
                     </p>
-                    <p class="text-xl xl:text-2xl -tracking-tighter leading-none text-light uppercase">
-                        {{ __('How I work') }} 🡒
+                    <p
+                        class="text-xl xl:text-2xl -tracking-tighter leading-none text-light uppercase flex items-center gap-1">
+                        {{ __('How I work') }} <x-ri-arrow-right-long-line class="w-6" />
                     </p>
                     <p class="mt-1.5 text-xs text-light/40 leading-relaxed">
                         {{ __('Discover how I turn an idea into a product that truly works.') }}
@@ -136,8 +137,9 @@
 
                 <a wire:navigate href="{{ route('projects') }}" class="border border-light/[.15] p-5 block">
                     <p class="text-[9px] tracking-[.2em] uppercase text-light/35 mb-2">{{ __('Portfolio') }}</p>
-                    <p class="text-xl xl:text-2xl -tracking-tighter leading-none text-light uppercase">
-                        {{ __('Projects') }} 🡒</p>
+                    <p
+                        class="text-xl xl:text-2xl -tracking-tighter leading-none text-light uppercase flex items-center gap-1">
+                        {{ __('Projects') }} <x-ri-arrow-right-long-line class="w-6" /></p>
                     <p class="mt-1.5 text-xs text-light/40 leading-relaxed">
                         {{ __('What I\'ve built, for whom, and with which technologies.') }}
                     </p>
@@ -155,7 +157,7 @@
                     class="flex items-center justify-between bg-light text-dark px-5 py-4">
                     <span
                         class="font-display text-sm xl:text-lg tracking-wider uppercase">{{ __('Don\'t wait, let\'s talk') }}</span>
-                    <span>🡒</span>
+                    <x-ri-arrow-right-long-line class="w-4" />
                 </a>
 
                 <div class="flex items-center gap-4 pt-4 border-t border-light/[.07]">

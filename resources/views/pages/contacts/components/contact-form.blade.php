@@ -18,8 +18,8 @@
         </div>
 
         <x-filament::button type="submit"
-            class="w-full xl:w-fit text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase font-black text-2xl">
-            {{ __('Let\'s talk') }} 🡒
+            class="w-full xl:w-fit text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase font-black text-2xl flex gap-1 items-center">
+            {{ __('Let\'s talk') }} <x-ri-arrow-right-long-line class="w-6" />
         </x-filament::button>
 
     </form>

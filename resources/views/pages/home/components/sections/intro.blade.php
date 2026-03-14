@@ -22,8 +22,11 @@
 
     <div class="to-light mt-1 flex w-full justify-end bg-linear-to-r from-transparent to-60% py-4 order-2">
         <a href="{{ route('contacts') }}" wire:navigate>
-            <h2 class="text-dark px-4 text-xl lg:text-4xl 2xl:text-5xl font-black uppercase interactable">
-                {{ __("Don't wait, let's talk") }} 🡒
+            <h2
+                class="text-dark px-4 text-xl lg:text-4xl 2xl:text-5xl font-black uppercase interactable flex items-center gap-1">
+                {{ __("Don't wait, let's talk") }} <x-ri-arrow-right-long-line class="w-6 lg:w-12" />
+
+
             </h2>
         </a>
     </div>

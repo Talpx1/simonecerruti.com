@@ -8,8 +8,8 @@
         </h3>
 
         <a href="{{ $seeAllRoute }}" wire:navigate
-            class="text-nowrap mt-2 lg:mt-0 text-dark lg:text-light lg:text-lg 2xl:text-2xl underline decoration-2 underline-offset-4 uppercase">
-            {{ __('See all') }} 🡒
+            class="text-nowrap mt-2 lg:mt-0 text-dark lg:text-light lg:text-lg 2xl:text-2xl underline decoration-2 underline-offset-4 uppercase flex items-center gap-1">
+            {{ __('See all') }} <x-ri-arrow-right-long-line class="w-6" />
         </a>
     </div>
     <div class="grow grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-8 p-4 2xl:p-8">

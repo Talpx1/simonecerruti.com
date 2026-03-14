@@ -5,8 +5,9 @@
         <p class="text-xl lg:text-2xl 2xl:text-4xl font-semibold uppercase">
             {{ __('Discover what I\'m working on') }}
         </p>
-        <a wire:navigate href="{{ route('projects') }}" class="block text-xl lg:text-2xl underline underline-offset-4">
-            {{ __('See all') }} 🡒
+        <a wire:navigate href="{{ route('projects') }}"
+            class="text-xl lg:text-2xl underline underline-offset-4 flex items-center gap-1">
+            {{ __('See all') }} <x-ri-arrow-right-long-line class="w-6" />
         </a>
         <div
             class="flex gap-4 items-center flex-wrap [&>a]:p-1 [&>a]:text-dark [&>a]:bg-light [&>a]:text-sm 2xl:[&>a]:text-lg [&>a]:underline [&>a]:underline-offset-1">

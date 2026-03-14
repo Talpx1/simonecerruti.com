@@ -13,8 +13,8 @@
             </h3>
 
             <a href="{{ route('how_i_work') }}" wire:navigate
-                class="text-lg lg:text-2xl underline decoration-2 underline-offset-4 font-semibold">
-                {{ __('Discover my method') }} 🡒
+                class="text-lg lg:text-2xl underline decoration-2 underline-offset-4 font-semibold flex items-center gap-1">
+                {{ __('Discover my method') }} <x-ri-arrow-right-long-line class="w-6" />
             </a>
         </div>
         <x-marquee :entries="[
@@ -41,8 +41,9 @@
             <div class="text-sm font-extralight">
                 {{ __("just the way you're looking for them, just the way you imagine them.") }}</div>
         </div>
-        <a href="#" wire:navigate class="text-lg lg:text-2xl underline underline-offset-4">
-            {{ __('Software can revolutionize your business') }} 🡒</a>
+        <a href="#" wire:navigate
+            class="text-lg lg:text-2xl underline underline-offset-4 flex items-center gap-1 mx-auto">
+            {{ __('Software can revolutionize your business') }} <x-ri-arrow-right-long-line class="w-6" /></a>
     </div>
 
     <div class="container mx-auto grid grid-cols-[1fr_auto_1fr] text-lg lg:text-3xl xl:text-4xl gap-8">

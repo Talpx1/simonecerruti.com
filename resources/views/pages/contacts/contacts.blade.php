@@ -3,7 +3,9 @@
     <div>
         <h1 class="text-center lg:text-left text-6xl lg:text-7xl 2xl:text-8xl font-black uppercase">{{ __('Contacts') }}
         </h1>
-        <h2 class="text-3xl 2xl:text-5xl">{{ __('It starts here. The rest, we build together.') }}</h2>
+        <h2 class="text-3xl 2xl:text-5xl text-center lg:text-left">
+            {{ __('It starts here. The rest, we build together.') }}
+        </h2>
         <livewire:components.contact-form />
     </div>
 
@@ -17,9 +19,9 @@
                 </p>
             </div>
             <a href="{{ config()->string('company.contacts.koalenda_url') }}" target="_blank" rel="noopener"
-                class="text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase p-4 w-full">
-                <h2 class="text-xl lg:text-2xl 2xl:text-4xl font-black">
-                    {{ __('Book a call') }} 🡒
+                class="text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase p-4 w-full block">
+                <h2 class="justify-center text-xl lg:text-2xl 2xl:text-4xl font-black flex items-center gap-1">
+                    {{ __('Book a call') }} <x-ri-arrow-right-long-line class="w-6 lg:w-10" />
                 </h2>
             </a>
         </div>
@@ -48,8 +50,8 @@
                     config()->string('company.contacts.whatsapp.number'),
                     urlencode(__(config()->string('company.contacts.whatsapp.default_message'))),
                 ) }}"
-                class="block text-center text-xl lg:text-2xl 2xl:text-4xl font-black text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase p-4">
-                {{ __('Start a Chat') }} 🡒
+                class="justify-center text-center text-xl lg:text-2xl 2xl:text-4xl font-black text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase p-4 flex items-center gap-">
+                {{ __('Start a Chat') }} <x-ri-arrow-right-long-line class="w-6 lg:w-10" />
             </a>
         </div>
     </div>

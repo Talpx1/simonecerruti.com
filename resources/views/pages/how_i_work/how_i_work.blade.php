@@ -275,7 +275,7 @@
                         class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
                     <span
                         class="relative font-semibold uppercase tracking-widest text-sm z-10">{{ __("Let's talk") }}</span>
-                    <span class="z-10">🡒</span>
+                    <x-ri-arrow-right-long-line class="z-10 w-5" />
                 </a>
 
                 <a wire:navigate href="{{ route('projects') }}"
@@ -284,7 +284,7 @@
                         class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
                     <span
                         class="relative font-semibold uppercase tracking-widest text-sm z-10">{{ __('See projects') }}</span>
-                    <span class="z-10">🡒</span>
+                    <x-ri-arrow-right-long-line class="z-10 w-5" />
                 </a>
             </div>
         </div>
