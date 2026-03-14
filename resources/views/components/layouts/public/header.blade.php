@@ -12,8 +12,9 @@
         <x-lang-switcher />
 
         <button x-on:click="isMenuOpen=!isMenuOpen" id="open-menu"
-            class="backdrop-blur-md p-2 lg:p-4 rounded-2xl uppercase text-xl cursor-pointer w-24 min-w-24 max-w-24 overflow-hidden">
-            <span x-text="isMenuOpen ? '╳' : 'MENU'"></span>
+            class="backdrop-blur-md p-2 lg:p-4 rounded-2xl uppercase text-xl cursor-pointer w-12 min-w-12 max-w-12 overflow-hidden">
+            <x-ri-menu-fill class="w-6 lg:w-8" x-show="!isMenuOpen" />
+            <x-ri-close-large-fill class="w-6 lg:w-8" x-show="isMenuOpen" />
         </button>
     </div>
 </header>
