@@ -419,10 +419,7 @@
     "Company name": "Nome azienda",
     "Captcha verification failed. Try again.": "Verifica captcha fallita. Prova di nuovo.",
     "Hi Simone! I'd like to chat with you about...": "Ciao Simone! Mi piacerebbe parlare con te a riguardo di...",
-    "#################################################": "########################################################################",
     "Legal": "Legale",
-    "Privacy Policy": "Privacy Policy",
-    "Cookie Policy": "Cookie Policy",
     "Terms and Conditions": "Termini e Condizioni",
     "Last updated:": "Ultimo aggiornamento:",
     "This document informs Users about the technologies that help this Website to achieve the purposes described below. Such technologies allow the Owner to access and store information (for example by using a Cookie) or use resources (for example by running a script) on a User's device as they interact with this Website.": "Il presente documento informa gli Utenti sulle tecnologie che consentono a questo Sito Web di raggiungere gli scopi descritti di seguito. Tali tecnologie permettono al Titolare di accedere e memorizzare informazioni (ad esempio tramite un Cookie) o di utilizzare risorse (ad esempio eseguendo uno script) sul dispositivo dell'Utente durante l'interazione con questo Sito Web.",
@@ -575,8 +572,8 @@
     "The service provided by this Website as described in these Terms.": "Il servizio fornito da questo Sito Web come descritto nei presenti Termini.",
     "Terms": "Termini",
     "All provisions applicable to the use of this Website and/or the Service as described in this document, including any other related documents or agreements.": "Tutte le disposizioni applicabili all'utilizzo di questo Sito Web e/o del Servizio come descritto nel presente documento, inclusi eventuali altri documenti o accordi correlati.",
-    "User": "Utente",
     "Any natural person who uses this Website.": "Qualsiasi persona fisica che utilizza questo Sito Web.",
     "Read the Privacy Policy": "Leggi la Privacy Policy",
-    "To find out about the types of Personal Data collected through this Website, the purposes of the processing, and Users' rights, please consult the Privacy Policy.": "Per informazioni sui tipi di Dati Personali raccolti tramite questo Sito Web, le finalità del trattamento e i diritti degli Utenti, si prega di consultare la Privacy Policy."
+    "To find out about the types of Personal Data collected through this Website, the purposes of the processing, and Users' rights, please consult the Privacy Policy.": "Per informazioni sui tipi di Dati Personali raccolti tramite questo Sito Web, le finalità del trattamento e i diritti degli Utenti, si prega di consultare la Privacy Policy.",
+    "This website is still work-in-progress, some features and content may be missing. It'll be done soon, I'm on it!": "Questo sito web è ancora in fase di sviluppo, alcune funzionalità e contenuti potrebbero mancare. Sarà pronto presto, ci sto lavorando!"
 }

@@ -52,6 +52,7 @@
 
         <main>
             <x-layouts.public.missing-translations-badge />
+            <x-layouts.public.work-in-progress-banner />
 
             {{ $slot }}
         </main>
