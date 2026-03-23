@@ -19,7 +19,12 @@ RUN apt-get update && \
     libjpeg62-turbo-dev \
     libpng-dev \
     libwebp-dev \
-    libxpm-dev && \
+    libxpm-dev \
+    jpegoptim \
+    optipng \
+    pngquant \
+    gifsicle \
+    webp && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm && \

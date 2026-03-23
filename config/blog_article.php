@@ -6,10 +6,12 @@ return [
     'featured_image' => [
         'disk' => 'public',
         'visibility' => 'public',
-        'path' => 'blog_articles/{id}',
-        'max_file_size_kb' => 1024 * 2, // 2MB
-        'aspect_rateo' => '16:9',
+        'max_file_size_kb' => 1024 * 5, // 2MB
+        'aspect_ratio' => '16:9',
+        'resize_mode' => 'cover',
         'final_width_px' => 1920,
         'final_height_px' => 1080,
+        'quality' => 80,
+        'optimize' => true,
     ],
 ];

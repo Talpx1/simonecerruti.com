@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace App\Filament\Resources\BlogArticles\Schemas;
 
 use App\Enums\BlogArticleStatuses;
-use App\Models\BlogArticle;
-use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -25,36 +24,34 @@ class BlogArticleForm {
     public static function configure(Schema $schema): Schema {
         return $schema
             ->components([
-                FileUpload::make('featured_image_path')
+                SpatieMediaLibraryFileUpload::make('featured_image')
                     ->columnSpanFull()
-                    ->disabledOn('create')
                     ->label(__('Featured image'))
-                    ->disk(config()->string('blog_article.featured_image.disk'))
-                    ->visibility(config()->string('blog_article.featured_image.visibility'))
-                    ->directory(fn (BlogArticle $record) => Str::replacePlaceholders(config()->string('blog_article.featured_image.path'), $record))
+                    ->collection('featured_image')
+                    ->conversion('featured_image_webp')
                     ->image()
                     ->maxSize(config()->integer('blog_article.featured_image.max_file_size_kb'))
+                    ->automaticallyResizeImagesMode(config()->string('blog_article.featured_image.resize_mode'))
+                    ->automaticallyCropImagesToAspectRatio()
+                    ->imageAspectRatio(config()->string('blog_article.featured_image.aspect_ratio'))
+                    ->automaticallyResizeImagesToWidth((string) config()->integer('blog_article.featured_image.final_width_px'))
+                    ->automaticallyResizeImagesToHeight((string) config()->integer('blog_article.featured_image.final_height_px'))
                     ->imageEditor()
                     ->imageEditorViewportWidth(config()->integer('blog_article.featured_image.final_width_px'))
                     ->imageEditorViewportHeight(config()->integer('blog_article.featured_image.final_height_px'))
-                    ->imageResizeMode('cover')
-                    ->imageCropAspectRatio(config()->string('blog_article.featured_image.aspect_rateo'))
-                    ->imageResizeTargetWidth((string) config()->integer('blog_article.featured_image.final_width_px'))
-                    ->imageResizeTargetHeight((string) config()->integer('blog_article.featured_image.final_height_px'))
-                    ->imageEditorAspectRatios([config()->string('blog_article.featured_image.aspect_rateo')])
+                    ->imageEditorAspectRatioOptions([config()->string('blog_article.featured_image.aspect_ratio')])
                     ->downloadable()
                     ->openable()
-                    ->required(fn (string $operation) => $operation === Operation::Edit->value)
-                    ->belowLabel(fn (string $operation) => array_filter([
-                        $operation === Operation::Create->value ? __('Available after saving') : null,
-                        $operation === Operation::Edit->value
+                    ->belowLabel(fn (string $operation) => $operation === Operation::Edit->value
                         ? __('This image will be cropped to :dimensions', [
-                            'dimensions' => config()->integer('blog_article.featured_image.final_width_px').'x'.config()->integer('blog_article.featured_image.final_height_px'),
+                            'dimensions' => config()->integer('blog_article.featured_image.final_width_px')
+                                .'x'
+                                .config()->integer('blog_article.featured_image.final_height_px'),
                         ])
-                        : null,
-                    ])),
+                        : null
+                    ),
 
-                Checkbox::make('featured')
+                Toggle::make('featured')
                     ->label(__('Featured'))
                     ->belowContent(__('It is shown at the top of the blog and in lists'))
                     ->columnSpanFull(),

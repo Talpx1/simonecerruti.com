@@ -16,36 +16,22 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Mcamara\LaravelLocalization\Interfaces\LocalizedUrlRoutable;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Sitemap\Contracts\Sitemapable;
 use Spatie\Sitemap\Tags\Url;
 use Spatie\Tags\HasTags;
 use Spatie\Translatable\HasTranslations;
 
-use function Illuminate\Events\queueable;
-
-class BlogArticle extends Model implements LocalizedUrlRoutable, Sitemapable {
+class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapable {
     /** @use HasFactory<\Database\Factories\BlogArticleFactory> */
-    use HasCurrentLocaleTranslationScope, HasFactory, HasRoutableSlug, HasSitemapTag, HasTags, HasTranslations, LogsAllDirtyChanges, ResolvesRoutBindingByLocalizedSlug;
+    use HasCurrentLocaleTranslationScope, HasFactory, HasRoutableSlug, HasSitemapTag, HasTags, HasTranslations, InteractsWithMedia, LogsAllDirtyChanges, ResolvesRoutBindingByLocalizedSlug;
 
     /** @var list<string> */
     public array $translatable = ['title', 'slug', 'summary', 'content'];
-
-    protected static function booted(): void {
-        static::updating(queueable(function (self $model) {
-            if ($model->isDirty('featured_image_path') && $model->getOriginal('featured_image_path')) {
-                Storage::disk(config()->string('blog_article.featured_image.disk'))->delete($model->getOriginal('featured_image_path'));
-            }
-        }));
-
-        static::deleted(queueable(function (self $model) {
-            if ($model->featured_image_path) {
-                Storage::disk(config()->string('blog_article.featured_image.disk'))->delete($model->featured_image_path);
-            }
-        }));
-    }
 
     protected function casts(): array {
         return [
@@ -53,6 +39,28 @@ class BlogArticle extends Model implements LocalizedUrlRoutable, Sitemapable {
             'featured' => 'boolean',
             'status' => BlogArticleStatuses::class,
         ];
+    }
+
+    public function registerMediaCollections(): void {
+        $this->addMediaCollection('featured_image')
+            ->singleFile()
+            ->useDisk(config()->string('blog_article.featured_image.disk'))
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
+
+    public function registerMediaConversions(?Media $media = null): void {
+        $conf = config()->array('blog_article.featured_image');
+
+        $conversion = $this->addMediaConversion('featured_image_webp')
+            ->format('webp')
+            ->quality($conf['quality'])
+            ->width($conf['final_width_px'])
+            ->height($conf['final_height_px'])
+            ->performOnCollections('featured_image');
+
+        if ($conf['optimize']) {
+            $conversion->optimize();
+        }
     }
 
     private function canAddToSitemap(): bool {
@@ -97,9 +105,9 @@ class BlogArticle extends Model implements LocalizedUrlRoutable, Sitemapable {
 
     /** @return Attribute<string, never> */
     public function featuredImageUrl(): Attribute {
-        return Attribute::get(fn () => $this->featured_image_path
-            ? Storage::disk(config()->string('blog_article.featured_image.disk'))->url($this->featured_image_path)
-            : asset('images/fallback.jpg')
+        return Attribute::get(
+            fn () => $this->getFirstMediaUrl('featured_image', 'featured_image_webp')
+                ?: asset('images/fallback.jpg')
         );
     }
 

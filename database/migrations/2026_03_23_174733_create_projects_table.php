@@ -11,16 +11,17 @@ return new class extends Migration {
      * Run the migrations.
      */
     public function up(): void {
-        Schema::create('blog_articles', function (Blueprint $table) {
+        Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->json('title');
+            $table->json('short_description');
+            $table->json('description');
             $table->json('slug');
-            $table->json('summary');
-            $table->json('content');
+            $table->json('external_link')->nullable();
+            $table->string('client')->nullable();
+            $table->json('links')->nullable();
+            $table->boolean('published');
             $table->boolean('featured');
-            $table->foreignId('author_id')->constrained('users')->cascadeOnUpdate()->nullOnDelete();
-            $table->string('status');
-            $table->timestamp('published_at')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ return new class extends Migration {
      * Reverse the migrations.
      */
     public function down(): void {
-        Schema::dropIfExists('blog_articles');
+        Schema::dropIfExists('projects');
     }
 };

@@ -7,4 +7,8 @@ return [
         'label' => 'Blog Article',
         'plural_label' => 'Blog Articles',
     ],
+    'project' => [
+        'label' => 'Project',
+        'plural_label' => 'Projects',
+    ],
 ];

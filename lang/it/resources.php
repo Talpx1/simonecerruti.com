@@ -6,5 +6,9 @@ return [
     'blog_article' => [
         'label' => 'Articolo Blog',
         'plural_label' => 'Articoli Blog',
-    ],    
+    ],
+    'project' => [
+        'label' => 'Progetto',
+        'plural_label' => 'Progetti',
+    ],
 ];

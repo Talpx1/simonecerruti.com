@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\BlogArticle;
+use App\Models\Project;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,7 @@ class GenerateSitemap extends Command {
         $sitemap = $this->addStaticUrls($sitemap);
 
         $sitemap->add(BlogArticle::all());
+        $sitemap->add(Project::all());
 
         $sitemap->writeToFile(public_path('sitemap.xml'));
     }
