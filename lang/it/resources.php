@@ -11,4 +11,8 @@ return [
         'label' => 'Progetto',
         'plural_label' => 'Progetti',
     ],
+    'tag' => [
+        'label' => 'Tag',
+        'plural_label' => 'Tags',
+    ],
 ];

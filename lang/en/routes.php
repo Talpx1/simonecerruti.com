@@ -11,4 +11,5 @@ return [
     'cookie-policy' => 'cookie-policy',
     'terms-and-conditions' => 'terms-and-conditions',
     'blog' => 'blog',
+    'project-show' => 'project/{project}',
 ];

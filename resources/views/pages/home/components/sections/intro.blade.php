@@ -25,8 +25,6 @@
             <h2
                 class="text-dark px-4 text-xl lg:text-4xl 2xl:text-5xl font-black uppercase interactable flex items-center gap-1">
                 {{ __("Don't wait, let's talk") }} <x-ri-arrow-right-long-line class="w-6 lg:w-12" />
-
-
             </h2>
         </a>
     </div>

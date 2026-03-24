@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
+use App\Enums\Concerns\Collectable;
 use App\Enums\Concerns\HasLocalizedDescription;
 use App\Enums\Concerns\HasLocalizedLabel;
 use App\Enums\Concerns\HasRandomPicker;
@@ -13,7 +14,7 @@ use Filament\Support\Contracts\HasDescription;
 use Filament\Support\Contracts\HasLabel;
 
 enum BlogArticleStatuses: string implements HasColor, HasDescription, HasLabel {
-    use HasLocalizedDescription, HasLocalizedLabel, HasRandomPicker;
+    use Collectable, HasLocalizedDescription, HasLocalizedLabel, HasRandomPicker;
 
     case DRAFT = 'draft';
     case PUBLISHED = 'published';
@@ -29,6 +30,15 @@ enum BlogArticleStatuses: string implements HasColor, HasDescription, HasLabel {
             self::PUBLISHED => Color::Green,
             self::ARCHIVED => Color::Slate,
             self::HIDDEN => Color::Gray,
+        };
+    }
+
+    public function allowsCrawling(): bool {
+        return match ($this) {
+            self::DRAFT => false,
+            self::PUBLISHED => true,
+            self::ARCHIVED => true,
+            self::HIDDEN => false,
         };
     }
 }

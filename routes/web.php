@@ -17,7 +17,9 @@ Route::group([
 
     Route::livewireLocalized('how-i-work', \App\Livewire\Pages\HowIWork::class)->name('how_i_work');
 
-    Route::livewireLocalized('projects', \App\Livewire\Pages\Projects::class)->name('projects');
+    Route::livewireLocalized('projects', \App\Livewire\Pages\Project\ProjectList::class)->name('projects');
+
+    Route::livewireLocalized('project-show', \App\Livewire\Pages\Project\ProjectShow::class)->name('project.show');
 
     Route::livewireLocalized('blog', \App\Livewire\Pages\Blog::class)->name('blog');
 

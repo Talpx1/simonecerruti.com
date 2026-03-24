@@ -1,32 +1,37 @@
+@props(['project'])
+
 <div
-    class="border border-light p-8 2xl:p-4 flex flex-col relative hover:[&>img]:saturate-100 hover:[&>img]:brightness-100 ">
-    <img src="https://picsum.photos/1920/1080"
+    class="border border-light p-8 2xl:p-4 flex flex-col relative hover:[&>img]:saturate-100 hover:[&>img]:brightness-100">
+    <img src="{{ $project->featured_image_url }}" alt="{{ $project->title }}"
         class="absolute 2xl:static top-0 left-0 p-4 2xl:p-0 -z-1 transition-all duration-300
             2xl:saturate-100 2xl:brightness-100
             saturate-50 brightness-50
             2xl:max-h-1/2 2xl:h-1/2 2xl:min-h-1/2
             max-h-full h-f min-h-full
             object-cover object-center 2xl:mask-b-from-60%">
+
     <div class="gap-4 flex flex-col justify-between grow">
         <h3 class="text-2xl 2xl:text-4xl font-bold uppercase 2xl:-mt-[1em]">
-            Lorem ipsum dolor sit amet.
+            {{ $project->title }}
         </h3>
-
         <h4 class="text-lg 2xl:text-xl">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nesciunt officiis nam odio tempora quo,
-            provident aperiam quos quis impedit consequatur!
+            {{ $project->short_description }}
         </h4>
         <div class="flex justify-between items-center [&>a]:underline [&>a]:underline-offset-4 [&>a]:text-lg">
-            <a href="">{{ __('Discover more') }}</a>
-            <a href="">{{ __('GitHub') }}</a>
-            <a href="">{{ __('Website') }}</a>
+            <a href="{{ route('project.show', $project->slug) }}">
+                {{ __('Discover more') }}
+            </a>
+
+
+            @foreach ($project->links->pluck('url') ?? [] as $link)
+                <a href="{{ $link }}" target="_blank" rel="noopener">{{ ucfirst(Uri::of($link)->host()) }}</a>
+            @endforeach
+
+            @if ($project->external_link)
+                <a href="{{ $project->external_link }}" target="_blank" rel="noopener">{{ __('Website') }}</a>
+            @endif
         </div>
 
-        <x-post-tag-list :tags="[
-            __('#tag1') => '#',
-            __('#tag2') => '#',
-            __('#tag3') => '#',
-            __('#tag4') => '#',
-        ]" />
+        <x-post-tag-list :tags="$project->tags->mapWithKeys(fn($tag) => ['#' . $tag->name => '#'])->toArray()" />
     </div>
 </div>

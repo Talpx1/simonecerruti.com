@@ -9,6 +9,8 @@ use App\Models\Concerns\HasSitemapTag;
 use App\Models\Concerns\LogsAllDirtyChanges;
 use App\Models\Concerns\ResolvesRoutBindingByLocalizedSlug;
 use App\Models\Concerns\Scopes\HasCurrentLocaleTranslationScope;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -37,7 +39,7 @@ class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapab
 
     protected function casts(): array {
         return [
-            'links' => 'array',
+            'links' => 'collection',
             'published' => 'boolean',
             'featured' => 'boolean',
         ];
@@ -100,5 +102,19 @@ class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapab
     /** @return Attribute<string, never> */
     public function shortDescriptionOrExcerpt(): Attribute {
         return Attribute::get(fn () => $this->short_description ?? Str::limit($this->description, 160, preserveWords: true));
+    }
+
+    /** @return Attribute<string, never> */
+    public function featuredImageUrl(): Attribute {
+        return Attribute::get(
+            fn () => $this->getFirstMediaUrl('featured_image', 'featured_image_webp')
+                ?: $this->getFirstMediaUrl('featured_image')
+                ?: asset('images/fallback.jpg')
+        );
+    }
+
+    #[Scope]
+    public function wherePublished(Builder $query): void {
+        $query->where('published', true);
     }
 }

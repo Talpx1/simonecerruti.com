@@ -2,38 +2,27 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\Projects\Tables;
+namespace App\Filament\Resources\Tags\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
-class ProjectTable {
+class TagTable {
     public static function configure(Table $table): Table {
         return $table
             ->columns([
-                ToggleColumn::make('featured')
-                    ->label('In evidenza'),
-
-                TextColumn::make('title')
-                    ->label('Titolo')
+                TextColumn::make('name')
+                    ->label('Nome')
                     ->searchable()
-                    ->sortable()
                     ->limit(50),
 
-                TextColumn::make('client')
-                    ->label('Cliente')
+                TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable()
-                    ->sortable(),
-
-                IconColumn::make('published')
-                    ->label('Pubblicato')
-                    ->boolean(),
+                    ->limit(50),
 
                 TextColumn::make('created_at')
                     ->label('Creato il')
@@ -47,10 +36,7 @@ class ProjectTable {
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                TernaryFilter::make('published')->label('Pubblicato'),
-
-            ])
+            ->filters([])
             ->recordActions([
                 EditAction::make(),
             ])

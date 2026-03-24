@@ -35,8 +35,8 @@ class GenerateSitemap extends Command {
 
         $sitemap = $this->addStaticUrls($sitemap);
 
-        $sitemap->add(BlogArticle::all());
-        $sitemap->add(Project::all());
+        $sitemap->add(BlogArticle::query()->whereCanBeCrawled()->get());
+        $sitemap->add(Project::query()->wherePublished()->get());
 
         $sitemap->writeToFile(public_path('sitemap.xml'));
     }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\BlogArticles\Schemas;
+namespace App\Filament\Resources\Projects\Schemas;
 
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -69,7 +69,7 @@ class ProjectForm {
                             ->placeholder('https://...'),
 
                         Repeater::make('links')
-                            ->label('Link Aggiuntivi (GitHub, Demo, ecc.)')
+                            ->label('Link Aggiuntivi')
                             ->schema([
                                 TextInput::make('url')
                                     ->label('URL')

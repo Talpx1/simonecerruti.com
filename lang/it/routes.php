@@ -11,4 +11,5 @@ return [
     'cookie-policy' => 'cookie-policy',
     'terms-and-conditions' => 'termini-e-condizioni',
     'blog' => 'blog',
+    'project-show' => 'progetto/{project}',
 ];

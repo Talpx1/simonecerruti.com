@@ -9,26 +9,9 @@
             class="text-xl lg:text-2xl underline underline-offset-4 flex items-center gap-1">
             {{ __('See all') }} <x-ri-arrow-right-long-line class="w-6" />
         </a>
-        <div
-            class="flex gap-4 items-center flex-wrap [&>a]:p-1 [&>a]:text-dark [&>a]:bg-light [&>a]:text-sm 2xl:[&>a]:text-lg [&>a]:underline [&>a]:underline-offset-1">
-            <a href="">{{ __('#tag1') }}</a>
-            <a href="">{{ __('#tag2') }}</a>
-            <a href="">{{ __('#tag3') }}</a>
-            <a href="">{{ __('#tag4') }}</a>
-        </div>
+        <x-post-tag-list :tags="$project_tags->mapWithKeys(fn($tag) => ['#' . $tag->name => '#'])->toArray()" />
     </div>
-    @foreach (range(1, 5) as $i)
-        <x-pages::home.components.project-card />
+    @foreach ($projects as $project)
+        <x-pages::home.components.project-card :$project />
     @endforeach
 </section>
-
-@push('scripts')
-    <script>
-        document.addEventListener('livewire:navigated', () => {
-
-
-        }, {
-            once: true
-        })
-    </script>
-@endpush

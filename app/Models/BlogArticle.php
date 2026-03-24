@@ -120,6 +120,20 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
     public function wherePublished(Builder $query): void {
         $query
             ->where('status', BlogArticleStatuses::PUBLISHED)
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now());
+    }
+
+    #[Scope]
+    public function whereCanBeCrawled(Builder $query): void {
+        $crawlable_statuses = BlogArticleStatuses::collect()
+            ->filter(fn (BlogArticleStatuses $case) => $case->allowsCrawling())
+            ->pluck('value')
+            ->toArray();
+
+        $query
+            ->whereIn('status', $crawlable_statuses)
+            ->whereNotNull('published_at')
             ->where('published_at', '<=', now());
     }
 

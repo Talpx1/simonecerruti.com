@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Projects;
 
-use App\Filament\Resources\BlogArticles\Schemas\ProjectForm;
-use App\Filament\Resources\BlogArticles\Tables\ProjectTable;
 use App\Filament\Resources\Concerns\HasLocalizedLabels;
 use App\Filament\Resources\Projects\Pages\CreateProject;
 use App\Filament\Resources\Projects\Pages\EditProject;
 use App\Filament\Resources\Projects\Pages\ListProjects;
+use App\Filament\Resources\Projects\Schemas\ProjectForm;
+use App\Filament\Resources\Projects\Tables\ProjectTable;
 use App\Models\Project;
 use BackedEnum;
 use Filament\Resources\Resource;
