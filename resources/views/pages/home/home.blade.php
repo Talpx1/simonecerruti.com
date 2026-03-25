@@ -2,7 +2,11 @@
     @include('pages.home.components.sections.intro')
     @include('pages.home.components.sections.about')
     @include('pages.home.components.sections.how-i-work')
-    @include('pages.home.components.sections.projects')
+
+    @if ($projects->isNotEmpty())
+        @include('pages.home.components.sections.projects')
+    @endif
+
     @include('pages.home.components.sections.blog')
 
     @include('pages.home.components.floating-contacts')

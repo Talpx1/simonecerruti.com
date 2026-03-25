@@ -12,6 +12,6 @@
         <x-post-tag-list :tags="$project_tags->mapWithKeys(fn($tag) => ['#' . $tag->name => '#'])->toArray()" />
     </div>
     @foreach ($projects as $project)
-        <x-pages::home.components.project-card :$project />
+        <x-project-card :$project />
     @endforeach
 </section>
