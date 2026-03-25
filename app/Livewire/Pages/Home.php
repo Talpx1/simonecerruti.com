@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages;
 
+use App\Models\BlogArticle;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -40,6 +41,19 @@ class Home extends Component {
             ->get();
     }
 
+    /**
+     * @return Collection<int, BlogArticle>
+     */
+    private function getBlogArticles(): Collection {
+        return BlogArticle::query()
+            ->whereHasCurrentLocaleTranslation()
+            ->wherePublished()
+            ->orderByDesc('featured')
+            ->orderByDesc('published_at')
+            ->limit(2)
+            ->get();
+    }
+
     public function render(): View {
         return view('pages.home.home')
             ->layout('components.layouts.public.index', [
@@ -49,6 +63,7 @@ class Home extends Component {
             ->with([
                 'projects' => $this->getProjects(),
                 'project_tags' => $this->getProjectTags(),
+                'blog_articles' => $this->getBlogArticles(),
             ]);
     }
 }

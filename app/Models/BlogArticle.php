@@ -107,6 +107,7 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
     public function featuredImageUrl(): Attribute {
         return Attribute::get(
             fn () => $this->getFirstMediaUrl('featured_image', 'featured_image_webp')
+                ?: $this->getFirstMediaUrl('featured_image')
                 ?: asset('images/fallback.jpg')
         );
     }

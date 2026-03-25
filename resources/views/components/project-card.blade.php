@@ -1,4 +1,4 @@
-@props(['project', 'index' => null, 'eager' => false])
+@props(['project', 'index' => null, 'eager' => false, 'showTags' => true])
 
 <article class="group relative flex flex-col overflow-hidden border border-light/10">
 
@@ -47,6 +47,8 @@
             @endif
         </div>
 
-        <x-post-tag-list :tags="$project->tags->mapWithKeys(fn($tag) => ['#' . $tag->name => '#'])->toArray()" />
+        @if ($showTags && $project->tags->isNotEmpty())
+            <x-post-tag-list :tags="$project->tags->mapWithKeys(fn($tag) => ['#' . $tag->name => '#'])->toArray()" />
+        @endif
     </div>
 </article>

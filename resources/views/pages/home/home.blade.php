@@ -7,7 +7,9 @@
         @include('pages.home.components.sections.projects')
     @endif
 
-    @include('pages.home.components.sections.blog')
+    @if ($blog_articles->isNotEmpty())
+        @include('pages.home.components.sections.blog')
+    @endif
 
     @include('pages.home.components.floating-contacts')
 </div>
