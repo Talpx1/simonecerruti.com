@@ -54,8 +54,7 @@
                         </p>
                     </div>
 
-                    {{-- {{ route('blog.show', $article->slug) }} --}}
-                    <a wire:navigate href="#"
+                    <a wire:navigate href="{{ route('blog_article.show', $article->slug) }}"
                         class="w-fit group/link relative overflow-hidden border border-light/20 text-light/50 flex items-center gap-3 px-5 py-3 hover:text-dark hover:border-light transition-colors duration-300">
                         <span
                             class="absolute inset-0 bg-light translate-y-full group-hover/link:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
@@ -66,7 +65,7 @@
 
                     @if ($article->tags->isNotEmpty())
                         <div class="hidden 2xl:block">
-                            <x-post-tag-list :tags="$article->tags->mapWithKeys(fn($tag) => ['#' . $tag->name => '#'])->toArray()" />
+                            <x-post-tag-list :tags="$article->tags->mapWithKeys(fn($tag) => [$tag->name => '#'])->toArray()" />
                         </div>
                     @endif
                 </div>

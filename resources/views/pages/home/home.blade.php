@@ -7,7 +7,7 @@
         @include('pages.home.components.sections.projects')
     @endif
 
-    @if ($blog_articles->isNotEmpty())
+    @if ($practical_blog_articles->isNotEmpty() && $technical_blog_articles->isNotEmpty())
         @include('pages.home.components.sections.blog')
     @endif
 

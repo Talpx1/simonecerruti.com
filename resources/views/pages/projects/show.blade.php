@@ -25,8 +25,8 @@
 
             <div class="mt-12 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
                 <x-post-tag-list :tags="$project->tags
-                    ->where('type', 'tags')
-                    ->mapWithKeys(fn($tag) => ['#' . $tag->name => '#'])
+                    ->where('type', \App\Enums\TagTypes::TAG->value)
+                    ->mapWithKeys(fn($tag) => [$tag->name => '#'])
                     ->toArray()" />
 
                 <div class="flex gap-4">
@@ -75,7 +75,10 @@
             @if ($project->tags->isNotEmpty())
                 <div class="space-y-3">
                     <p class="text-light/25 text-xs uppercase tracking-widest font-semibold">{{ __('Stack') }}</p>
-                    <x-chip-list size="xs" :entries="$project->tags->where('type', 'technologies')->pluck('name')->toArray()" />
+                    <x-chip-list size="xs" :entries="$project->tags
+                        ->where('type', \App\Enums\TagTypes::TECHNOLOGY->value)
+                        ->pluck('name')
+                        ->toArray()" />
                 </div>
             @endif
 

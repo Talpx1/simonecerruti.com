@@ -21,7 +21,9 @@ Route::group([
 
     Route::livewireLocalized('project-show', \App\Livewire\Pages\Project\ProjectShow::class)->name('project.show');
 
-    Route::livewireLocalized('blog', \App\Livewire\Pages\Blog::class)->name('blog');
+    Route::livewireLocalized('blog', \App\Livewire\Pages\BlogArticle\BlogArticleList::class)->name('blog');
+
+    Route::livewireLocalized('blog-article-show', \App\Livewire\Pages\BlogArticle\BlogArticleShow::class)->name('blog_article.show');
 
     Route::livewireLocalized('privacy-policy', \App\Livewire\Pages\PrivacyPolicy::class)->name('privacy_policy');
 

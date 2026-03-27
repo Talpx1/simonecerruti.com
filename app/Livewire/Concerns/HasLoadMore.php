@@ -90,4 +90,11 @@ trait HasLoadMore {
 
         $this->load_more_data[$key] = [...$this->load_more_data[$key], ...$new_data];
     }
+
+    public function resetLoadMore(string $key): void {
+        $this->load_more_page[$key] = 0;
+        $this->load_more_data[$key] = [];
+        $this->load_more_total[$key] = $this->{$this->load_more_query_method[$key]}()->count();
+        $this->fetchLoadMoreData($key);
+    }
 }

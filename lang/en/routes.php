@@ -12,4 +12,5 @@ return [
     'terms-and-conditions' => 'terms-and-conditions',
     'blog' => 'blog',
     'project-show' => 'project/{project}',
+    'blog-article-show' => 'blog/{blog_article}',
 ];

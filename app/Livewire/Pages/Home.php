@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages;
 
+use App\Enums\TagTypes;
 use App\Models\BlogArticle;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Collection;
@@ -36,7 +37,7 @@ class Home extends Component {
                     ->selectRaw('count(*)')
                     ->whereColumn('taggables.tag_id', 'tags.id')
             )
-            ->withType('tags')
+            ->withType('tag')
             ->limit(10)
             ->get();
     }
@@ -44,9 +45,19 @@ class Home extends Component {
     /**
      * @return Collection<int, BlogArticle>
      */
-    private function getBlogArticles(): Collection {
+    private function getBlogArticles(string $category): Collection {
+        $category_tag = Tag::query()
+            ->where('type', 'blog_category')
+            ->where('slug->en', $category)
+            ->first();
+
+        if (! $category_tag) {
+            return new Collection([]);
+        }
+
         return BlogArticle::query()
             ->whereHasCurrentLocaleTranslation()
+            ->withAllTags($category_tag, TagTypes::BLOG_CATEGORY->value)
             ->wherePublished()
             ->orderByDesc('featured')
             ->orderByDesc('published_at')
@@ -63,7 +74,8 @@ class Home extends Component {
             ->with([
                 'projects' => $this->getProjects(),
                 'project_tags' => $this->getProjectTags(),
-                'blog_articles' => $this->getBlogArticles(),
+                'practical_blog_articles' => $this->getBlogArticles('practical'),
+                'technical_blog_articles' => $this->getBlogArticles('technical'),
             ]);
     }
 }

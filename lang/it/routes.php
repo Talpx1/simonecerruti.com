@@ -12,4 +12,5 @@ return [
     'terms-and-conditions' => 'termini-e-condizioni',
     'blog' => 'blog',
     'project-show' => 'progetto/{project}',
+    'blog-article-show' => 'blog/{blog_article}',
 ];

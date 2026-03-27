@@ -13,9 +13,12 @@ use App\Models\Concerns\Scopes\HasCurrentLocaleTranslationScope;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Str;
 use Mcamara\LaravelLocalization\Interfaces\LocalizedUrlRoutable;
 use Spatie\MediaLibrary\HasMedia;
@@ -141,5 +144,66 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
     /** @return Attribute<string, never> */
     public function summaryOrExcerpt(): Attribute {
         return Attribute::get(fn () => $this->summary ?? Str::limit($this->content, 160, preserveWords: true));
+    }
+
+    /** @return HasMany<BlogArticleRelatable, $this> */
+    public function relatables(): HasMany {
+        return $this->hasMany(BlogArticleRelatable::class);
+    }
+
+    /** @return MorphToMany<Project, $this> */
+    public function projects(): MorphToMany {
+        return $this->morphedByMany(Project::class, 'relatable', 'blog_article_relatables', 'blog_article_id');
+    }
+
+    public function previous(): ?self {
+        if (! $this->published_at) {
+            return null;
+        }
+
+        return self::query()
+            ->wherePublished()
+            ->where('published_at', '<', $this->published_at)
+            ->orderByDesc('published_at')
+            ->first();
+    }
+
+    public function next(): ?self {
+        if (! $this->published_at) {
+            return null;
+        }
+
+        return self::query()
+            ->wherePublished()
+            ->where('published_at', '>', $this->published_at)
+            ->orderBy('published_at')
+            ->first();
+    }
+
+    /**
+     * Articles sharing the most tags with this one, excluding self.
+     *
+     * @return Collection<int, self>
+     */
+    public function relatedBlogArticles(int $limit = 3): Collection {
+        $tag_ids = $this->tags->pluck('id');
+
+        if ($tag_ids->isEmpty()) {
+            return self::query()
+                ->wherePublished()
+                ->where('id', '!=', $this->id)
+                ->orderByDesc('published_at')
+                ->limit($limit)
+                ->get();
+        }
+
+        return self::query()
+            ->wherePublished()
+            ->where('id', '!=', $this->id)
+            ->withCount(['tags as shared_tags_count' => fn (Builder $query) => $query->whereIn('tags.id', $tag_ids)])
+            ->orderByDesc('shared_tags_count')
+            ->orderByDesc('published_at')
+            ->limit($limit)
+            ->get();
     }
 }

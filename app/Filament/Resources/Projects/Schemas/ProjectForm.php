@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Projects\Schemas;
 
+use App\Enums\TagTypes;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -88,13 +89,13 @@ class ProjectForm {
                 Section::make('Tecnologie & Tag')
                     ->schema([
                         SpatieTagsInput::make('technologies')
-                            ->type('technologies')
+                            ->type(TagTypes::TECHNOLOGY->value)
                             ->label('Tecnologie')
                             ->splitKeys(['Tab', ','])
                             ->columnSpanFull(),
 
                         SpatieTagsInput::make('tags')
-                            ->type('tags')
+                            ->type(TagTypes::TAG->value)
                             ->label('Tags')
                             ->columnSpanFull(),
                     ])
