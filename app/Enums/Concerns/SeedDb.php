@@ -25,11 +25,38 @@ trait SeedDb {
         return static::guessTable();
     }
 
-    /**
-     * @param  static[]  $cases
-     */
-    public static function seed(array $cases): void {
-        DB::table(static::getOrGuessTable())->insert(array_map(fn (self $case) => $case->dbMap(), $cases));
+    public static function sync(): void {
+        $mapped = array_map(fn (self $case) => $case->dbMap(), static::cases());
+
+        DB::table(static::getOrGuessTable())->upsert(
+            $mapped,
+            static::upsertKeys(),
+        );
+
+        $current_keys = array_column($mapped, static::upsertKeys()[0]);
+
+        $orphans = DB::table(static::getOrGuessTable())
+            ->whereNotIn(static::upsertKeys()[0], $current_keys)
+            ->get();
+
+        if ($orphans->isNotEmpty() && ! static::forceSync()) {
+            throw new \RuntimeException(
+                'Cannot sync: orphaned rows exist ['.$orphans->pluck(static::upsertKeys()[0])->implode(', ').']. Override forceSync() to delete anyway.'
+            );
+        }
+
+        DB::table(static::getOrGuessTable())
+            ->whereNotIn(static::upsertKeys()[0], $current_keys)
+            ->delete();
+    }
+
+    protected static function forceSync(): bool {
+        return false;
+    }
+
+    /** @return string[] */
+    protected static function upsertKeys(): array {
+        return ['id'];
     }
 
     /**

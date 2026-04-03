@@ -26,4 +26,9 @@ return [
         'read' => ['label' => 'Letto'],
         'unread' => ['label' => 'Non letto'],
     ],
+
+    'blog_categories' => [
+        'practical' => ['label' => 'pratico'],
+        'technical' => ['label' => 'tecnico'],
+    ],
 ];

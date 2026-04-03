@@ -24,6 +24,14 @@ IFS=$'\n\t'
     fi
 
 
+    echo "Syncing Enums"
+    if php artisan enums:sync; then
+    echo "Enums synced"
+    else
+    echo "[FATAL] php artisan enums:sync failed"
+    exit 1
+    fi
+
     echo "Running migrations"
     if php artisan migrate --force; then
     echo "Migrations run"

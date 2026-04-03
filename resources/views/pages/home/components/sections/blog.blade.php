@@ -11,7 +11,8 @@
         }
     </style>
     <div class="lg:border lg:border-light grid gris-cols-1 grid-rows-2 gap-8 lg:gap-0 lg:justify-between">
-        <x-pages::home.components.articles-list :articles="$practical_blog_articles" see-all-route="">
+        <x-pages::home.components.articles-list :articles="$practical_blog_articles"
+            see-all-route="{{ route('blog', ['category' => \App\Enums\BlogCategories::PRACTICAL->model()->slug]) }}">
             <x-slot:heading>
                 {!! __(':tag Practical :close_tag Articles', [
                     'tag' => "<span class='font-black'>",
@@ -19,7 +20,8 @@
                 ]) !!}
             </x-slot:heading>
         </x-pages::home.components.articles-list>
-        <x-pages::home.components.articles-list :articles="$technical_blog_articles" see-all-route="">
+        <x-pages::home.components.articles-list :articles="$technical_blog_articles"
+            see-all-route="{{ route('blog', ['category' => \App\Enums\BlogCategories::TECHNICAL->model()->slug]) }}">
             <x-slot:heading>
                 {!! __(':tag Technical :close_tag Articles', [
                     'tag' => "<span class='font-black'>",

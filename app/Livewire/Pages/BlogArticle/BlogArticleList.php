@@ -9,15 +9,18 @@ use App\Livewire\Concerns\HasLoadMore;
 use App\Models\BlogArticle;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\App;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Spatie\Tags\Tag;
 
 class BlogArticleList extends Component {
     use HasLoadMore;
 
-    public ?int $active_category = null;
+    #[Url(as: 'category')]
+    public ?string $active_category = null;
 
     /**
      * @return Collection<int, Tag>
@@ -45,30 +48,47 @@ class BlogArticleList extends Component {
             ->first();
     }
 
-    public function filterByCategory(?int $category_id): void {
-        $this->active_category = $category_id;
+    public function filterByCategory(?string $slug): void {
+        $this->active_category = $slug;
+
         $this->resetLoadMore('articles');
     }
 
+    private function resolveActiveTag(): ?Tag {
+        if (! $this->active_category) {
+            return null;
+        }
+
+        return Tag::query()
+            ->where('type', TagTypes::BLOG_CATEGORY->value)
+            ->where(function ($query): void {
+                foreach (array_keys(App::supportedLocales()) as $locale) {
+                    $query->orWhere("slug->{$locale}", $this->active_category);
+                }
+            })
+            ->first();
+    }
+
     private function articlesBaseQuery(): Builder {
+        $tag = $this->resolveActiveTag();
+
         return BlogArticle::query()
             ->wherePublished()
             ->with(['tags', 'media'])
             ->when(
-                $this->active_category !== null,
-                fn (Builder $query) => $query->withAnyTags(
-                    Tag::find($this->active_category),
-                    TagTypes::BLOG_CATEGORY->value
-                )
+                $tag !== null,
+                fn (Builder $query) => $query->withAnyTags($tag, TagTypes::BLOG_CATEGORY->value)
             )
             ->when(
-                $this->active_category === null && $this->featured,
+                $tag === null && $this->featured,
                 fn (Builder $query) => $query->where('id', '!=', $this->featured->id)
             )
             ->latest('published_at');
     }
 
     public function mount(): void {
+        $this->active_category = $this->resolveActiveTag()?->slug;
+
         $this->useLoadMore([
             'articles' => ['per_page' => 6, 'query_method' => 'articlesBaseQuery'],
         ]);

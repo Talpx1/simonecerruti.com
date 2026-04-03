@@ -20,19 +20,20 @@
             <div class="mt-10 flex flex-wrap gap-2">
                 <button wire:click="filterByCategory(null)" @class([
                     'px-4 py-2 text-xs font-semibold uppercase tracking-widest border transition-colors duration-200',
-                    'border-light text-dark bg-light' => $active_category === null,
+                    'border-light text-dark bg-light' => $this->active_category === null,
                     'border-light/20 text-light/40 hover:border-light/40 hover:text-light/70' =>
-                        $active_category !== null,
+                        $this->active_category !== null,
                 ])>
                     {{ __('All') }}
                 </button>
 
                 @foreach ($this->categories as $category)
-                    <button wire:click="filterByCategory({{ $category->id }})" @class([
+                    <button wire:click="filterByCategory('{{ $category->slug }}')" @class([
                         'px-4 py-2 text-xs font-semibold uppercase tracking-widest border transition-colors duration-200',
-                        'border-light text-dark bg-light' => $active_category === $category->id,
+                        'border-light text-dark bg-light' =>
+                            $this->active_category === $category->slug,
                         'border-light/20 text-light/40 hover:border-light/40 hover:text-light/70' =>
-                            $active_category !== $category->id,
+                            $this->active_category !== $category->slug,
                     ])>
                         {{ $category->name }}
                     </button>
