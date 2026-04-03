@@ -42,6 +42,8 @@ class SyncEnums extends Command {
                 $this->line('  <info>✓</info> Done');
             } catch (\RuntimeException $e) {
                 $this->line("  <fg=red>✗</> {$e->getMessage()}");
+
+                return self::FAILURE;
             }
         }
 

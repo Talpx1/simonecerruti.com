@@ -20,15 +20,17 @@ enum BlogCategories: int implements SyncsToDatabase {
 
     private function dbMap(): array {
         return [
+            'id' => $this->value,
+
             'name' => collect(App::supportedLocales())
                 ->mapWithKeys(fn (array $locale_conf, string $locale) => [
                     $locale => $this->getLabel($locale),
-                ])->toArray(),
+                ])->toJson(),
 
             'slug' => collect(App::supportedLocales())
                 ->mapWithKeys(fn (array $locale_conf, string $locale) => [
                     $locale => Str::slug($this->getLabel($locale), language: $locale),
-                ])->toArray(),
+                ])->toJson(),
 
             'type' => TagTypes::BLOG_CATEGORY->value,
 
