@@ -23,9 +23,7 @@ class BlogArticleShow extends Component {
 
     public function render(): View {
         return view('pages.blog-article.show')
-            ->layout('components.layouts.public.index', [
-                'title' => $this->blog_article->title,
-            ])
+            ->title($this->blog_article->title)
             ->with(['related_blog_articles' => $this->blog_article->relatedBlogArticles()]);
     }
 }

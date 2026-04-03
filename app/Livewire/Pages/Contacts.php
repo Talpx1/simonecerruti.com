@@ -10,8 +10,6 @@ use Livewire\Component;
 class Contacts extends Component {
     public function render(): View {
         return view('pages.contacts.contacts')
-            ->layout('components.layouts.public.index', [
-                'title' => __('Contacts'),
-            ]);
+            ->title(__('Contacts'));
     }
 }

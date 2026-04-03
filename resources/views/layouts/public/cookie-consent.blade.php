@@ -100,7 +100,7 @@
                                     {{ __('Microsoft Clarity – heatmaps, session recordings, behavioural analytics.') }}
                                 </p>
                             </div>
-                            <x-layouts.public.cookie-toggle wire:model="analytics" id="toggle-analytics" />
+                            <x-layouts::public.cookie-toggle wire:model="analytics" id="toggle-analytics" />
                         </div>
 
                         {{-- Functional --}}
@@ -114,7 +114,7 @@
                                     {{ __('Koalenda – external scheduling link. Enables tracking of referral source on their platform.') }}
                                 </p>
                             </div>
-                            <x-layouts.public.cookie-toggle wire:model="functional" id="toggle-functional" />
+                            <x-layouts::public.cookie-toggle wire:model="functional" id="toggle-functional" />
                         </div>
 
                         {{-- Marketing --}}
@@ -133,7 +133,7 @@
                                     {{ __('Newsletter & Mailchimp – email marketing communications. Not yet active.') }}
                                 </p>
                             </div>
-                            <x-layouts.public.cookie-toggle wire:model="marketing" id="toggle-marketing" />
+                            <x-layouts::public.cookie-toggle wire:model="marketing" id="toggle-marketing" />
                         </div>
 
                     </div>

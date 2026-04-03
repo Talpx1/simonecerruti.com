@@ -173,6 +173,6 @@ class CookieConsent extends Component {
     */
 
     public function render() {
-        return view('components.layouts.public.cookie-consent');
+        return view('layouts.public.cookie-consent');
     }
 }

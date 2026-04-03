@@ -17,8 +17,6 @@ class ProjectShow extends Component {
 
     public function render(): View {
         return view('pages.projects.show')
-            ->layout('components.layouts.public.index', [
-                'title' => $this->project->title,
-            ]);
+            ->title($this->project->title);
     }
 }

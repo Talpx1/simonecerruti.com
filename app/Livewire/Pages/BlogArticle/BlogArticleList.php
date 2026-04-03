@@ -98,8 +98,6 @@ class BlogArticleList extends Component {
 
     public function render(): View {
         return view('pages.blog-article.list')
-            ->layout('components.layouts.public.index', [
-                'title' => __('Blog'),
-            ]);
+            ->title(__('Blog'));
     }
 }

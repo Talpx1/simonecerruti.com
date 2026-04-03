@@ -10,8 +10,6 @@ use Livewire\Component;
 class About extends Component {
     public function render(): View {
         return view('pages.about.about')
-            ->layout('components.layouts.public.index', [
-                'title' => __('About'),
-            ]);
+            ->title(__('About'));
     }
 }

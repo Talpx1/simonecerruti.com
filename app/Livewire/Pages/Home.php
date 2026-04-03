@@ -67,7 +67,7 @@ class Home extends Component {
 
     public function render(): View {
         return view('pages.home.home')
-            ->layout('components.layouts.public.index', [
+            ->layout('layouts.public.index', [
                 'title' => config()->string('app.name'),
                 'suffix' => false,
             ])

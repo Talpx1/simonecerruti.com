@@ -10,8 +10,6 @@ use Livewire\Component;
 class TermsAndConditions extends Component {
     public function render(): View {
         return view('pages.legal.terms-and-conditions')
-            ->layout('components.layouts.public.index', [
-                'title' => __('Terms and Conditions'),
-            ]);
+            ->title(__('Terms and Conditions'));
     }
 }

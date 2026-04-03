@@ -18,7 +18,6 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
 
@@ -57,8 +56,8 @@ class AdminPanelProvider extends PanelProvider {
             ])
             ->plugin(SpatieTranslatablePlugin::make()->defaultLocales(['it', 'en']))
             ->favicon('/favicon/favicon.svg')
-            ->brandLogo('data:image/svg+xml;base64,'.base64_encode(Blade::render('<x-app-logo color="#000" />')))
-            ->darkModeBrandLogo('data:image/svg+xml;base64,'.base64_encode(Blade::render('<x-app-logo />')))
+            ->brandLogo(fn () => view('components.app-logo', ['color' => '#000']))
+            ->darkModeBrandLogo(fn () => view('components.app-logo'))
             ->brandLogoHeight('2.5rem');
     }
 }

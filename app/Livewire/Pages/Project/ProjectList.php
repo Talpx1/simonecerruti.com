@@ -31,8 +31,6 @@ class ProjectList extends Component {
 
     public function render(): View {
         return view('pages.projects.list')
-            ->layout('components.layouts.public.index', [
-                'title' => __('Projects'),
-            ]);
+            ->title(__('Projects'));
     }
 }

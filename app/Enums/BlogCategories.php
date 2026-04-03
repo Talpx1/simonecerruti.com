@@ -15,8 +15,8 @@ enum BlogCategories: int implements SyncsToDatabase {
     /** @use HasModel<\Spatie\Tags\Tag> */
     use HasLocalizedLabel, HasModel, SeedDb;
 
-    case PRACTICAL = 20;
-    case TECHNICAL = 21;
+    case PRACTICAL = 1;
+    case TECHNICAL = 2;
 
     private function dbMap(): array {
         return [

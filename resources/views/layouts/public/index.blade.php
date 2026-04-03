@@ -59,19 +59,19 @@
     x-data="{ 'isMenuOpen': false }" x-on:keydown.escape="isMenuOpen=false">
     @if (!($canvas ?? false))
         @if ($header ?? true)
-            <x-layouts.public.menu />
-            <x-layouts.public.header />
+            <x-layouts::public.menu />
+            <x-layouts::public.header />
         @endif
 
         <main>
-            <x-layouts.public.missing-translations-badge />
-            <x-layouts.public.work-in-progress-banner />
+            <x-layouts::public.missing-translations-badge />
+            <x-layouts::public.work-in-progress-banner />
 
             {{ $slot }}
         </main>
 
         @if ($footer ?? true)
-            <x-layouts.public.footer />
+            <x-layouts::public.footer />
         @endif
     @else
         {{ $slot }}
