@@ -60,7 +60,7 @@
     <section class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] divide-y lg:divide-y-0 lg:divide-x divide-light/10">
         <div
             class="px-8 lg:px-14 py-20 lg:py-28
-                prose max-w-full prose-invert prose-lg max-w-3xl
+                prose max-w-full prose-invert prose-lg
                 prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-headings:text-light
                 prose-p:text-light/65 prose-p:font-light prose-p:leading-relaxed
                 prose-a:text-light prose-a:underline prose-a:underline-offset-4 prose-a:decoration-light/30 hover:prose-a:decoration-light
