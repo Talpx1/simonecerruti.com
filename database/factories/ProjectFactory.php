@@ -39,8 +39,8 @@ class ProjectFactory extends Factory {
                 'en' => fake()->url(),
             ] : null,
             'links' => [
-                'https://github.com/'.fake()->userName(),
-                fake()->url(),
+                ['url' => 'https://github.com/'.fake()->userName()],
+                ['url' => fake()->url()],
             ],
             'published' => fake()->boolean(70),
             'featured' => false,

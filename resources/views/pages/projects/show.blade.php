@@ -86,13 +86,15 @@
                 <div class="space-y-3">
                     <p class="text-light/25 text-xs uppercase tracking-widest font-semibold">{{ __('Links') }}</p>
                     <div class="flex flex-col gap-2">
-                        @foreach ($project->links->pluck('url') ?? [] as $link)
-                            <a href="{{ $link }}" target="_blank" rel="noopener"
-                                class="flex items-center gap-2 text-light/50 hover:text-light transition-colors duration-200 text-sm underline underline-offset-4">
-                                {{ ucfirst(Uri::of($link)->host()) }}
-                                <x-ri-external-link-line class="w-3" />
-                            </a>
-                        @endforeach
+                        @if ($project->links->isNotEmpty())
+                            @foreach ($project->links->pluck('url') as $link)
+                                <a href="{{ $link }}" target="_blank" rel="noopener"
+                                    class="flex items-center gap-2 text-light/50 hover:text-light transition-colors duration-200 text-sm underline underline-offset-4">
+                                    {{ ucfirst(Uri::of($link)->host()) }}
+                                    <x-ri-external-link-line class="w-3" />
+                                </a>
+                            @endforeach
+                        @endif
 
                         @if ($project->external_link)
                             <a href="{{ $project->external_link }}" target="_blank" rel="noopener"
