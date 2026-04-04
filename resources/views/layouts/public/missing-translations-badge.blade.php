@@ -6,22 +6,30 @@
 @endphp
 
 @if ($missing_translations_locale)
-    <div x-data="{ open: true }" x-show="open" x-transition.opacity.duration.300ms
-        class="fixed bottom-6 z-[99999] w-full max-w-fit px-4">
-        <div class="relative flex gap-2 bg-yellow-400/75 border-2 border-yellow-700 text-yellow-950 p-2">
-            {{ __(
-                'This content is not yet translated in :language',
-                [
-                    'language' => config()->string(
-                        "laravellocalization.supportedLocales.{$missing_translations_locale}.native",
-                        strtoupper($missing_translations_locale),
-                    ),
-                ],
-                $is_valid_locale ? $missing_translations_locale : 'en',
-            ) }}
+    <div x-data="{ open: true }" x-show="open" x-transition:leave="transition duration-300 ease-in"
+        x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-2"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[99999]">
+        <div
+            class="flex items-center gap-6 border border-light/20 bg-dark/90 backdrop-blur-sm px-6 py-4 text-light/70 text-xs font-semibold uppercase tracking-widest">
+            <span>
+                {!! __(
+                    'This content is not yet translated in :language',
+                    [
+                        'language' =>
+                            '<span class="text-light">' .
+                            config()->string(
+                                "laravellocalization.supportedLocales.{$missing_translations_locale}.native",
+                                strtoupper($missing_translations_locale),
+                            ) .
+                            '</span>',
+                    ],
+                    $is_valid_locale ? $missing_translations_locale : 'en',
+                ) !!}
+            </span>
 
-            <button type="button" @click="open = false" aria-label="{{ __('Close') }}">
-                <x-heroicon-m-x-mark class="w-5" />
+            <button type="button" @click="open = false" aria-label="{{ __('Close') }}"
+                class="text-light/30 hover:text-light transition-colors duration-200">
+                <x-heroicon-m-x-mark class="w-4" />
             </button>
         </div>
     </div>

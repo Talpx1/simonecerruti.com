@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Exceptions\MissingRoutableLocalizedRouteKeyException;
 use App\Filament\Macros\Field\CapitalizeFirstCharMacro;
 use App\Filament\Macros\Field\CapitalizeWordsMacro;
 use App\Filament\Macros\Field\LowercaseMacro;
@@ -78,7 +79,6 @@ class AppServiceProvider extends ServiceProvider {
                         ->withoutQuery(['missing_translations']);
 
                     return $route;
-                    // @phpstan-ignore catch.neverThrown
                 } catch (MissingRoutableLocalizedRouteKeyException) {
                     return Uri::of(request()->url())->withQuery(['missing_translations' => $locale]);
                 }
