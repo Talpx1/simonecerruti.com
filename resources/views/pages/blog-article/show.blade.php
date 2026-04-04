@@ -34,7 +34,7 @@
                 @endphp
                 @if ($categories->isNotEmpty())
                     <span>—</span>
-                    <span>{{ $categories->pluck('name')->implode(', ') }}</span>
+                    <span class="uppercase">{{ $categories->pluck('name')->implode(', ') }}</span>
                 @endif
 
 
