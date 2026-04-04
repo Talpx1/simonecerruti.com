@@ -41,4 +41,8 @@ enum BlogCategories: int implements SyncsToDatabase {
     public static function getModelClass(): string {
         return config()->string('tags.tag_model');
     }
+
+    protected static function partialSync(): bool {
+        return true;
+    }
 }

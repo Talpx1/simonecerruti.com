@@ -33,6 +33,10 @@ trait SeedDb {
             static::upsertKeys(),
         );
 
+        if (static::partialSync()) {
+            return;
+        }
+
         $current_keys = array_column($mapped, static::upsertKeys()[0]);
 
         $orphans = DB::table(static::getOrGuessTable())
@@ -51,6 +55,14 @@ trait SeedDb {
     }
 
     protected static function forceSync(): bool {
+        return false;
+    }
+
+    /**
+     * If true, sync() only handles enum's records
+     * and ignores the ones created via CRUD.
+     */
+    protected static function partialSync(): bool {
         return false;
     }
 
