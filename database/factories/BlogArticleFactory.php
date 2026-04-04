@@ -36,7 +36,6 @@ class BlogArticleFactory extends Factory {
                 'en' => fake('en')->paragraphs(asText: true),
             ],
             'featured' => false,
-            'featured_image_path' => fake()->filePath(),
             'author_id' => User::factory(),
             'status' => BlogArticleStatuses::PUBLISHED,
             'published_at' => now(),

@@ -9,7 +9,7 @@
             class="text-xl lg:text-2xl underline underline-offset-4 flex items-center gap-1">
             {{ __('See all') }} <x-ri-arrow-right-long-line class="w-6" />
         </a>
-        <x-post-tag-list :tags="$project_tags->mapWithKeys(fn($tag) => [$tag->name => '#'])->toArray()" />
+        <x-post-tag-list :tags="$project_tags" />
     </div>
     @foreach ($projects as $project)
         <x-project-card :$project :showTags="false" />

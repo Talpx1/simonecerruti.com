@@ -65,7 +65,7 @@
 
                     @if ($article->tags->isNotEmpty())
                         <div class="hidden 2xl:block">
-                            <x-post-tag-list :tags="$article->tags->mapWithKeys(fn($tag) => [$tag->name => '#'])->toArray()" />
+                            <x-post-tag-list :tags="$article->tags" />
                         </div>
                     @endif
                 </div>

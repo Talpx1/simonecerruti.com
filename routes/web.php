@@ -30,4 +30,6 @@ Route::group([
     Route::livewireLocalized('cookie-policy', \App\Livewire\Pages\CookiePolicy::class)->name('cookie_policy');
 
     Route::livewireLocalized('terms-and-conditions', \App\Livewire\Pages\TermsAndConditions::class)->name('terms_and_conditions');
+
+    Route::livewireLocalized('tag-archive', \App\Livewire\Pages\TagArchive::class)->name('tag_archive');
 });

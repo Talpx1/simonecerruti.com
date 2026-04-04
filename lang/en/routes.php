@@ -13,4 +13,5 @@ return [
     'blog' => 'blog',
     'project-show' => 'project/{project}',
     'blog-article-show' => 'blog/{blog_article}',
+    'tag-archive' => 'tag/{slug}',
 ];

@@ -5,9 +5,9 @@
         @php
             if (is_int($tag)) {
                 $tag = $link;
-                $link = null;
+                $link = route('tag_archive', ['slug' => $tag->slug]);
             }
         @endphp
-        <x-post-tag class="{{ $tagClasses }}" :$link>{{ $prefix . $tag }}</x-post-tag>
+        <x-post-tag class="{{ $tagClasses }}" :$link>{{ $prefix . $tag->name }}</x-post-tag>
     @endforeach
 </div>

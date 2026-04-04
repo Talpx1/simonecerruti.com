@@ -24,10 +24,7 @@
             </div>
 
             <div class="mt-12 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-                <x-post-tag-list :tags="$project->tags
-                    ->where('type', \App\Enums\TagTypes::TAG->value)
-                    ->mapWithKeys(fn($tag) => [$tag->name => '#'])
-                    ->toArray()" />
+                <x-post-tag-list :tags="$project->tags->where('type', \App\Enums\TagTypes::TAG->value)" />
 
                 <div class="flex gap-4">
                     @if ($project->external_link)

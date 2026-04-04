@@ -56,7 +56,7 @@
                 $tags = $blog_article->tags->where('type', \App\Enums\TagTypes::TAG->value);
             @endphp
             @if ($tags->isNotEmpty())
-                <x-post-tag-list tagClasses="text-xs" :tags="$tags->mapWithKeys(fn($tag) => [$tag->name => '#'])->toArray()" />
+                <x-post-tag-list tagClasses="text-xs" :tags="$tags" />
             @endif
         </div>
     </section>

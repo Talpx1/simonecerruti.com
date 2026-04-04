@@ -627,5 +627,8 @@
     "Blog article": "Articolo di blog",
     "Thoughts, case studies and technical writing on software, design and the craft of building things that last.": "Riflessioni, case study e articoli tecnici su software, design e il mestiere di costruire cose che durano.",
     "All": "Tutti",
-    "No articles yet.": "Ancora nessun articolo."
+    "No articles yet.": "Ancora nessun articolo.",
+    "All content tagged with :name — articles, projects and more.": "Tutti i contenuti taggati con :name — articoli, progetti e altro.",
+    "No content found for this tag.": "Nessun contenuto trovato per questo tag.",
+    "Articles": "Articoli"
 }

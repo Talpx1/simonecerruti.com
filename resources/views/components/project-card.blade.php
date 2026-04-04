@@ -48,7 +48,7 @@
         </div>
 
         @if ($showTags && $project->tags->isNotEmpty())
-            <x-post-tag-list :tags="$project->tags->mapWithKeys(fn($tag) => [$tag->name => '#'])->toArray()" />
+            <x-post-tag-list :tags="$project->tags" />
         @endif
     </div>
 </article>

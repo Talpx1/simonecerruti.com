@@ -58,7 +58,7 @@
             $tags = $article->tags->where('type', \App\Enums\TagTypes::TAG->value);
         @endphp
         @if ($showTags && $tags->isNotEmpty())
-            <x-post-tag-list :tags="$tags->mapWithKeys(fn($tag) => [$tag->name => '#'])->toArray()" />
+            <x-post-tag-list :tags="$tags" />
         @endif
     </div>
 </article>

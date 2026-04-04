@@ -86,10 +86,7 @@
 
 
                     @if ($this->featured->tags->where('type', \App\Enums\TagTypes::TAG->value)->isNotEmpty())
-                        <x-post-tag-list :tags="$this->featured->tags
-                            ->where('type', \App\Enums\TagTypes::TAG->value)
-                            ->mapWithKeys(fn($tag) => [$tag->name => '#'])
-                            ->toArray()" />
+                        <x-post-tag-list :tags="$this->featured->tags->where('type', \App\Enums\TagTypes::TAG->value)" />
                     @endif
                 </div>
 
