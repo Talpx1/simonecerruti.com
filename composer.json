@@ -26,7 +26,6 @@
         "filament/spatie-laravel-media-library-plugin": "^5.0",
         "filament/spatie-laravel-tags-plugin": "^5.0",
         "lara-zeus/spatie-translatable": "^2.0",
-        "laragear/preload": "^3.0",
         "laravel-lang/common": "^6.7",
         "laravel/framework": "^12.0",
         "laravel/slack-notification-channel": "^3.6",

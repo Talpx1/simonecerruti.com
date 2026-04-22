@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce9ff369cf018207dd77399605dd5712",
+    "content-hash": "0db852bec1b1d725d4d3258a48bcbbfc",
     "packages": [
         {
             "name": "andreiio/blade-remix-icon",
@@ -2847,88 +2847,6 @@
                 }
             ],
             "time": "2026-01-28T13:50:52+00:00"
-        },
-        {
-            "name": "laragear/preload",
-            "version": "v3.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Laragear/Preload.git",
-                "reference": "0a1a88df49450793cce042deafdef0fd0b21e82d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Laragear/Preload/zipball/0a1a88df49450793cce042deafdef0fd0b21e82d",
-                "reference": "0a1a88df49450793cce042deafdef0fd0b21e82d",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "illuminate/config": "11.*|12.*",
-                "illuminate/console": "11.*|12.*",
-                "illuminate/contracts": "11.*|12.*",
-                "illuminate/events": "11.*|12.*",
-                "illuminate/http": "11.*|12.*",
-                "illuminate/pipeline": "11.*|12.*",
-                "illuminate/queue": "11.*|12.*",
-                "illuminate/support": "11.*|12.*",
-                "php": "^8.2",
-                "symfony/finder": "7.*"
-            },
-            "require-dev": {
-                "orchestra/testbench": "9.*|10.*"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "Preload": "Laragear\\Preload\\Facades\\Preload"
-                    },
-                    "providers": [
-                        "Laragear\\Preload\\PreloadServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Laragear\\Preload\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Italo Israel Baeza Cabrera",
-                    "email": "darkghosthunter@gmail.com",
-                    "homepage": "https://github.com/sponsors/DarkGhostHunter"
-                }
-            ],
-            "description": "Effortlessly make a Preload script for your Laravel application.",
-            "keywords": [
-                "Opcache",
-                "laragear",
-                "laravel",
-                "php",
-                "preload",
-                "preloader"
-            ],
-            "support": {
-                "issues": "https://github.com/Laragear/Preload/issues",
-                "source": "https://github.com/Laragear/Preload/tree/v3.0.1"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/sponsors/DarkGhostHunter",
-                    "type": "Github Sponsorship"
-                },
-                {
-                    "url": "https://paypal.me/darkghosthunter",
-                    "type": "Paypal"
-                }
-            ],
-            "time": "2025-04-07T17:00:04+00:00"
         },
         {
             "name": "laravel-lang/actions",

@@ -1,11 +1,12 @@
 # ========================
 # 1. BASE
 # ========================
-FROM php:8.4-apache AS base
+FROM php:8.5-fpm AS base
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     nano \
+    nginx \
     supervisor \
     cron \
     libpq-dev \
@@ -14,12 +15,12 @@ RUN apt-get update && \
     unzip \
     bash \
     logrotate \
+    gettext-base \
     postgresql-client \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev \
     libwebp-dev \
-    libxpm-dev \
     jpegoptim \
     optipng \
     pngquant \
@@ -27,8 +28,8 @@ RUN apt-get update && \
     webp && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm && \
-    docker-php-ext-install pdo_pgsql opcache intl zip exif gd bcmath
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
+    docker-php-ext-install pdo_pgsql intl zip exif gd bcmath
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -65,21 +66,14 @@ ARG APP_ENV="production"
 ARG WWWUID=1000
 ARG WWWGID=1000
 
-# Enable Apache mod_rewrite for URL rewriting
-RUN a2enmod rewrite
-# Configure Apache DocumentRoot to point to Laravel's public directory
-# and update Apache configuration files
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# Nginx config
+COPY ./docker/configs/nginx.conf /etc/nginx/sites-available/default
+
+# Setup PHP-FPM pool config
+COPY ./docker/configs/php-fpm-www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Setup php.ini
 COPY ./docker/configs/php.ini $PHP_INI_DIR/php.ini
-
-# Add Apache config to log to Laravel's storage/logs
-RUN echo 'ErrorLog /var/www/html/storage/logs/apache_error.log' > /etc/apache2/conf-available/custom-logs.conf && \
-    echo 'CustomLog /var/www/html/storage/logs/apache_access.log combined' >> /etc/apache2/conf-available/custom-logs.conf && \
-    a2enconf custom-logs
 
 # Setup supervisord configs
 COPY ./docker/configs/supervisord.conf /etc/supervisor/supervisord.conf
@@ -90,13 +84,16 @@ RUN chmod 0644 /etc/crontab && crontab /etc/crontab
 COPY ./docker/configs/laravel-cron-supervisor.conf /etc/supervisor/conf.d/laravel-cron.conf
 
 # Setup worker supervisor (for Laravel queues)
-COPY ./docker/configs/laravel-worker-supervisor.conf /etc/supervisor/conf.d/laravel-worker.conf
+COPY ./docker/configs/laravel-worker-supervisor.conf /etc/supervisor/conf.d/laravel-worker.conf.template
 
 # Setup vite watch supervisor (dev)
 COPY ./docker/configs/vite-watch.conf /etc/supervisor/conf.d/vite-watch.conf
 
-# Setup apache supervisor
-COPY ./docker/configs/apache-supervisor.conf /etc/supervisor/conf.d/apache.conf
+# Setup nginx supervisor
+COPY ./docker/configs/nginx-supervisor.conf /etc/supervisor/conf.d/nginx.conf
+
+# Setup php-fpm supervisor
+COPY ./docker/configs/php-fpm-supervisor.conf /etc/supervisor/conf.d/php-fpm.conf
 
 # Setup logrotate
 COPY ./docker/configs/logrotate /etc/logrotate.d/simone_cerruti_website
@@ -110,7 +107,11 @@ COPY ./docker/scripts/healthcheck.sh /healthcheck.sh
 RUN chmod +x /healthcheck.sh
 
 # Setup opcache
-COPY ./docker/configs/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY ./docker/configs/opcache.ini /usr/local/etc/php/conf.d/opcache.ini.template
+
+# Setup entrypoint
+COPY ./docker/scripts/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Set the working directory
 WORKDIR /var/www/html
@@ -134,6 +135,7 @@ RUN usermod -s /bin/bash www-data && \
     echo "alias fgrep='fgrep --color=auto'" >> /etc/bash.bashrc && \
     echo "alias egrep='egrep --color=auto'" >> /etc/bash.bashrc && \
     echo "alias artisan='php artisan'" >> /etc/bash.bashrc && \
+    echo "alias tinker='php artisan tinker'" >> /etc/bash.bashrc && \
     echo "PS1='\\[\\033[01;32m\\]\\u@\\h\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '" >> /etc/bash.bashrc
 
 
@@ -162,4 +164,5 @@ RUN if [ "$APP_ENV" = "local" ] ; then \
 # Set permissions
 RUN chown -R www-data:www-data /var/www
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf", "-n"]

@@ -3,7 +3,7 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-declare -a services=("laravel-worker:laravel-worker_00" "laravel-cron" "apache")
+declare -a services=("laravel-worker:laravel-worker_00" "laravel-cron" "nginx")
 
 for service in "${services[@]}"; do
     if ! supervisorctl status "$service" | grep -q "RUNNING"; then
