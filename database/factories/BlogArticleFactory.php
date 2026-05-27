@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Enums\BlogArticleStatuses;
+use App\Models\BlogArticle;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\BlogArticle>
+ * @extends Factory<BlogArticle>
  */
 class BlogArticleFactory extends Factory {
     /**
      * Define the model's default state.
-     *
-     * @return array<string, mixed>
      */
     public function definition(): array {
         return [
@@ -24,8 +23,8 @@ class BlogArticleFactory extends Factory {
                 'en' => fake('en')->words(3, asText: true),
             ],
             'slug' => [
-                'it' => fake('it')->slug(),
-                'en' => fake('en')->slug(),
+                'it' => fake('it')->unique()->slug(),
+                'en' => fake('en')->unique()->slug(),
             ],
             'summary' => [
                 'it' => fake('it')->paragraph(),
@@ -38,7 +37,75 @@ class BlogArticleFactory extends Factory {
             'featured' => false,
             'author_id' => User::factory(),
             'status' => BlogArticleStatuses::PUBLISHED,
-            'published_at' => now(),
+            'published_at' => now()->subDay(),
         ];
+    }
+
+    /**
+     * A draft article (never publicly visible).
+     */
+    public function draft(): static {
+        return $this->state(fn (array $attributes): array => [
+            'status' => BlogArticleStatuses::DRAFT,
+            'published_at' => null,
+        ]);
+    }
+
+    /**
+     * A published article with a past publish date.
+     */
+    public function published(): static {
+        return $this->state(fn (array $attributes): array => [
+            'status' => BlogArticleStatuses::PUBLISHED,
+            'published_at' => now()->subDay(),
+        ]);
+    }
+
+    /**
+     * A published article whose publish date is in the future (not yet live).
+     */
+    public function scheduled(): static {
+        return $this->state(fn (array $attributes): array => [
+            'status' => BlogArticleStatuses::PUBLISHED,
+            'published_at' => now()->addWeek(),
+        ]);
+    }
+
+    /**
+     * An archived article (crawlable but not in the published feed).
+     */
+    public function archived(): static {
+        return $this->state(fn (array $attributes): array => [
+            'status' => BlogArticleStatuses::ARCHIVED,
+            'published_at' => now()->subMonth(),
+        ]);
+    }
+
+    /**
+     * A hidden article (not crawlable, not in the published feed).
+     */
+    public function hidden(): static {
+        return $this->state(fn (array $attributes): array => [
+            'status' => BlogArticleStatuses::HIDDEN,
+            'published_at' => now()->subDay(),
+        ]);
+    }
+
+    /**
+     * A featured article.
+     */
+    public function featured(): static {
+        return $this->state(fn (array $attributes): array => [
+            'featured' => true,
+        ]);
+    }
+
+    /**
+     * An article without a publish date.
+     */
+    public function unpublished(): static {
+        return $this->state(fn (array $attributes): array => [
+            'published_at' => null,
+        ]);
     }
 }

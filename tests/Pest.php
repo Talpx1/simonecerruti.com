@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
@@ -54,3 +55,36 @@ expect()->intercept('toBe', Model::class, function (Model $expected) {
 | global functions to help you to reduce the number of lines of code in your test files.
 |
 */
+
+/**
+ * Authenticate as a user allowed to access the Filament admin panel.
+ */
+function actingAsAdmin(): User {
+    $user = User::factory()->create([
+        'email' => fake()->unique()->userName().'@simonecerruti.com',
+    ]);
+
+    test()->actingAs($user);
+
+    return $user;
+}
+
+/**
+ * Run the given callback with the application locale temporarily switched.
+ *
+ * @template TReturn
+ *
+ * @param  Closure(): TReturn  $callback
+ * @return TReturn
+ */
+function withLocale(string $locale, Closure $callback) {
+    $original = app()->getLocale();
+
+    app()->setLocale($locale);
+
+    try {
+        return $callback();
+    } finally {
+        app()->setLocale($original);
+    }
+}

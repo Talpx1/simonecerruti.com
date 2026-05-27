@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Project>
+ * @extends Factory<Project>
  */
 class ProjectFactory extends Factory {
     /**
      * Define the model's default state.
-     *
-     * @return array<string, mixed>
      */
     public function definition(): array {
         return [
@@ -23,8 +22,8 @@ class ProjectFactory extends Factory {
             ],
             'client' => fake()->company(),
             'slug' => [
-                'it' => fake('it')->slug(),
-                'en' => fake('en')->slug(),
+                'it' => fake('it')->unique()->slug(),
+                'en' => fake('en')->unique()->slug(),
             ],
             'short_description' => [
                 'it' => fake('it')->paragraph(),
@@ -42,8 +41,35 @@ class ProjectFactory extends Factory {
                 ['url' => 'https://github.com/'.fake()->userName()],
                 ['url' => fake()->url()],
             ],
-            'published' => fake()->boolean(70),
+            'published' => true,
             'featured' => false,
         ];
+    }
+
+    /**
+     * A published project.
+     */
+    public function published(): static {
+        return $this->state(fn (array $attributes): array => [
+            'published' => true,
+        ]);
+    }
+
+    /**
+     * An unpublished project.
+     */
+    public function unpublished(): static {
+        return $this->state(fn (array $attributes): array => [
+            'published' => false,
+        ]);
+    }
+
+    /**
+     * A featured project.
+     */
+    public function featured(): static {
+        return $this->state(fn (array $attributes): array => [
+            'featured' => true,
+        ]);
     }
 }
