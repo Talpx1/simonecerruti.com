@@ -6,7 +6,7 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-LOG_FILE="/var/www/html/storage/logs/post-update-$(date -u +"%F-%H_%M_%S").log"
+LOG_FILE="/var/www/html/storage/logs/post-update.log"
 mkdir -p "$(dirname "$LOG_FILE")"
 
 log() {
@@ -58,3 +58,5 @@ run fatal "Reloading nginx (SIGHUP)"            supervisorctl signal HUP nginx
 run fatal "Restarting php-fpm"                  supervisorctl restart php-fpm
 
 log "==> Post-update completed successfully"
+
+printf '\n\n\n\n\n' >>"$LOG_FILE"
