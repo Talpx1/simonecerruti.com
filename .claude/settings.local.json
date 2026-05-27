@@ -1,12 +1,13 @@
 {
-    "permissions": {
-        "allow": [
-            "mcp__laravel-boost__database-schema",
-            "mcp__laravel-boost__application-info"
-        ]
-    },
-    "enableAllProjectMcpServers": true,
-    "enabledMcpjsonServers": [
-        "laravel-boost"
+  "permissions": {
+    "allow": [
+      "mcp__laravel-boost__database-schema",
+      "mcp__laravel-boost__application-info",
+      "mcp__laravel-boost__browser-logs"
     ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "laravel-boost"
+  ]
 }
