@@ -5,7 +5,7 @@
         id="home-intro-logo" />
 
     <div class="order-0 lg:order-1 px-5 lg:px-0 mx-auto relative">
-        <p class="text:xs lg:text-lg 2xl:text-xl lg:absolute lg:left-0 lg:-translate-x-full lg:pr-4 lg:bottom-2">
+        <p class="lg:text-lg 2xl:text-xl lg:absolute lg:left-0 lg:-translate-x-full lg:pr-4 lg:bottom-2">
             {{ __("Hi, I'm Simone and...") }}
         </p>
         <h1 class="text-2xl lg:text-4xl 2xl:text-6xl font-semibold tracking-tighter uppercase mx-auto">
