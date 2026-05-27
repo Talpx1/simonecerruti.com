@@ -58,19 +58,15 @@ COPY --from=vendor /var/www/html/vendor ./vendor
 RUN npm run build
 
 # ========================
-# 4. ACTUAL
+# 4. WEB COMMON
 # ========================
-FROM base AS web
-
-ARG APP_ENV="production"
-ARG WWWUID=1000
-ARG WWWGID=1000
+FROM base AS web-common
 
 # Nginx config
-COPY ./docker/configs/nginx.conf /etc/nginx/sites-available/default
+COPY ./docker/configs/nginx.conf /etc/nginx/sites-available/default.template
 
-# Setup PHP-FPM pool config
-COPY ./docker/configs/php-fpm-www.conf /usr/local/etc/php-fpm.d/www.conf
+# Setup PHP-FPM pool config (templated; entrypoint renders the final www.conf)
+COPY ./docker/configs/php-fpm-www.conf /usr/local/etc/php-fpm.d/www.conf.template
 
 # Setup php.ini
 COPY ./docker/configs/php.ini $PHP_INI_DIR/php.ini
@@ -85,9 +81,6 @@ COPY ./docker/configs/laravel-cron-supervisor.conf /etc/supervisor/conf.d/larave
 
 # Setup worker supervisor (for Laravel queues)
 COPY ./docker/configs/laravel-worker-supervisor.conf /etc/supervisor/conf.d/laravel-worker.conf.template
-
-# Setup vite watch supervisor (dev)
-COPY ./docker/configs/vite-watch.conf /etc/supervisor/conf.d/vite-watch.conf
 
 # Setup nginx supervisor
 COPY ./docker/configs/nginx-supervisor.conf /etc/supervisor/conf.d/nginx.conf
@@ -138,31 +131,55 @@ RUN usermod -s /bin/bash www-data && \
     echo "alias tinker='php artisan tinker'" >> /etc/bash.bashrc && \
     echo "PS1='\\[\\033[01;32m\\]\\u@\\h\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '" >> /etc/bash.bashrc
 
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf", "-n"]
 
-# Run setup for local development if app env is local
-RUN if [ "$APP_ENV" = "local" ] ; then \
-    apt-get update && \
-    apt-get install -y --no-install-recommends git ssh xclip && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    docker-php-ext-install pcntl && \
-    # install node
-    curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g npm@latest && \
-    # change gid
-    if [ "$(id -g www-data)" != "$WWWGID" ]; then \
-    groupmod -o -g "$WWWGID" www-data ; \
-    fi && \
-    # change uid and shell to bash
-    if [ "$(id -u www-data)" != "$WWWUID" ]; then \
-    usermod -o -u "$WWWUID" www-data ; \
-    fi \
-    else \
-    rm /etc/supervisor/conf.d/vite-watch.conf; \
-    fi
+# ========================
+# 5a. WEB PRODUCTION
+# ========================
+FROM web-common AS web-production
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf", "-n"]
+# ========================
+# 5b. WEB LOCAL (dev)
+# ========================
+FROM web-common AS web-local
+
+ARG WWWUID=1000
+ARG WWWGID=1000
+
+# Dev system deps + pcntl
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git ssh xclip ca-certificates curl gnupg && \
+    docker-php-ext-install pcntl && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Node (for running vite dev server inside the container)
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g npm@latest && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Claude CLI
+RUN install -d -m 0755 /etc/apt/keyrings && \
+    curl -fsSL https://downloads.claude.ai/keys/claude-code.asc -o /etc/apt/keyrings/claude-code.asc && \
+    echo "deb [signed-by=/etc/apt/keyrings/claude-code.asc] https://downloads.claude.ai/claude-code/apt/latest latest main" \
+        > /etc/apt/sources.list.d/claude-code.list && \
+    apt-get update && \
+    apt-get install -y claude-code && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    install -d -o www-data -g www-data /var/www/.claude
+
+# Vite watch supervisor (dev only)
+COPY ./docker/configs/vite-watch.conf /etc/supervisor/conf.d/vite-watch.conf
+
+# Align www-data uid/gid to host user, then fix ownership
+RUN if [ "$(id -g www-data)" != "$WWWGID" ]; then \
+        groupmod -o -g "$WWWGID" www-data ; \
+    fi && \
+    if [ "$(id -u www-data)" != "$WWWUID" ]; then \
+        usermod -o -u "$WWWUID" www-data ; \
+    fi && \
+    chown -R www-data:www-data /var/www

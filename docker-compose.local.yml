@@ -3,8 +3,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-      args:
-        - APP_ENV=${APP_ENV:-production}
+      target: web-local
+      args:        
         - WWWUID=${UID:-1000}
         - WWWGID=${GID:-1000}
     image: talpx1/simone_cerruti_website

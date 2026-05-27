@@ -39,13 +39,17 @@
                 "open-southeners.laravel-pint",
                 "laravel.vscode-laravel",
                 "bradlc.vscode-tailwindcss",
-                "cierra.livewire-vscode"
+                "cierra.livewire-vscode",
+                "Anthropic.claude-code"
             ],
             "settings": {}
         }
     },
     "remoteUser": "www-data",
-    "postCreateCommand": "chown -R www-data:www-data /var/www/html 2>/dev/null || true"
+    "postCreateCommand": "chown -R www-data:www-data /var/www/html 2>/dev/null || true",
+    "mounts": [
+        "source=claude-code-config,target=/var/www/.claude,type=volume"
+    ]
     // "forwardPorts": [],
     // "runServices": [],
     // "shutdownAction": "none",

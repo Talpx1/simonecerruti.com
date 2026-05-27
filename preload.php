@@ -2,85 +2,93 @@
 
 declare(strict_types=1);
 
-if (! ini_get('opcache.enable')) {
+if (! function_exists('opcache_compile_file') || ! ini_get('opcache.enable')) {
     return;
 }
 
-error_reporting(E_ERROR);
+require_once __DIR__.'/vendor/autoload.php';
 
-$count = 0;
+$classMap = require __DIR__.'/vendor/composer/autoload_classmap.php';
 
-function preload(string $file, int &$count): void {
-    if (is_file($file)) {
-        @opcache_compile_file($file);
-        $count++;
-    }
-}
-
-function preloadDir(string $path, int &$count, bool $recursive = false): void {
-    if (! is_dir($path)) {
-        return;
-    }
-
-    if ($recursive) {
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)
-        );
-    } else {
-        $iterator = new DirectoryIterator($path);
-    }
-
-    foreach ($iterator as $file) {
-        if (! ($file instanceof SplFileInfo) || $file->getExtension() !== 'php') {
-            continue;
-        }
-
-        $pathname = $file->getPathname();
-
-        if (
-            str_contains($pathname, '/Tests/') ||
-            str_contains($pathname, '/tests/') ||
-            str_ends_with($pathname, 'Test.php')
-        ) {
-            continue;
-        }
-
-        preload($pathname, $count);
-    }
-}
-
-$base = '/var/www/html';
-
-$vendor_dirs = [
-    '/vendor/laravel/framework/src/Illuminate/Support',
-    '/vendor/laravel/framework/src/Illuminate/Http',
-    '/vendor/laravel/framework/src/Illuminate/Routing',
-    '/vendor/laravel/framework/src/Illuminate/Container',
-    '/vendor/laravel/framework/src/Illuminate/Database',
-    '/vendor/laravel/framework/src/Illuminate/View',
-    '/vendor/laravel/framework/src/Illuminate/Pipeline',
-    '/vendor/laravel/framework/src/Illuminate/Events',
-    '/vendor/laravel/framework/src/Illuminate/Auth',
-    '/vendor/laravel/framework/src/Illuminate/Cache',
-    '/vendor/laravel/framework/src/Illuminate/Log',
+$includePrefixes = [
+    'vendor/laravel/framework/src/Illuminate/',
+    'vendor/livewire/livewire/src/',
+    'vendor/filament/',
+    'vendor/spatie/laravel-permission/src/',
+    'vendor/spatie/laravel-activitylog/src/',
+    'vendor/spatie/laravel-medialibrary/src/',
+    'vendor/bezhansalleh/filament-shield/src/',
+    'app/',
 ];
 
-foreach ($vendor_dirs as $dir) {
-    preloadDir($base.$dir, $count, recursive: true);
-}
-
-$app_dirs = [
-    '/app/Models',
-    '/app/Http/Controllers',
-    '/app/Http/Middleware',
-    '/app/Providers',
-    '/app/Services',
-    '/app/Livewire',
-    '/app/Filament',
+// Substring matches. App-only exclusions deliberately scoped with `app/` prefix
+// so framework classes under `Illuminate/Console/...` stay precompiled.
+$excludeFragments = [
+    '/tests/',
+    '/Tests/',
+    'Test.php',
+    'app/Console/',
+    'app/Providers/',
+    'database/migrations/',
+    'database/factories/',
+    'database/seeders/',
 ];
 
-foreach ($app_dirs as $dir) {
-    preloadDir($base.$dir, $count, recursive: true);
+$base = __DIR__.'/';
+$compiled = 0;
+$skipped = 0;
+$errors = 0;
+$start = microtime(true);
+
+foreach ($classMap as $file) {
+    if (! is_string($file)) {
+        continue;
+    }
+
+    $relative = str_starts_with($file, $base) ? substr($file, strlen($base)) : $file;
+
+    $matches = false;
+    foreach ($includePrefixes as $prefix) {
+        if (str_starts_with($relative, $prefix)) {
+            $matches = true;
+            break;
+        }
+    }
+
+    if (! $matches) {
+        $skipped++;
+
+        continue;
+    }
+
+    foreach ($excludeFragments as $fragment) {
+        if (str_contains($relative, $fragment)) {
+            $matches = false;
+            break;
+        }
+    }
+
+    if (! $matches) {
+        $skipped++;
+
+        continue;
+    }
+
+    try {
+        if (@opcache_compile_file($file)) {
+            $compiled++;
+        } else {
+            $errors++;
+        }
+    } catch (Throwable) {
+        $errors++;
+    }
 }
 
-error_log("OPcache preload: {$count} files compiled.");
+error_log(sprintf(
+    '[preload] compiled=%d skipped=%d errors=%d duration=%ss',
+    $compiled,
+    $skipped,
+    $errors,
+    round(microtime(true) - $start, 3)
+));

@@ -3,7 +3,12 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-declare -a services=("laravel-worker:laravel-worker_00" "laravel-cron" "nginx")
+declare -a services=(
+    "laravel-worker:laravel-worker_00"
+    "laravel-cron"
+    "nginx"
+    "php-fpm"
+)
 
 for service in "${services[@]}"; do
     if ! supervisorctl status "$service" | grep -q "RUNNING"; then
@@ -12,5 +17,10 @@ for service in "${services[@]}"; do
     fi
 done
 
-echo "[HEALTHCHECK] ✅ All services are running"
+if ! curl --silent --fail --max-time 3 http://127.0.0.1/up >/dev/null; then
+    echo "[HEALTHCHECK] ❌ HTTP /up failed"
+    exit 1
+fi
+
+echo "[HEALTHCHECK] ✅ All checks passed"
 exit 0

@@ -1,140 +1,60 @@
 #!/bin/bash
-#see https://gist.github.com/mohanpedala/1e2ff5661761d3abd0385e8223e16425?permalink_comment_id=3935570
+
+# Re-deployment hook invoked by Watchtower after image update.
+# Rebuilds Laravel/Filament caches first, then gracefully bounces services.
+
 set -euo pipefail
 IFS=$'\n\t'
-{
-    echo "Start post-update script"
-    cd /var/www/html || {
-        echo "[FATAL] Failed to cd into /var/www/html"
-        exit 1
-    }
 
-    echo "Linking storage"
-    if [ ! -L "/var/www/html/public/storage" ]; then
-        if php artisan storage:link; then
-            echo "Storage linked"
-        else
-            echo "[WARN] php artisan storage:link failed (non-blocking)"
-        fi
-    else
-        echo "Storage was already linked"
+LOG_FILE="/var/www/html/storage/logs/post-update-$(date -u +"%F-%H_%M_%S").log"
+mkdir -p "$(dirname "$LOG_FILE")"
+
+log() {
+    printf '[%s] %s\n' "$(date -u +'%F %T')" "$*" | tee -a "$LOG_FILE"
+}
+
+run() {
+    local mode="$1" description="$2"
+    shift 2
+
+    log "${description}..."
+    if "$@" >>"$LOG_FILE" 2>&1; then
+        log "${description}: OK"
+        return 0
     fi
 
-    echo "Syncing Enums"
-    if php artisan enums:sync; then
-        echo "Enums synced"
-    else
-        echo "[FATAL] php artisan enums:sync failed"
+    if [ "$mode" = "fatal" ]; then
+        log "[FATAL] ${description} failed - aborting"
         exit 1
     fi
 
-    echo "Running migrations"
-    if php artisan migrate --force; then
-        echo "Migrations run"
-    else
-        echo "[FATAL] php artisan migrate --force failed"
-        exit 1
-    fi
+    log "[WARN] ${description} failed (non-blocking)"
+}
 
-    echo "Optimizing app"
-    if php artisan optimize; then
-        echo "App optimized"
-    else
-        echo "[FATAL] php artisan optimize failed"
-        exit 1
-    fi
+log "==> Start post-update"
+cd /var/www/html || { log "[FATAL] cd /var/www/html failed"; exit 1; }
 
-    echo "Caching translated routes"
-    if php artisan route:clear && php artisan route:trans:cache; then
-        echo "Translated routes cached"
-    else
-        echo "[FATAL] php artisan route:clear && php artisan route:trans:cache failed"
-        exit 1
-    fi
+# Rebuild caches BEFORE bouncing services so the new processes boot with valid caches.
+run fatal "Running migrations"                  php artisan migrate --force
+run fatal "Optimizing app"                      php artisan optimize
+run fatal "Clearing route cache"                php artisan route:clear
+run fatal "Caching translated routes"           php artisan route:trans:cache
+run fatal "Optimizing filament"                 php artisan filament:optimize
+run fatal "Fixing cache ownership"              chown -R www-data:www-data storage bootstrap/cache
 
-    echo "Optimizing filament"
-    if php artisan filament:optimize; then
-        echo "Filament optimized"
-    else
-        echo "[FATAL] php artisan filament:optimize failed"
-        exit 1
-    fi
+# Graceful: signal workers/scheduler to finish current job and exit; supervisor respawns them.
+run warn  "Signalling queue workers to restart" php artisan queue:restart
+run warn  "Interrupting scheduler"              php artisan schedule:interrupt
 
-    echo "Setting cache permissions"
-    if chown -R www-data:www-data storage bootstrap/cache; then
-        echo "Cache permissions set"
-    else
-        echo "[FATAL] chown -R www-data:www-data storage bootstrap/cache failed"
-        exit 1
-    fi
+# Apply any supervisor config changes shipped with the new image.
+run warn  "Re-reading supervisor config"        supervisorctl reread
+run warn  "Updating supervisor config"          supervisorctl update
+run warn  "Reloading crontab"                   crontab /etc/crontab
 
-    echo "Interrupting schedule"
-    if php artisan schedule:interrupt; then
-        echo "Schedule interrupted"
-    else
-        echo "[WARN] php artisan schedule:interrupt failed (non-blocking)"
-    fi
+# SIGHUP = nginx graceful reload (workers finish in-flight requests). Supervisor has no native reload.
+run fatal "Reloading nginx (SIGHUP)"            supervisorctl signal HUP nginx
 
-    echo "Reading supervisor config"
-    if supervisorctl reread; then
-        echo "Supervisor config read"
-    else
-        echo "[WARN] supervisorctl reread failed (non-blocking)"
-    fi
+# Hard restart php-fpm: wipes OPcache and re-runs preload.php with the new bytecode.
+run fatal "Restarting php-fpm"                  supervisorctl restart php-fpm
 
-    echo "Updating supervisor config"
-    if supervisorctl update; then
-        echo "Supervisor config updated"
-    else
-        echo "[WARN] supervisorctl update failed (non-blocking)"
-    fi
-
-    echo "Restarting nginx"
-    if supervisorctl restart nginx; then
-        echo "Restarted nginx"
-    else
-        echo "[FATAL] supervisorctl restart nginx failed"
-        exit 1
-    fi
-
-    echo "Restarting php-fpm"
-    if supervisorctl restart php-fpm; then
-        echo "Restarted php-fpm"
-    else
-        echo "[FATAL] supervisorctl restart php-fpm failed"
-        exit 1
-    fi
-
-    echo "Restarting workers"
-    if supervisorctl restart laravel-worker:*; then
-        echo "Restarted workers"
-    else
-        echo "[FATAL] supervisorctl restart laravel-worker:* failed"
-        exit 1
-    fi
-
-    echo "Restarting cron"
-    if supervisorctl restart laravel-cron; then
-        echo "Restarted cron"
-    else
-        echo "[FATAL] supervisorctl restart laravel-cron failed"
-        exit 1
-    fi
-
-    echo "Reading crontab"
-    if crontab /etc/crontab; then
-        echo "Crontab read"
-    else
-        echo "[WARN] crontab /etc/crontab failed (non-blocking)"
-    fi
-
-    echo "Restarting Laravel queues"
-    if php artisan queue:restart; then
-        echo "Queues restarted"
-    else
-        echo "[WARN] php artisan queue:restart failed (non-blocking)"
-    fi
-
-    echo "Post-update completed successfully"
-} >> "/var/www/html/storage/logs/post-update-$(date +"%F-%H_%M_%S").log" 2>&1
-exit 0
+log "==> Post-update completed successfully"

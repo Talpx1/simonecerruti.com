@@ -28,5 +28,6 @@ jobs:
         with:
           context: .
           file: ./docker/Dockerfile
+          target: web-production
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO_NAME }}:${{ github.ref_name }}

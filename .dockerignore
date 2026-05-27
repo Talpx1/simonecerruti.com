@@ -1,26 +1,66 @@
-.devcontainer
-.github
-.vscode
+# VCS
 .git
-tests
-node_modules
-vendor
-./docker/Dockerfile
-
-.dockerignore
-.editorconfig
-.env
-.env.example
-.env.ci
-.gitattributes
 .gitignore
-.prettierignore
-.prettierc
-.todo
-docker-compose.local.yml
-.eslint.config
-phpstan.neon
-phpunit.xml
-README.md
-pint.json
-rector.php
+.gitattributes
+
+# Dependencies (rebuilt in image stages)
+/vendor
+/node_modules
+
+# Build artifacts (rebuilt by assets stage)
+/public/build
+/public/hot
+/public/storage
+
+# Env (provided at runtime)
+.env
+.env.*
+!.env.example
+
+# Storage / runtime
+/storage/logs/*
+!/storage/logs/.gitignore
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+/storage/debugbar
+/storage/clockwork
+/storage/pail
+/storage/*.key
+
+# Tests / static analysis / code style
+/tests
+/phpunit.xml
+/.phpunit.cache
+/.phpunit.result.cache
+/phpstan.neon
+/pint.json
+/.phpactor.json
+
+# AI / editor / IDE configs
+/.ai
+/.claude
+/.cursor
+/.copilot
+/CLAUDE.md
+/boost.json
+/.vscode
+/.idea
+/.zed
+/.nova
+/.fleet
+
+# Local dev compose
+/docker-compose.local.yml
+
+# Docs / misc
+/README.md
+/Homestead.json
+/Homestead.yaml
+/auth.json
+*.log
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
