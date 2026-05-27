@@ -15,3 +15,5 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 52 6    1 * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
 #
 * * * * * www-data cd /var/www/html && php artisan schedule:run --verbose --no-interaction >> /var/www/html/storage/logs/cron.log 2>&1
+
+# Cloudflare ip range refresh will be added here from Dockerfile to avoid having it running in the dev environment

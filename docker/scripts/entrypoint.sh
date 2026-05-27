@@ -23,6 +23,9 @@ envsubst < /etc/supervisor/conf.d/laravel-worker.conf.template \
 envsubst '${FASTCGI_HTTPS}' < /etc/nginx/sites-available/default.template \
                             > /etc/nginx/sites-available/default
 
+# ---- Refresh Cloudflare IPs at startup (best effort) ----
+/usr/local/bin/cloudflare-ips.sh || echo "Could not refresh Cloudflare IPs at startup"
+
 if [ -f /var/www/html/artisan ] && [ ! -L /var/www/html/public/storage ]; then
     php /var/www/html/artisan storage:link || echo "[WARN] storage:link failed (non-blocking)"
 fi
