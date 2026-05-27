@@ -103,6 +103,8 @@
         document.addEventListener('livewire:navigated', loadRecaptcha);
 
         function loadRecaptcha() {
+            // Always clean up any previously injected reCAPTCHA. This also runs
+            // when navigating away from the contact form via wire:navigate.
             const existingScript = document.querySelector('script[src*="google.com/recaptcha"]');
             if (existingScript) {
                 existingScript.remove();
@@ -117,6 +119,12 @@
 
             if (window.grecaptcha) {
                 delete window.grecaptcha;
+            }
+
+            // Only load reCAPTCHA on pages that actually use it (the contact form),
+            // otherwise it adds third-party noise to every page's console.
+            if (!document.querySelector('[data-recaptcha-required]')) {
+                return;
             }
 
             const script = document.createElement('script');

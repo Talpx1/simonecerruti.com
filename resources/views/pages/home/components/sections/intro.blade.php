@@ -34,25 +34,13 @@
 @push('scripts')
     <script>
         document.addEventListener('livewire:navigated', () => {
-            if (window.isMobile) {
-                return
-            }
-
             const el = document.querySelector("#home-intro-logo");
 
-            const centerElement = () => {
-                gsap.set(el, {
-                    xPercent: -50,
-                    yPercent: -50,
-                    rotationX: 0,
-                    rotationY: 0,
-                    transformPerspective: 800,
-                    transformOrigin: "center center",
-                    force3D: true
-                });
-            };
+            if (!el) {
+                return;
+            }
 
-            centerElement();
+            let parallaxActive = false;
 
             const setRotX = gsap.quickTo(el, "rotationX", {
                 duration: 0.4,
@@ -72,19 +60,70 @@
                 setRotX(-y * max);
             };
 
-            document.addEventListener("mousemove", onMove);
-            window.listenersToRemove.push(["mousemove", onMove]);
-
-            document.addEventListener("mouseleave", () => {
+            const onLeave = () => {
                 gsap.to(el, {
                     rotationX: 0,
                     rotationY: 0,
                     duration: 0.6,
                     ease: "power3.out"
                 });
+            };
+
+            // Desktop: center the absolutely-positioned logo via GSAP (xPercent
+            // keeps it centered on resize) and enable the mouse parallax.
+            const enableParallax = () => {
+                if (parallaxActive) {
+                    return;
+                }
+                parallaxActive = true;
+
+                gsap.set(el, {
+                    xPercent: -50,
+                    yPercent: -50,
+                    rotationX: 0,
+                    rotationY: 0,
+                    transformPerspective: 800,
+                    transformOrigin: "center center",
+                    force3D: true
+                });
+
+                document.addEventListener("mousemove", onMove);
+                document.addEventListener("mouseleave", onLeave);
+            };
+
+            // Mobile: the logo flows in the grid, so strip the inline transform
+            // that would otherwise drag it off-center, and drop the listeners.
+            const disableParallax = () => {
+                if (!parallaxActive) {
+                    return;
+                }
+                parallaxActive = false;
+
+                document.removeEventListener("mousemove", onMove);
+                document.removeEventListener("mouseleave", onLeave);
+
+                gsap.set(el, {
+                    clearProps: "transform"
+                });
+            };
+
+            const syncToViewport = () => {
+                if (window.isDesktop) {
+                    enableParallax();
+                } else {
+                    disableParallax();
+                }
+            };
+
+            syncToViewport();
+            window.addEventListener("resize", syncToViewport);
+
+            document.addEventListener('livewire:navigating', () => {
+                window.removeEventListener("resize", syncToViewport);
+                disableParallax();
+            }, {
+                once: true
             });
-
-
         }, {
             once: true
         })

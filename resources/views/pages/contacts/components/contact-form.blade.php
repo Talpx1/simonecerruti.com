@@ -1,4 +1,4 @@
-<div>
+<div @if ($this->has_recaptcha ?? false) data-recaptcha-required @endif>
     <form @submit.prevent="formSubmit" x-data="{
         recaptchaKey: @js(config('services.recaptcha.key')),
         recaptchaAction: @js($this->getRecaptchaAction ?? ''),

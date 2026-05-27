@@ -16,7 +16,7 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('resize', () => window.snap.resize())
+        window.addEventListener('resize', () => window.snap?.resize())
 
         document.addEventListener('livewire:navigated', () => {
             if (!window.isDesktop) {
