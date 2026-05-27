@@ -73,53 +73,7 @@
 
             <div>
                 <p class="text-[10px] tracking-widest uppercase text-light/30 mb-5">{{ __('Social') }}</p>
-                <div class="flex flex-row lg:flex-col justify-between lg:gap-3">
-                    <div>
-                        <a target="_blank" rel="noopener" href="{{ config('company.socials.linkedin.link') }}">
-                            <div
-                                class="flex gap-2 items-center text-xs uppercase tracking-widest text-light/40 hover:text-light hover:tracking-[.2em] transition-all duration-200">
-                                <x-fab-linkedin class="w-5 lg:w-3" />
-                                <span class="hidden lg:inline">LinkedIn</span>
-                            </div>
-                        </a>
-                    </div>
-                    <div>
-                        <a target="_blank" rel="noopener" href="{{ config('company.socials.instagram.link') }}">
-                            <div
-                                class="flex gap-2 items-center text-xs uppercase tracking-widest text-light/40 hover:text-light hover:tracking-[.2em] transition-all duration-200">
-                                <x-fab-instagram class="w-5 lg:w-3" />
-                                <span class="hidden lg:inline">Instagram</span>
-                            </div>
-                        </a>
-                    </div>
-                    <div>
-                        <a target="_blank" rel="noopener" href="{{ config('company.socials.github.link') }}">
-                            <div
-                                class="flex gap-2 items-center text-xs uppercase tracking-widest text-light/40 hover:text-light hover:tracking-[.2em] transition-all duration-200">
-                                <x-fab-github class="w-5 lg:w-3" />
-                                <span class="hidden lg:inline">GitHub</span>
-                            </div>
-                        </a>
-                    </div>
-                    <div>
-                        <a target="_blank" rel="noopener" href="{{ config('company.socials.bluesky.link') }}">
-                            <div
-                                class="flex gap-2 items-center text-xs uppercase tracking-widest text-light/40 hover:text-light hover:tracking-[.2em] transition-all duration-200">
-                                <x-fab-bluesky class="w-5 lg:w-3" />
-                                <span class="hidden lg:inline">BlueSky</span>
-                            </div>
-                        </a>
-                    </div>
-                    <div>
-                        <a target="_blank" rel="noopener" href="{{ config('company.socials.x.link') }}">
-                            <div
-                                class="flex gap-2 items-center text-xs uppercase tracking-widest text-light/40 hover:text-light hover:tracking-[.2em] transition-all duration-200">
-                                <x-fab-x-twitter class="w-5 lg:w-3" />
-                                <span class="hidden lg:inline">X / Twitter</span>
-                            </div>
-                        </a>
-                    </div>
-                </div>
+                <x-social-links variant="menu" />
             </div>
 
             <p class="text-[10px] text-light/20 tracking-widest uppercase">

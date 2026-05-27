@@ -37,7 +37,7 @@
                     __('Tailwind'),
                 ]" />
                 <a wire:navigate href="{{ route('how_i_work') }}"
-                    class="mt-4 font-semibold text-sm uppercase underline underline-offset-4 flex items gap-1">
+                    class="mt-4 font-semibold text-sm uppercase underline underline-offset-4 flex items-center gap-1">
                     {{ __('Discover how I work') }} <x-ri-arrow-right-long-line class="w-4" />
                 </a>
             </div>

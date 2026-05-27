@@ -10,7 +10,7 @@
             }
         }
     </style>
-    <div class="lg:border lg:border-light grid gris-cols-1 grid-rows-2 gap-8 lg:gap-0 lg:justify-between">
+    <div class="lg:border lg:border-light grid grid-cols-1 grid-rows-2 gap-8 lg:gap-0 lg:justify-between">
         <x-pages::home.components.articles-list :articles="$practical_blog_articles"
             see-all-route="{{ route('blog', ['category' => \App\Enums\BlogCategories::PRACTICAL->model()->slug]) }}">
             <x-slot:heading>

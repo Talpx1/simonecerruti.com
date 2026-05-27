@@ -56,59 +56,7 @@
         </div>
     </div>
 
-    <div
-        class="flex flex-col lg:flex-row w-fit lg:w-full md:w-auto mx-auto md:flex-row gap-8 md:gap-0 md:justify-between items-start md:items-center">
-        <div>
-            <a target="_blank" rel="noopener" href="{{ config('company.socials.linkedin.link') }}">
-                <div class="flex gap-2 items-center">
-                    <x-fab-linkedin class="w-7" />
-                    <h2 class="text-xl font-semibold underline">{{ config('company.socials.linkedin.username') }}</h2>
-                    <x-fas-external-link-alt class="w-3 self-start" />
-                </div>
-                <h3 class="mt-1">LinkedIn</h3>
-            </a>
-        </div>
-        <div>
-            <a target="_blank" rel="noopener" href="{{ config('company.socials.instagram.link') }}">
-                <div class="flex gap-2 items-center">
-                    <x-fab-instagram class="w-7" />
-                    <h2 class="text-xl font-semibold underline">{{ config('company.socials.instagram.username') }}</h2>
-                    <x-fas-external-link-alt class="w-3 self-start" />
-                </div>
-                <h3 class="mt-1">Instagram</h3>
-            </a>
-        </div>
-        <div>
-            <a target="_blank" rel="noopener" href="{{ config('company.socials.github.link') }}">
-                <div class="flex gap-2 items-center">
-                    <x-fab-github class="w-7" />
-                    <h2 class="text-xl font-semibold underline">{{ config('company.socials.github.username') }}</h2>
-                    <x-fas-external-link-alt class="w-3 self-start" />
-                </div>
-                <h3 class="mt-1">GitHub</h3>
-            </a>
-        </div>
-        <div>
-            <a target="_blank" rel="noopener" href="{{ config('company.socials.bluesky.link') }}">
-                <div class="flex gap-2 items-center">
-                    <x-fab-bluesky class="w-7" />
-                    <h2 class="text-xl font-semibold underline">{{ config('company.socials.bluesky.username') }}</h2>
-                    <x-fas-external-link-alt class="w-3 self-start" />
-                </div>
-                <h3 class="mt-1">BlueSky</h3>
-            </a>
-        </div>
-        <div>
-            <a target="_blank" rel="noopener" href="{{ config('company.socials.x.link') }}">
-                <div class="flex gap-2 items-center">
-                    <x-fab-x-twitter class="w-7" />
-                    <h2 class="text-xl font-semibold underline">{{ config('company.socials.x.username') }}</h2>
-                    <x-fas-external-link-alt class="w-3 self-start" />
-                </div>
-                <h3 class="mt-1">X/Twitter</h3>
-            </a>
-        </div>
-    </div>
+    <x-social-links variant="detailed" />
 </div>
 
 @push('scripts')
