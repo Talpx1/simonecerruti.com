@@ -12,5 +12,5 @@ Schedule::timezone(config()->string('app.actual_timezone'))->group(function (Ill
 
     $schedule->command('telescope:prune')->dailyAt('23:00');
     $schedule->command('activitylog:clean --days=30')->dailyAt('00:00');
-    $schedule->command('app:sitemap-generate')->dailyAt('01:00');
+    $schedule->command('app:generate-sitemap')->dailyAt('01:00');
 });

@@ -27,6 +27,15 @@ if [ -f /var/www/html/artisan ] && [ ! -L /var/www/html/public/storage ]; then
     php /var/www/html/artisan storage:link || echo "[WARN] storage:link failed (non-blocking)"
 fi
 
+# Generate the sitemap so a freshly-started container serves /sitemap.xml right away:
+# public/sitemap.xml is not baked into the image, and the daily scheduler only refreshes it
+# at 01:00. Run as www-data so the scheduled regeneration (also www-data) can overwrite it.
+# Non-blocking: a transient failure (e.g. DB not yet reachable) must not stop the container.
+if [ -f /var/www/html/artisan ]; then
+    su www-data -s /bin/bash -c "php /var/www/html/artisan app:generate-sitemap" \
+        || echo "[WARN] sitemap generation failed (non-blocking)"
+fi
+
 if [ ! -f /var/www/html/preload.php ]; then
     echo "[WARN] preload.php missing - opcache preload disabled"
 fi
