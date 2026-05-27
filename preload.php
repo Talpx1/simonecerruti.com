@@ -2,31 +2,45 @@
 
 declare(strict_types=1);
 
-if (! function_exists('opcache_compile_file') || ! ini_get('opcache.enable')) {
+if (! ini_get('opcache.enable')) {
     return;
 }
 
 require_once __DIR__.'/vendor/autoload.php';
 
+/** @var array<string, string> $classMap */
 $classMap = require __DIR__.'/vendor/composer/autoload_classmap.php';
 
+// Whitelisted prefixes (relative to the project root). Only the framework,
+// Livewire, Filament and the hot first/third-party packages that sit on every
+// request are preloaded. Each path is verified to exist in `vendor/`.
 $includePrefixes = [
     'vendor/laravel/framework/src/Illuminate/',
     'vendor/livewire/livewire/src/',
     'vendor/filament/',
-    'vendor/spatie/laravel-permission/src/',
+    'vendor/nesbot/carbon/src/',
+    'vendor/mcamara/laravel-localization/src/',
+    'vendor/lara-zeus/spatie-translatable/src/',
+    'vendor/lorisleiva/laravel-actions/src/',
     'vendor/spatie/laravel-activitylog/src/',
     'vendor/spatie/laravel-medialibrary/src/',
-    'vendor/bezhansalleh/filament-shield/src/',
+    'vendor/spatie/laravel-tags/src/',
+    'vendor/spatie/laravel-translatable/src/',
+    'vendor/spatie/laravel-sitemap/src/',
+    'vendor/thecodingmachine/safe/',
     'app/',
 ];
 
-// Substring matches. App-only exclusions deliberately scoped with `app/` prefix
-// so framework classes under `Illuminate/Console/...` stay precompiled.
+// Substring matches. App-only exclusions are deliberately scoped with the `app/`
+// prefix so framework classes under e.g. `Illuminate/Console/...` stay preloaded.
+// Service providers, console commands and database files have side effects or are
+// not part of the request hot-path, so they are skipped.
 $excludeFragments = [
     '/tests/',
     '/Tests/',
     'Test.php',
+    'Illuminate/Testing/',
+    'Illuminate/Foundation/Testing/',
     'app/Console/',
     'app/Providers/',
     'database/migrations/',
@@ -35,13 +49,13 @@ $excludeFragments = [
 ];
 
 $base = __DIR__.'/';
-$compiled = 0;
+$loaded = 0;
 $skipped = 0;
 $errors = 0;
 $start = microtime(true);
 
-foreach ($classMap as $file) {
-    if (! is_string($file)) {
+foreach ($classMap as $class => $file) {
+    if (! is_string($class) || ! is_string($file)) {
         continue;
     }
 
@@ -55,16 +69,12 @@ foreach ($classMap as $file) {
         }
     }
 
-    if (! $matches) {
-        $skipped++;
-
-        continue;
-    }
-
-    foreach ($excludeFragments as $fragment) {
-        if (str_contains($relative, $fragment)) {
-            $matches = false;
-            break;
+    if ($matches) {
+        foreach ($excludeFragments as $fragment) {
+            if (str_contains($relative, $fragment)) {
+                $matches = false;
+                break;
+            }
         }
     }
 
@@ -75,19 +85,24 @@ foreach ($classMap as $file) {
     }
 
     try {
-        if (@opcache_compile_file($file)) {
-            $compiled++;
+        // Loading through the autoloader (rather than opcache_compile_file) links
+        // each class against its parents, interfaces and traits, so it is added to
+        // the preload set fully resolved instead of being skipped as "unlinked".
+        if (class_exists($class) || interface_exists($class) || trait_exists($class) || enum_exists($class)) {
+            $loaded++;
         } else {
-            $errors++;
+            $skipped++;
         }
     } catch (Throwable) {
+        // A class that cannot be linked standalone (e.g. it references an optional
+        // dependency) is skipped rather than aborting the whole preload.
         $errors++;
     }
 }
 
 error_log(sprintf(
-    '[preload] compiled=%d skipped=%d errors=%d duration=%ss',
-    $compiled,
+    '[preload] loaded=%d skipped=%d errors=%d duration=%ss',
+    $loaded,
     $skipped,
     $errors,
     round(microtime(true) - $start, 3)
