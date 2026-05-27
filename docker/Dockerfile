@@ -140,8 +140,10 @@ CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf", "-n"]
 FROM web-common AS web-production
 
 COPY ./docker/scripts/cloudflare-ips.sh /usr/local/bin/cloudflare-ips.sh
-RUN echo "# Refresh Cloudflare IP ranges weekly (Sunday 4am)
-0 4 * * 0 root /usr/local/bin/cloudflare-ips.sh >> /var/log/wp_app/cloudflare-ips.log 2>&1" >> /etc/crontab
+RUN printf '%s\n' \
+    "# Refresh Cloudflare IP ranges weekly (Sunday 4am)" \
+    "0 4 * * 0 root /usr/local/bin/cloudflare-ips.sh >> /var/www/html/storage/logs/cloudflare-ips.log 2>&1" \
+    >> /etc/crontab
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www
