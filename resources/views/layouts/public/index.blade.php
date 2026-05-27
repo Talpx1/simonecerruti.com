@@ -51,7 +51,7 @@
         };
 
         window.__appEnv = '{{ app()->environment() }}';
-        // window._clarityId = '{{ config('services.clarity.id') }}';
+        window._clarityId = '{{ config('services.clarity.id') }}';
     </script>
 </head>
 

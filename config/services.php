@@ -44,4 +44,6 @@ return [
         'secret' => env('RECAPTCHA_SECRET_KEY'),
     ],
 
+    'clarity' => ['id' => 'wxvr0x2v4u']
+
 ];
