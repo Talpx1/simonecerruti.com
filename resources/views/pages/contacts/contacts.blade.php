@@ -3,7 +3,7 @@
     <div>
         <h1 class="text-center lg:text-left text-6xl lg:text-7xl 2xl:text-8xl font-black uppercase">{{ __('Contacts') }}
         </h1>
-        <h2 class="text-3xl 2xl:text-5xl text-center lg:text-left">
+        <h2 class="text-3xl 2xl:text-5xl font-semibold text-center lg:text-left mt-2 lg:mt-4">
             {{ __('It starts here. The rest, we build together.') }}
         </h2>
         <livewire:components.contact-form />
@@ -50,7 +50,7 @@
                     config()->string('company.contacts.whatsapp.number'),
                     urlencode(__(config()->string('company.contacts.whatsapp.default_message'))),
                 ) }}"
-                class="justify-center text-center text-xl lg:text-2xl 2xl:text-4xl font-black text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase p-4 flex items-center gap-">
+                class="justify-center text-center text-xl lg:text-2xl 2xl:text-4xl font-black text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase p-4 flex items-center gap-1">
                 {{ __('Start a Chat') }} <x-ri-arrow-right-long-line class="w-6 lg:w-10" />
             </a>
         </div>
