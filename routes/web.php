@@ -2,6 +2,18 @@
 
 declare(strict_types=1);
 
+use App\Livewire\Pages\About;
+use App\Livewire\Pages\BlogArticle\BlogArticleList;
+use App\Livewire\Pages\BlogArticle\BlogArticleShow;
+use App\Livewire\Pages\Contacts;
+use App\Livewire\Pages\CookiePolicy;
+use App\Livewire\Pages\Home;
+use App\Livewire\Pages\HowIWork;
+use App\Livewire\Pages\PrivacyPolicy;
+use App\Livewire\Pages\Project\ProjectList;
+use App\Livewire\Pages\Project\ProjectShow;
+use App\Livewire\Pages\TagArchive;
+use App\Livewire\Pages\TermsAndConditions;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
@@ -9,27 +21,27 @@ Route::group([
     'prefix' => LaravelLocalization::setLocale(),
     'middleware' => ['localize', 'localeSessionRedirect', 'localizationRedirect'],
 ], function () {
-    Route::livewire('/', \App\Livewire\Pages\Home::class)->name('home');
+    Route::livewire('/', Home::class)->name('home');
 
-    Route::livewireLocalized('contacts', \App\Livewire\Pages\Contacts::class)->name('contacts');
+    Route::livewireLocalized('contacts', Contacts::class)->name('contacts');
 
-    Route::livewireLocalized('about', \App\Livewire\Pages\About::class)->name('about');
+    Route::livewireLocalized('about', About::class)->name('about');
 
-    Route::livewireLocalized('how-i-work', \App\Livewire\Pages\HowIWork::class)->name('how_i_work');
+    Route::livewireLocalized('how-i-work', HowIWork::class)->name('how_i_work');
 
-    Route::livewireLocalized('projects', \App\Livewire\Pages\Project\ProjectList::class)->name('projects');
+    Route::livewireLocalized('projects', ProjectList::class)->name('projects');
 
-    Route::livewireLocalized('project-show', \App\Livewire\Pages\Project\ProjectShow::class)->name('project.show');
+    Route::livewireLocalized('project-show', ProjectShow::class)->name('project.show');
 
-    Route::livewireLocalized('blog', \App\Livewire\Pages\BlogArticle\BlogArticleList::class)->name('blog');
+    Route::livewireLocalized('blog', BlogArticleList::class)->name('blog');
 
-    Route::livewireLocalized('blog-article-show', \App\Livewire\Pages\BlogArticle\BlogArticleShow::class)->name('blog_article.show');
+    Route::livewireLocalized('blog-article-show', BlogArticleShow::class)->name('blog_article.show');
 
-    Route::livewireLocalized('privacy-policy', \App\Livewire\Pages\PrivacyPolicy::class)->name('privacy_policy');
+    Route::livewireLocalized('privacy-policy', PrivacyPolicy::class)->name('privacy_policy');
 
-    Route::livewireLocalized('cookie-policy', \App\Livewire\Pages\CookiePolicy::class)->name('cookie_policy');
+    Route::livewireLocalized('cookie-policy', CookiePolicy::class)->name('cookie_policy');
 
-    Route::livewireLocalized('terms-and-conditions', \App\Livewire\Pages\TermsAndConditions::class)->name('terms_and_conditions');
+    Route::livewireLocalized('terms-and-conditions', TermsAndConditions::class)->name('terms_and_conditions');
 
-    Route::livewireLocalized('tag-archive', \App\Livewire\Pages\TagArchive::class)->name('tag_archive');
+    Route::livewireLocalized('tag-archive', TagArchive::class)->name('tag_archive');
 });

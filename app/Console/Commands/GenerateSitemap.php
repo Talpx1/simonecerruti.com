@@ -9,6 +9,7 @@ use App\Models\Project;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Uri;
 use Spatie\Sitemap\Sitemap;
 use Spatie\Sitemap\Tags\Url;
 
@@ -56,7 +57,7 @@ class GenerateSitemap extends Command {
 
         foreach ($locales as $locale) {
             foreach ($routes as $route) {
-                /** @var \Illuminate\Support\Uri */
+                /** @var Uri */
                 $uri = Route::localizedUrl($locale, $route['route']);
 
                 $url = Url::create($uri->__toString())
@@ -81,7 +82,7 @@ class GenerateSitemap extends Command {
                 continue;
             }
 
-            /** @var \Illuminate\Support\Uri */
+            /** @var Uri */
             $uri = Route::localizedUrl($alternate, $route);
             $url->addAlternate($uri->__toString(), $alternate);
         }

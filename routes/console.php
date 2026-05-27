@@ -1,8 +1,9 @@
 <?php
 
 declare(strict_types=1);
+use Illuminate\Support\Facades\Schedule;
 
-Illuminate\Support\Facades\Schedule::timezone(config()->string('app.actual_timezone'))->group(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
+Schedule::timezone(config()->string('app.actual_timezone'))->group(function (Illuminate\Console\Scheduling\Schedule $schedule) {
     if (config()->boolean('backup.enabled')) {
         $schedule->command('backup:clean')->dailyAt('01:00');
         $schedule->command('backup:run')->dailyAt('22:00');

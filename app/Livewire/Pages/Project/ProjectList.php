@@ -17,8 +17,7 @@ class ProjectList extends Component {
         return Project::query()
             ->where('published', true)
             ->with(['tags', 'media'])
-            ->orderByDesc('featured')
-            ->orderByDesc('created_at');
+            ->orderByDesc('featured')->latest();
     }
 
     public function mount(): void {

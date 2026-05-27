@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
+use Rector\CodingStyle\Rector\PostInc\PostIncDecToPreIncDecRector;
 use Rector\Config\RectorConfig;
 use Rector\EarlyReturn\Rector\If_\ChangeOrIfContinueToMultiContinueRector;
 use Rector\EarlyReturn\Rector\Return_\ReturnBinaryOrToEarlyReturnRector;
@@ -35,6 +36,8 @@ return RectorConfig::configure()
         rectorPreset: true,
     )
     ->withSkip([
+        // Conflicts with Pint's increment_style (post-increment); Pint is the canonical formatter.
+        PostIncDecToPreIncDecRector::class,
         SimplifyEmptyCheckOnEmptyArrayRector::class,
         DisallowedEmptyRuleFixerRector::class,
         AddArrowFunctionReturnTypeRector::class,
