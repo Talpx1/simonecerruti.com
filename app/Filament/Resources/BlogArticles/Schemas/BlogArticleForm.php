@@ -142,6 +142,7 @@ class BlogArticleForm {
                     ->schema([
                         Repeater::make('relatables')
                             ->relationship('relatables')
+                            ->defaultItems(0)
                             ->hiddenLabel()
                             ->addActionLabel('Aggiungi contenuto correlato')
                             ->schema([
@@ -158,7 +159,9 @@ class BlogArticleForm {
                                     ->columnSpanFull(),
                             ])
                             ->itemLabel(function (array $state): ?string {
+                                /** @var string|null $type */
                                 $type = $state['relatable_type'] ?? null;
+                                /** @var int|string|null $id */
                                 $id = $state['relatable_id'] ?? null;
 
                                 if (! $type || ! $id) {
@@ -166,7 +169,7 @@ class BlogArticleForm {
                                 }
 
                                 return match ($type) {
-                                    app(Project::class)->getMorphClass() => Project::find($id)?->title,
+                                    resolve(Project::class)->getMorphClass() => Project::find($id)?->title,
                                     default => null,
                                 };
                             })

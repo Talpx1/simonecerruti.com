@@ -9,22 +9,9 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * CookieConsentMiddleware
- * ───────────────────────
- * Reads the consent cookie and exposes the parsed preferences
- * to all views via a shared variable `$cookieConsent`.
- *
- * This allows Blade layouts / partials to conditionally load
- * third-party scripts server-side (e.g. skip injecting the
- * Clarity script tag if analytics consent was not given).
- *
- * Usage in layouts:
- *
- *   @if ($cookieConsent['analytics'])
- *
- *       @include('partials.scripts.clarity')
- *
- *   @endif
+ * Reads the consent cookie and exposes the parsed preferences to all views via a shared
+ * "cookieConsent" variable, so Blade layouts can conditionally load third-party scripts
+ * server-side (for example skipping the Clarity script when analytics consent was not given).
  */
 class CookieConsentMiddleware {
     public function handle(Request $request, Closure $next): Response {
@@ -38,8 +25,12 @@ class CookieConsentMiddleware {
 
         $raw = $request->cookie('cookie_consent');
 
-        if ($raw) {
-            $prefs = \Safe\json_decode($raw, true);
+        if (is_string($raw)) {
+            try {
+                $prefs = \Safe\json_decode($raw, true);
+            } catch (\JsonException) {
+                $prefs = null;
+            }
 
             if (is_array($prefs) && isset($prefs['version'])) {
                 $defaults = [
@@ -55,6 +46,9 @@ class CookieConsentMiddleware {
         // Share with all Blade views
         view()->share('cookieConsent', $defaults);
 
-        return $next($request);
+        /** @var Response $response */
+        $response = $next($request);
+
+        return $response;
     }
 }

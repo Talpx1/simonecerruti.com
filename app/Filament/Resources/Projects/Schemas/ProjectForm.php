@@ -43,7 +43,7 @@ class ProjectForm {
                         TextInput::make('slug')
                             ->label('Slug')
                             ->required()
-                            ->unique('projects', "title->{$schema->getLivewire()->activeLocale}")
+                            ->unique('projects', "slug->{$schema->getLivewire()->activeLocale}")
                             ->maxLength(255)
                             ->helperText('Identificatore univoco per la URL'),
                     ])

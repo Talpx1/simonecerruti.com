@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Components;
 
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cookie;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -48,8 +49,12 @@ class CookieConsent extends Component {
     public function mount(): void {
         $existing = request()->cookie(self::COOKIE_NAME);
 
-        if ($existing) {
-            $prefs = json_decode($existing, true);
+        if (is_string($existing)) {
+            try {
+                $prefs = \Safe\json_decode($existing, true);
+            } catch (\JsonException) {
+                $prefs = null;
+            }
 
             // Valid saved consent found – apply and hide banner
             if (is_array($prefs) && isset($prefs['version'])) {
@@ -132,7 +137,7 @@ class CookieConsent extends Component {
     */
 
     private function saveAndClose(): void {
-        $payload = json_encode([
+        $payload = \Safe\json_encode([
             'version' => 1,
             'timestamp' => now()->toIso8601String(),
             'necessary' => true,
@@ -172,7 +177,7 @@ class CookieConsent extends Component {
     |--------------------------------------------------------------------------
     */
 
-    public function render() {
+    public function render(): View {
         return view('layouts.public.cookie-consent');
     }
 }

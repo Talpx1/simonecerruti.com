@@ -24,10 +24,13 @@ class EditBlogArticle extends EditRecord {
     }
 
     protected function mutateFormDataBeforeSave(array $data): array {
-        $published_at = $data['published_at'] ?? null;
-        $is_published = $data['status'] ?? null === BlogArticleStatuses::PUBLISHED;
+        $status = $data['status'] ?? null;
 
-        if (! $published_at && $is_published) {
+        if (is_string($status)) {
+            $status = BlogArticleStatuses::tryFrom($status);
+        }
+
+        if (! ($data['published_at'] ?? null) && $status === BlogArticleStatuses::PUBLISHED) {
             $data['published_at'] = $this->data['published_at'] = now();
         }
 

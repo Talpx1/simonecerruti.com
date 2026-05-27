@@ -10,8 +10,9 @@ use App\Models\Concerns\HasSitemapTag;
 use App\Models\Concerns\LogsAllDirtyChanges;
 use App\Models\Concerns\ResolvesRoutBindingByLocalizedSlug;
 use App\Models\Concerns\Scopes\HasCurrentLocaleTranslationScope;
-use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Attributes\Scope;
+use Carbon\CarbonImmutable;
+use Database\Factories\BlogArticleFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,8 +30,24 @@ use Spatie\Sitemap\Tags\Url;
 use Spatie\Tags\HasTags;
 use Spatie\Translatable\HasTranslations;
 
+/**
+ * @property int $id
+ * @property string $title
+ * @property string $slug
+ * @property string $summary
+ * @property string $content
+ * @property bool $featured
+ * @property int $author_id
+ * @property BlogArticleStatuses $status
+ * @property CarbonImmutable|null $published_at
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $updated_at
+ * @property-read bool $can_be_crawled
+ * @property-read string $featured_image_url
+ * @property-read string $summary_or_excerpt
+ */
 class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapable {
-    /** @use HasFactory<\Database\Factories\BlogArticleFactory> */
+    /** @use HasFactory<BlogArticleFactory> */
     use HasCurrentLocaleTranslationScope, HasFactory, HasRoutableSlug, HasSitemapTag, HasTags, HasTranslations, InteractsWithMedia, LogsAllDirtyChanges, ResolvesRoutBindingByLocalizedSlug;
 
     /** @var list<string> */
@@ -52,29 +69,29 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
     }
 
     public function registerMediaConversions(?Media $media = null): void {
-        $conf = config()->array('blog_article.featured_image');
-
         $conversion = $this->addMediaConversion('featured_image_webp')
-            ->format('webp')
-            ->quality($conf['quality'])
-            ->width($conf['final_width_px'])
-            ->height($conf['final_height_px'])
             ->performOnCollections('featured_image');
 
-        if ($conf['optimize']) {
+        $conversion
+            ->format('webp')
+            ->quality(config()->integer('blog_article.featured_image.quality'))
+            ->width(config()->integer('blog_article.featured_image.final_width_px'))
+            ->height(config()->integer('blog_article.featured_image.final_height_px'));
+
+        if (config()->boolean('blog_article.featured_image.optimize')) {
             $conversion->optimize();
         }
     }
 
-    private function canAddToSitemap(): bool {
+    protected function canAddToSitemap(): bool {
         return $this->can_be_crawled;
     }
 
-    private function getSitemapRoute(string $locale): string {
-        return route('news.show', $this->getTranslation('slug', $locale));
+    protected function getSitemapRoute(string $locale): string {
+        return route('blog_article.show', $this->getTranslation('slug', $locale));
     }
 
-    private function getSitemapPriority(): float {
+    protected function getSitemapPriority(): float {
         if (! $this->published_at) {
             return 0.1;
         }
@@ -89,7 +106,7 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
         };
     }
 
-    private function getSitemapChangeFrequency(): string {
+    protected function getSitemapChangeFrequency(): string {
         if (! $this->published_at) {
             return Url::CHANGE_FREQUENCY_NEVER;
         }
@@ -107,7 +124,7 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
     }
 
     /** @return Attribute<string, never> */
-    public function featuredImageUrl(): Attribute {
+    protected function featuredImageUrl(): Attribute {
         return Attribute::get(
             fn () => $this->getFirstMediaUrl('featured_image', 'featured_image_webp')
                 ?: $this->getFirstMediaUrl('featured_image')
@@ -116,20 +133,20 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
     }
 
     /** @return Attribute<bool, never> */
-    public function canBeCrawled(): Attribute {
+    protected function canBeCrawled(): Attribute {
         return Attribute::get(fn () => $this->status->allowsCrawling() && ($this->published_at?->isNowOrPast() ?? false));
     }
 
-    #[Scope]
-    public function wherePublished(Builder $query): void {
+    /** @param Builder<self> $query */
+    protected function scopeWherePublished(Builder $query): void {
         $query
             ->where('status', BlogArticleStatuses::PUBLISHED)
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now());
     }
 
-    #[Scope]
-    public function whereCanBeCrawled(Builder $query): void {
+    /** @param Builder<self> $query */
+    protected function scopeWhereCanBeCrawled(Builder $query): void {
         $crawlable_statuses = BlogArticleStatuses::collect()
             ->filter(fn (BlogArticleStatuses $case) => $case->allowsCrawling())
             ->pluck('value')
@@ -142,7 +159,7 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
     }
 
     /** @return Attribute<string, never> */
-    public function summaryOrExcerpt(): Attribute {
+    protected function summaryOrExcerpt(): Attribute {
         return Attribute::get(fn () => $this->summary ?? Str::limit($this->content, 160, preserveWords: true));
     }
 

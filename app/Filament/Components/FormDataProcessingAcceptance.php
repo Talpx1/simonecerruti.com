@@ -24,6 +24,6 @@ class FormDataProcessingAcceptance {
                     'privacy_policy' => "<a target='_blank' href='{$privacy_policy_url}' class='underline underline-offset-2 decoration-2'>".__('Privacy policy').'</a>',
                 ]));
             })
-            ->required();
+            ->accepted();
     }
 }
