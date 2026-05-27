@@ -12,7 +12,6 @@ trait ResolvesRoutBindingByLocalizedSlug {
      *
      * @param  mixed  $value
      * @param  string|null  $field
-     * @return \Illuminate\Database\Eloquent\Model|null
      */
     public function resolveRouteBinding($value, $field = null): static {
         $current_locale = App::currentLocale();

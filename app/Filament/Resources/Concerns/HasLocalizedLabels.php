@@ -7,7 +7,7 @@ namespace App\Filament\Resources\Concerns;
 use Illuminate\Support\Str;
 
 trait HasLocalizedLabels {
-    private static function getResourceSlug(): string {
+    protected static function getResourceSlug(): string {
         return Str::snake(str_replace('Resource', '', class_basename(__CLASS__)));
     }
 

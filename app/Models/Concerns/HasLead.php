@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Models\Concerns;
 
 use App\Models\Lead;
+use Filament\Infolists\Components\Entry;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Str;
 
 trait HasLead {
     /**
-     * @return Attribute<non-falsy-string, never>
+     * @return Attribute<string, never>
      */
     abstract protected function leadTitle(): Attribute;
 
@@ -26,16 +27,16 @@ trait HasLead {
      * @return class-string
      */
     public function getInfolist(): string {
-        return $this->infolist ?? '\\App\\Filament\\Resources\\'.Str::plural(class_basename(__CLASS__)).'\\Schemas\\'.class_basename(__CLASS__).'Infolist';
+        /** @var class-string $infolist */
+        $infolist = $this->infolist ?? '\\App\\Filament\\Resources\\'.Str::plural(class_basename(__CLASS__)).'\\Schemas\\'.class_basename(__CLASS__).'Infolist';
+
+        return $infolist;
     }
 
     /**
-     * @return list<\Filament\Infolists\Components\Entry>
+     * @return list<Entry>
      */
     abstract public function getInfolistComponents(): array;
 
-    /**
-     * @return non-falsy-string
-     */
     abstract public static function getLeadSourceName(): string;
 }

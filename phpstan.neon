@@ -5,3 +5,93 @@ parameters:
         - config
         - database
     checkModelProperties: true
+    excludePaths:
+        # Vendor-published migrations (Spatie activity log + Telescope) are generated code.
+        - database/migrations/2026_03_08_174114_create_telescope_entries_table.php
+        - database/migrations/2026_03_08_174258_create_activity_log_table.php
+        - database/migrations/2026_03_08_174259_add_event_column_to_activity_log_table.php
+        - database/migrations/2026_03_08_174300_add_batch_uuid_column_to_activity_log_table.php
+    ignoreErrors:
+        # Laravel's default database config references a PDO SSL constant deprecated in PHP 8.4+.
+        -
+            identifier: classConstant.deprecated
+            path: config/database.php
+        # The optional Media Library Pro package is not installed in this project.
+        -
+            identifier: class.notFound
+            path: config/media-library.php
+        # Laravel's default mail config uses parse_url(); the Safe variant is not warranted here.
+        -
+            identifier: theCodingMachineSafe.function
+            path: config/mail.php
+        # Livewire's fluent view macros (->title(), ->layout()) are untyped, so PHPStan cannot
+        # infer that render() returns a View even though it does so at runtime.
+        -
+            message: '#::render\(\) should return Illuminate\\View\\View but returns mixed\.#'
+            path: app/Livewire
+        # Spatie\Tags\Tag name/slug are translatable JSON columns; checkModelProperties cannot
+        # validate "slug->{locale}" JSON-path where clauses against the vendor model.
+        -
+            message: '#expects .*model property of Spatie\\Tags\\Tag#'
+            path: app/Livewire
+        # Defensive method_exists() checks in shared traits are analysed per-using-class, where
+        # PHPStan sees a branch as always true/false even though other users rely on it.
+        -
+            identifier: function.alreadyNarrowedType
+            paths:
+                - app/Enums/Concerns/HasModel.php
+                - app/Enums/Concerns/SeedDb.php
+                - app/Models/Concerns/HasSitemapTag.php
+        -
+            identifier: function.impossibleType
+            path: app/Enums/Concerns/SeedDb.php
+        # Field text-transform macro closures are bound to a Field by Field::macro() at
+        # registration; PHPStan cannot connect $this back from the Macro::register() contract.
+        -
+            identifier: variable.undefined
+            path: app/Filament/Macros/Field
+        -
+            identifier: method.nonObject
+            path: app/Filament/Macros/Field
+        # JSON-path where clauses on translatable columns ("slug->{locale}") cannot be validated
+        # by checkModelProperties, which only understands literal column names.
+        -
+            identifier: argument.type
+            paths:
+                - app/Models/Concerns/ResolvesRoutBindingByLocalizedSlug.php
+                - app/Models/Concerns/Scopes/HasCurrentLocaleTranslationScope.php
+        # App\Models\Concerns\HasEnum is currently unused; flagged for removal (see notes) rather
+        # than deleted here so no behaviour is changed without review.
+        -
+            identifier: trait.unused
+            path: app/Models/Concerns/HasEnum.php
+        # LaraZeus translatable resource pages expose $activeLocale dynamically; the Schema's
+        # getLivewire() returns the generic HasSchemas&Component contract, so PHPStan cannot see it
+        # (nor that the locale used to build the "slug->{locale}" rule key is a string).
+        -
+            identifier: property.notFound
+            paths:
+                - app/Filament/Resources/BlogArticles/Schemas/BlogArticleForm.php
+                - app/Filament/Resources/Projects/Schemas/ProjectForm.php
+                - app/Filament/Resources/Tags/Schemas/TagForm.php
+        -
+            identifier: encapsedStringPart.nonString
+            paths:
+                - app/Filament/Resources/BlogArticles/Schemas/BlogArticleForm.php
+                - app/Filament/Resources/Projects/Schemas/ProjectForm.php
+                - app/Filament/Resources/Tags/Schemas/TagForm.php
+        # collect(static::cases()) yields Collection<int, case-union>; the invariant Collection
+        # generic does not match Collection<int, static> even though every case is an instance.
+        -
+            identifier: return.type
+            path: app/Enums/Concerns/Collectable.php
+        # Filament form state (getState()) is array<string, mixed>; spreading it into
+        # Model::create() cannot be validated against model properties by checkModelProperties.
+        -
+            identifier: argument.type
+            path: app/Livewire/Components/ContactForm.php
+        # Placeholder Telescope authorization gate: the allow-list is intentionally empty until
+        # reviewers are added, so the in_array() check is currently always false.
+        -
+            identifier: function.impossibleType
+            path: app/Providers/TelescopeServiceProvider.php

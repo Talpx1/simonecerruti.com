@@ -16,14 +16,17 @@ class BlogArticleShow extends Component {
     public ?BlogArticle $next = null;
 
     public function mount(BlogArticle $blog_article): void {
-        $this->blog_article = $blog_article->load(['tags', 'media', 'relatables' => fn ($q) => $q->with('relatable')]);
+        $this->blog_article = $blog_article->load(['tags', 'media', 'relatables.relatable']);
         $this->previous = $blog_article->previous();
         $this->next = $blog_article->next();
     }
 
     public function render(): View {
-        return view('pages.blog-article.show')
-            ->title($this->blog_article->title)
+        $view = view('pages.blog-article.show')
             ->with(['related_blog_articles' => $this->blog_article->relatedBlogArticles()]);
+
+        $view->title($this->blog_article->title);
+
+        return $view;
     }
 }

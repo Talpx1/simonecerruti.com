@@ -9,6 +9,7 @@ use App\Filament\Macros\Field\CapitalizeFirstCharMacro;
 use App\Filament\Macros\Field\CapitalizeWordsMacro;
 use App\Filament\Macros\Field\LowercaseMacro;
 use App\Filament\Macros\Field\UppercaseMacro;
+use App\Macros\Concerns\Macro;
 use App\Macros\Str\ReplacePlaceholdersMacro;
 use Carbon\CarbonImmutable;
 use Filament\Forms\Components\DatePicker;
@@ -29,10 +30,12 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
 use Illuminate\Support\Uri;
+use Livewire\Livewire;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
+use Mcamara\LaravelLocalization\Traits\LoadsTranslatedCachedRoutes;
 
 class AppServiceProvider extends ServiceProvider {
-    use \Mcamara\LaravelLocalization\Traits\LoadsTranslatedCachedRoutes;
+    use LoadsTranslatedCachedRoutes;
 
     /**
      * Register any application services.
@@ -48,7 +51,7 @@ class AppServiceProvider extends ServiceProvider {
      * Bootstrap any application services.
      */
     public function boot(): void {
-        \Livewire\Livewire::setUpdateRoute(fn ($handle) => Route::post('/livewire/update', $handle)
+        Livewire::setUpdateRoute(fn (array $handle) => Route::post('/livewire/update', $handle)
             ->middleware('web')
             ->prefix(LaravelLocalization::setLocale())
         );
@@ -65,7 +68,7 @@ class AppServiceProvider extends ServiceProvider {
 
         RouteServiceProvider::loadCachedRoutesUsing(fn () => $this->loadCachedRoutes());
 
-        App::macro('supportedLocales', fn () => LaravelLocalization::getSupportedLocales());
+        App::macro('supportedLocales', fn (): array => LaravelLocalization::getSupportedLocales());
 
         Route::macro('localizedUrl',
             function (
@@ -75,10 +78,8 @@ class AppServiceProvider extends ServiceProvider {
                 bool $force_default_location = false
             ) {
                 try {
-                    $route = Uri::of(LaravelLocalization::getLocalizedURL($locale, $url, $attributes, $force_default_location))
+                    return Uri::of((string) LaravelLocalization::getLocalizedURL($locale, $url, $attributes, $force_default_location))
                         ->withoutQuery(['missing_translations']);
-
-                    return $route;
                 } catch (MissingRoutableLocalizedRouteKeyException) {
                     return Uri::of(request()->url())->withQuery(['missing_translations' => $locale]);
                 }
@@ -106,10 +107,10 @@ class AppServiceProvider extends ServiceProvider {
             LowercaseMacro::class,
             CapitalizeWordsMacro::class,
             CapitalizeFirstCharMacro::class,
-        ])->each(
-            /** @param class-string<\App\Macros\Concerns\Macro> $macro */
-            fn (string $macro) => Field::macro(...$macro::register())
-        );
+        ])->each(function (string $macro): void {
+            /** @var class-string<Macro> $macro */
+            Field::macro(...$macro::register());
+        });
 
         Str::macro(...ReplacePlaceholdersMacro::register());
     }

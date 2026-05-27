@@ -12,19 +12,24 @@ use Illuminate\Support\Str;
  */
 trait HasModel {
     /**
-     * @return class-string<Model>
+     * @return class-string<TModel>
      */
     private static function guessModelClass(): string {
-        return 'App\\Models\\'.Str::singular(class_basename(__CLASS__));
+        /** @var class-string<TModel> $model */
+        $model = 'App\\Models\\'.Str::singular(class_basename(__CLASS__));
+
+        return $model;
     }
 
-    /** @return class-string<Model> */
+    /** @return class-string<TModel> */
     private static function getOrGuessModelClass(): string {
         if (method_exists(static::class, 'getModelClass')) {
-            return static::getModelClass();
+            /** @var class-string<TModel> $explicit */
+            $explicit = static::getModelClass();
+
+            return $explicit;
         }
 
-        /** @var class-string<Model> */
         $model = static::guessModelClass();
 
         if (! class_exists($model)) {

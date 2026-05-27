@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Concerns;
 
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Livewire\Attributes\Locked;
 
 // FIXME: models in array cause model refetch when rehydrating the variable after update. Livewire stuff.
@@ -36,7 +37,9 @@ trait HasLoadMore {
             $this->load_more_per_page[$key] = $config['per_page'];
             $this->load_more_page[$key] = 0;
             $this->load_more_data[$key] = [];
-            $this->load_more_total[$key] = $this->{$config['query_method']}()->count();
+            /** @var \Illuminate\Database\Eloquent\Builder<Model> $query */
+            $query = $this->{$config['query_method']}();
+            $this->load_more_total[$key] = $query->count();
             $this->load_more_query_method[$key] = $config['query_method'];
         }
     }
@@ -49,6 +52,9 @@ trait HasLoadMore {
         return $this->load_more_total[$key];
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     public function getLoadMoreData(string $key): array {
         return $this->load_more_data[$key];
     }
@@ -78,6 +84,7 @@ trait HasLoadMore {
     }
 
     private function fetchLoadMoreData(string $key, bool $loading_more = false): void {
+        /** @var \Illuminate\Database\Eloquent\Builder<Model> $base_query */
         $base_query = $this->{$this->load_more_query_method[$key]}();
 
         $new_data = $base_query
@@ -94,7 +101,9 @@ trait HasLoadMore {
     public function resetLoadMore(string $key): void {
         $this->load_more_page[$key] = 0;
         $this->load_more_data[$key] = [];
-        $this->load_more_total[$key] = $this->{$this->load_more_query_method[$key]}()->count();
+        /** @var \Illuminate\Database\Eloquent\Builder<Model> $query */
+        $query = $this->{$this->load_more_query_method[$key]}();
+        $this->load_more_total[$key] = $query->count();
         $this->fetchLoadMoreData($key);
     }
 }

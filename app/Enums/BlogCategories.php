@@ -10,9 +10,10 @@ use App\Enums\Concerns\SeedDb;
 use App\Enums\Contracts\SyncsToDatabase;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
+use Spatie\Tags\Tag;
 
 enum BlogCategories: int implements SyncsToDatabase {
-    /** @use HasModel<\Spatie\Tags\Tag> */
+    /** @use HasModel<Tag> */
     use HasLocalizedLabel, HasModel, SeedDb;
 
     case PRACTICAL = 1;
@@ -23,13 +24,13 @@ enum BlogCategories: int implements SyncsToDatabase {
             'id' => $this->value,
 
             'name' => collect(App::supportedLocales())
-                ->mapWithKeys(fn (array $locale_conf, string $locale) => [
-                    $locale => $this->getLabel($locale),
+                ->mapWithKeys(fn ($locale_conf, $locale) => [
+                    (string) $locale => $this->getLabel((string) $locale),
                 ])->toJson(),
 
             'slug' => collect(App::supportedLocales())
-                ->mapWithKeys(fn (array $locale_conf, string $locale) => [
-                    $locale => Str::slug($this->getLabel($locale), language: $locale),
+                ->mapWithKeys(fn ($locale_conf, $locale) => [
+                    (string) $locale => Str::slug($this->getLabel((string) $locale), language: (string) $locale),
                 ])->toJson(),
 
             'type' => TagTypes::BLOG_CATEGORY->value,

@@ -13,6 +13,12 @@ trait HasRecaptcha {
     #[Locked]
     public bool $has_recaptcha = true;
 
+    #[Locked]
+    public ?string $recaptcha_action = null;
+
+    #[Locked]
+    public ?float $captcha_min_score = null;
+
     #[Computed]
     public function getRecaptchaAction(): string {
         return $this->recaptcha_action ?? Str::snake(class_basename(__CLASS__));
@@ -29,9 +35,10 @@ trait HasRecaptcha {
             'remoteip' => request()->ip(),
         ])->body();
 
+        /** @var array<string, mixed> $body */
         $body = \Safe\json_decode($response, true);
 
-        $action = $this->getRecaptchaAction;
+        $action = $this->getRecaptchaAction();
 
         abort_if(! isset($body['success']) || $body['success'] !== true, 400, __('Captcha verification failed. Try again.'));
         abort_if(! isset($body['action']) || $action != $body['action'], 400, __('Captcha verification failed. Try again.'));

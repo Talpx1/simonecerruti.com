@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models\Concerns\Scopes;
 
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 trait HasCurrentLocaleTranslationScope {
-    public function scopeWhereHasCurrentLocaleTranslation(Builder $query, string $field_to_check = 'slug'): void {
+    /** @param Builder<Model> $query */
+    protected function scopeWhereHasCurrentLocaleTranslation(Builder $query, string $field_to_check = 'slug'): void {
         $query
             ->whereNotNull("{$field_to_check}->".app()->getLocale())
             ->where("{$field_to_check}->".app()->getLocale(), '!=', '');

@@ -71,19 +71,21 @@ class BlogArticleList extends Component {
 
     private function articlesBaseQuery(): Builder {
         $tag = $this->resolveActiveTag();
+        $featured = $this->featured();
 
-        return BlogArticle::query()
+        $query = BlogArticle::query()
             ->wherePublished()
-            ->with(['tags', 'media'])
-            ->when(
-                $tag !== null,
-                fn (Builder $query) => $query->withAnyTags($tag, TagTypes::BLOG_CATEGORY->value)
-            )
-            ->when(
-                $tag === null && $this->featured,
-                fn (Builder $query) => $query->where('id', '!=', $this->featured->id)
-            )
-            ->latest('published_at');
+            ->with(['tags', 'media']);
+
+        if ($tag instanceof Tag) {
+            $query->withAnyTags([$tag], TagTypes::BLOG_CATEGORY->value);
+        }
+
+        if (! $tag instanceof Tag && $featured instanceof BlogArticle) {
+            $query->where('id', '!=', $featured->id);
+        }
+
+        return $query->latest('published_at');
     }
 
     public function mount(): void {

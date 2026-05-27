@@ -19,7 +19,10 @@ trait SeedDb {
 
     private static function getOrGuessTable(): string {
         if (method_exists(static::class, 'table')) {
-            return static::table();
+            /** @var string $table */
+            $table = static::table();
+
+            return $table;
         }
 
         return static::guessTable();

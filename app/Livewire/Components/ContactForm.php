@@ -20,6 +20,9 @@ use Illuminate\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
+/**
+ * @property-read Schema $form
+ */
 class ContactForm extends Component implements HasSchemas {
     use HasRecaptcha, InteractsWithSchemas;
 
@@ -78,7 +81,7 @@ class ContactForm extends Component implements HasSchemas {
     }
 
     /**
-     * @param  array<string, mixed>  $form_params
+     * @param  array{recaptcha_token: string}  $form_params
      */
     #[On('formSubmitted.components.contact-form')]
     public function onSubmit(array $form_params): void {

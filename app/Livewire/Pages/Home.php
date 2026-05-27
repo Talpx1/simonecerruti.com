@@ -66,16 +66,19 @@ class Home extends Component {
     }
 
     public function render(): View {
-        return view('pages.home.home')
-            ->layout('layouts.public.index', [
-                'title' => config()->string('app.name'),
-                'suffix' => false,
-            ])
+        $view = view('pages.home.home')
             ->with([
                 'projects' => $this->getProjects(),
                 'project_tags' => $this->getProjectTags(),
                 'practical_blog_articles' => $this->getBlogArticles('practical'),
                 'technical_blog_articles' => $this->getBlogArticles('technical'),
             ]);
+
+        $view->layout('layouts.public.index', [
+            'title' => config()->string('app.name'),
+            'suffix' => false,
+        ]);
+
+        return $view;
     }
 }

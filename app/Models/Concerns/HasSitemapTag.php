@@ -5,15 +5,19 @@ declare(strict_types=1);
 namespace App\Models\Concerns;
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Uri;
 use Spatie\Sitemap\Tags\Url;
 
 trait HasSitemapTag {
-    abstract private function getSitemapRoute(string $locale): string;
+    abstract protected function getSitemapRoute(string $locale): string;
 
-    abstract private function getSitemapPriority(): float;
+    abstract protected function getSitemapPriority(): float;
 
-    abstract private function getSitemapChangeFrequency(): string;
+    abstract protected function getSitemapChangeFrequency(): string;
 
+    /**
+     * @return Url|string|list<Url>
+     */
     public function toSitemapTag(): Url|string|array {
         $can_add_to_sitemap = method_exists($this, 'canAddToSitemap')
             ? $this->canAddToSitemap()
@@ -25,10 +29,13 @@ trait HasSitemapTag {
 
         $urls = [];
 
-        foreach ($this->locales() as $locale) {
+        /** @var list<string> $locales */
+        $locales = $this->locales();
+
+        foreach ($locales as $locale) {
             $route = $this->getSitemapRoute($locale);
 
-            /** @var \Illuminate\Support\Uri */
+            /** @var Uri */
             $uri = Route::localizedUrl($locale, $route);
 
             $url = Url::create($uri->__toString())
@@ -43,12 +50,15 @@ trait HasSitemapTag {
     }
 
     private function attachSitemapAlternates(Url $url, string $current_locale): Url {
-        foreach ($this->locales() as $alternate) {
+        /** @var list<string> $locales */
+        $locales = $this->locales();
+
+        foreach ($locales as $alternate) {
             if ($alternate === $current_locale) {
                 continue;
             }
 
-            /** @var \Illuminate\Support\Uri */
+            /** @var Uri */
             $uri = Route::localizedUrl($alternate, $this->getSitemapRoute($alternate));
             $url->addAlternate($uri->__toString(), $alternate);
         }

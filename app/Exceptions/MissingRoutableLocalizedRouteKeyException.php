@@ -18,6 +18,7 @@ class MissingRoutableLocalizedRouteKeyException extends LocalizationException {
 
         if ($model instanceof Model) {
             $class = $model::class;
+            /** @var int|string $id */
             $id = $model->getKey();
 
             parent::__construct($msg." Model: {$class}#{$id}");
