@@ -2,14 +2,14 @@
     x-transition:enter-start="-translate-y-full" x-transition:enter-end="translate-y-0"
     x-transition:leave="transition duration-400 ease-[cubic-bezier(.77,0,.18,1)]" x-transition:leave-start="translate-y-0"
     x-transition:leave-end="-translate-y-full" x-effect="document.body.style.overflow = isMenuOpen ? 'hidden' : ''"
-    class="fixed inset-0 z-90 bg-dark text-light flex flex-col overflow-hidden" role="dialog"
+    class="fixed inset-0 z-90 bg-dark text-light flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-none" role="dialog"
     aria-label="Menu principale" :aria-hidden="!isMenuOpen">
 
     <div class="border-b border-light/10 h-[100px] min-h-[100px] max-h-[100px]"></div>
 
-    <div class="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_320px] min-h-0">
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_320px]">
 
-        <nav class="flex flex-col justify-center px-8 lg:px-14 py-12 border-r border-light/10">
+        <nav class="flex flex-col justify-center px-8 lg:px-14 py-12 lg:border-r border-light/10">
             <ul class="space-y-1">
                 @php
                     $routes = [
@@ -36,8 +36,8 @@
                             </span>
 
                             <span
-                                class="menu-item block font-semibold uppercase tracking-tight leading-none text-light translate-y-8 transition-all duration-500"
-                                style="font-size: clamp(44px, 7vw, 100px);">
+                                class="menu-item block font-semibold uppercase tracking-tight leading-none whitespace-nowrap text-light translate-y-8 transition-all duration-500"
+                                style="font-size: clamp(40px, 7vw, 100px);">
 
                                 {{ $label }}
 

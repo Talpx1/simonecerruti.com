@@ -37,6 +37,6 @@
     </div>
 
     <p class="text-[10px] text-light/20 tracking-widest uppercase">
-        © {{ date('Y') }} — {{ __('All rights reserved.') }}
+        {{ __('VAT') }} {{ config('company.vat') }} — © {{ date('Y') }} — {{ __('All rights reserved.') }}
     </p>
 </footer>
