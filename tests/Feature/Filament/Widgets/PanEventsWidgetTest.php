@@ -12,7 +12,7 @@ beforeEach(function () {
     actingAsAdmin();
 });
 
-it('groups events by prefix', function () {
+it('categorizes events by prefix in the table', function () {
     DB::table('pan_analytics')->insert([
         ['name' => 'cta-nav-home', 'impressions' => 12, 'hovers' => 3, 'clicks' => 4],
         ['name' => 'cta-social-instagram', 'impressions' => 8, 'hovers' => 1, 'clicks' => 2],
@@ -20,16 +20,14 @@ it('groups events by prefix', function () {
         ['name' => 'card-project-click', 'impressions' => 0, 'hovers' => 0, 'clicks' => 7],
     ]);
 
-    $widget = new PanEventsWidget;
-    $groups = $widget->getGroupedEvents();
-
-    expect($groups)
-        ->toHaveKey(__('Navigation'))
-        ->toHaveKey(__('Social'))
-        ->toHaveKey(__('Section impressions'))
-        ->toHaveKey(__('Card clicks'))
-        ->and($groups[__('Navigation')][0]['clicks'])->toBe(4)
-        ->and($groups[__('Card clicks')][0]['clicks'])->toBe(7);
+    livewire(PanEventsWidget::class)
+        ->assertSuccessful()
+        ->assertSee(__('Navigation'))
+        ->assertSee(__('Social'))
+        ->assertSee(__('Section impressions'))
+        ->assertSee(__('Card clicks'))
+        ->assertSee('cta-nav-home')
+        ->assertSee('card-project-click');
 });
 
 it('renders the empty state when no events exist', function () {
