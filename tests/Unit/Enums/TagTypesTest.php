@@ -7,9 +7,10 @@ use App\Enums\TagTypes;
 it('exposes the expected backing values', function () {
     expect(TagTypes::TAG->value)->toBe('tag')
         ->and(TagTypes::BLOG_CATEGORY->value)->toBe('blog_category')
-        ->and(TagTypes::TECHNOLOGY->value)->toBe('technology');
+        ->and(TagTypes::TECHNOLOGY->value)->toBe('technology')
+        ->and(TagTypes::CAMPAIGN_TAG->value)->toBe('campaign_tag');
 });
 
-it('has exactly three cases', function () {
-    expect(TagTypes::cases())->toHaveCount(3);
+it('has exactly four cases', function () {
+    expect(TagTypes::cases())->toHaveCount(4);
 });
