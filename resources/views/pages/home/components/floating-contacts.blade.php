@@ -25,7 +25,7 @@
             [&_.floating-contact-text]:opacity-0
             [&_.floating-contact-text]:invisible
     ">
-        <a href="mailto:{{ config('company.contacts.email') }}"
+        <a href="mailto:{{ config('company.contacts.email') }}" data-pan="cta-contact-email"
             class="floating-contact hover:[&_.floating-contact-text]:opacity-100 hover:[&_.floating-contact-text]:visible rounded-l-full block">
             <div>
                 <span class="floating-contact-text">{{ config('company.contacts.email') }}</span>
@@ -33,7 +33,8 @@
             </div>
         </a>
 
-        <a wire:navigate href="{{ route('contacts') }}" class="floating-contact rounded-r-full block font-black">
+        <a wire:navigate href="{{ route('contacts') }}" data-pan="cta-contact-form"
+            class="floating-contact rounded-r-full block font-black">
             HIRE
         </a>
     </div>

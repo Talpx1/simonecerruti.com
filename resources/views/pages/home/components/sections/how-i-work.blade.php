@@ -1,4 +1,5 @@
-<section class="flex flex-col justify-around min-h-screen h-screen max-h-screen">
+<section data-pan="section-impression-services"
+    class="flex flex-col justify-around min-h-screen h-screen max-h-screen">
     <div class="space-y-4">
         <div class="container px-4 lg:px-0 mx-auto text-center lg:text-left space-y-4">
             <h2 class="text-5xl lg:text-8xl font-black uppercase">

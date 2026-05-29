@@ -28,6 +28,7 @@
 
         <div class="flex flex-wrap gap-3">
             <a wire:navigate href="{{ route('project.show', $project->slug) }}"
+                data-pan="card-project-click"
                 class="group/link relative overflow-hidden border border-light/20 text-light/50 flex items-center gap-3 px-5 py-3 hover:text-dark hover:border-light transition-colors duration-300">
                 <span
                     class="absolute inset-0 bg-light translate-y-full group-hover/link:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>

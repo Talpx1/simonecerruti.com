@@ -13,17 +13,17 @@
             <ul class="space-y-1">
                 @php
                     $routes = [
-                        [__('Home'), route('home')],
-                        [__('About'), route('about')],
-                        [__('Projects'), route('projects')],
-                        [__('How I work'), route('how_i_work')],
-                        [__('Contacts'), route('contacts')],
-                        [__('Blog'), route('blog')],
+                        ['home', __('Home'), route('home')],
+                        ['about', __('About'), route('about')],
+                        ['projects', __('Projects'), route('projects')],
+                        ['how_i_work', __('How I work'), route('how_i_work')],
+                        ['contacts', __('Contacts'), route('contacts')],
+                        ['blog', __('Blog'), route('blog')],
                     ];
                 @endphp
-                @foreach ($routes as $i => [$label, $route])
+                @foreach ($routes as $i => [$slug, $label, $route])
                     <li>
-                        <a wire:navigate href="{{ $route }}" x-on:click="isMenuOpen=false"
+                        <a wire:navigate href="{{ $route }}" data-pan="cta-nav-{{ $slug }}" x-on:click="isMenuOpen=false"
                             class="group flex items-baseline gap-0 hover:gap-3 transition-all duration-300">
 
                             <span

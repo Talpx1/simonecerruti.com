@@ -1,4 +1,4 @@
-<section
+<section data-pan="section-impression-cta"
     class="container mx-auto flex flex-col lg:flex-row items-center justify-center min-h-screen h-screen max-h-screen px-4 lg:px-0">
     <img src="{{ asset('images/about_protrait.webp') }}" alt="Simone Cerruti protrait" id="home-about-protrait-img"
         class="w-2/3 lg:w-auto lg:translate-x-32 object-contain z-0">

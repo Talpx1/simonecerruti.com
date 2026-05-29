@@ -97,7 +97,7 @@
                                     {{ __('Analytics') }}
                                 </p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                                    {{ __('Microsoft Clarity – heatmaps, session recordings, behavioural analytics.') }}
+                                    {{ __('Microsoft Clarity (heatmaps, session recordings) and internal traffic statistics (returning visitor recognition, device type, country). Aggregated, no advertising.') }}
                                 </p>
                             </div>
                             <x-layouts::public.cookie-toggle wire:model="analytics" id="toggle-analytics" />

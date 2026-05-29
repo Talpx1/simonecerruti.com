@@ -21,6 +21,7 @@
         <div class="flex items-center gap-4">
             @foreach ($socials as $social)
                 <a href="{{ config('company.socials.' . $social['key'] . '.link') }}" target="_blank" rel="noopener"
+                    data-pan="cta-social-{{ $social['key'] }}"
                     class="opacity-30 hover:opacity-100 text-light" title="{{ $social['label'] }}">
                     @svg($social['icon'], 'w-4')
                 </a>
@@ -32,7 +33,8 @@
         <div class="flex flex-row lg:flex-col justify-between lg:gap-3">
             @foreach ($socials as $social)
                 <div>
-                    <a target="_blank" rel="noopener" href="{{ config('company.socials.' . $social['key'] . '.link') }}">
+                    <a target="_blank" rel="noopener" data-pan="cta-social-{{ $social['key'] }}"
+                        href="{{ config('company.socials.' . $social['key'] . '.link') }}">
                         <div
                             class="flex gap-2 items-center text-xs uppercase tracking-widest text-light/40 hover:text-light hover:tracking-[.2em] transition-all duration-200">
                             @svg($social['icon'], 'w-5 lg:w-3')
@@ -49,7 +51,8 @@
             class="flex flex-col lg:flex-row w-fit lg:w-full md:w-auto mx-auto md:flex-row gap-8 md:gap-0 md:justify-between items-start md:items-center">
             @foreach ($socials as $social)
                 <div>
-                    <a target="_blank" rel="noopener" href="{{ config('company.socials.' . $social['key'] . '.link') }}">
+                    <a target="_blank" rel="noopener" data-pan="cta-social-{{ $social['key'] }}"
+                        href="{{ config('company.socials.' . $social['key'] . '.link') }}">
                         <div class="flex gap-2 items-center">
                             @svg($social['icon'], 'w-7')
                             <h2 class="text-xl font-semibold underline">

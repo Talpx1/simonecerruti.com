@@ -100,6 +100,26 @@
                                         class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">{{ __('No – technical') }}</span>
                                 </td>
                             </tr>
+                            <tr>
+                                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">vs_id</td>
+                                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                    {{ __('Session Cookie (1st party, 30 minutes)') }}</td>
+                                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                    {{ __('Anonymous technical session for internal traffic statistics. No personal data.') }}</td>
+                                <td class="px-4 py-3"><span
+                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">{{ __('No – technical') }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">v_id</td>
+                                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                    {{ __('Persistent Cookie (1st party, 1 year)') }}</td>
+                                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                    {{ __('Recognises returning visitors for aggregated traffic statistics.') }}</td>
+                                <td class="px-4 py-3"><span
+                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200">{{ __('Yes – analytics') }}</span>
+                                </td>
+                            </tr>
                             <tr class="bg-gray-50 dark:bg-gray-900">
                                 <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">Font Bunny</td>
                                 <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
