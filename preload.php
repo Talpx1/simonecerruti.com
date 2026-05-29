@@ -12,12 +12,15 @@ require_once __DIR__.'/vendor/autoload.php';
 $classMap = require __DIR__.'/vendor/composer/autoload_classmap.php';
 
 // Whitelisted prefixes (relative to the project root). Only the framework,
-// Livewire, Filament and the hot first/third-party packages that sit on every
-// request are preloaded. Each path is verified to exist in `vendor/`.
+// Livewire and the hot first/third-party packages that sit on every request
+// are preloaded. Each path is verified to exist in `vendor/`.
+//
+// Filament is intentionally excluded: PHP 8.5 preload corrupts BackedEnum
+// cases used as static property defaults (e.g. BasePage::$formActionsAlignment
+// = Alignment::Start), causing TypeError on Filament\Auth\Pages\Login render.
 $includePrefixes = [
     'vendor/laravel/framework/src/Illuminate/',
     'vendor/livewire/livewire/src/',
-    'vendor/filament/',
     'vendor/nesbot/carbon/src/',
     'vendor/mcamara/laravel-localization/src/',
     'vendor/lara-zeus/spatie-translatable/src/',
