@@ -31,10 +31,14 @@ trait SeedDb {
     public static function sync(): void {
         $mapped = array_map(fn (self $case) => $case->dbMap(), static::cases());
 
-        DB::table(static::getOrGuessTable())->upsert(
+        $table = static::getOrGuessTable();
+
+        DB::table($table)->upsert(
             $mapped,
             static::upsertKeys(),
         );
+
+        static::resyncIdentitySequence($table);
 
         if (static::partialSync()) {
             return;
@@ -55,6 +59,24 @@ trait SeedDb {
         DB::table(static::getOrGuessTable())
             ->whereNotIn(static::upsertKeys()[0], $current_keys)
             ->delete();
+    }
+
+    /**
+     * Postgres only: explicit `id` inserts via upsert bypass the table's identity sequence.
+     * Subsequent inserts without an `id` would clash with the existing values. Re-align the
+     * sequence to MAX(id) so the next auto-generated id is safe.
+     */
+    private static function resyncIdentitySequence(string $table): void {
+        if (DB::connection()->getDriverName() !== 'pgsql') {
+            return;
+        }
+
+        $primary_key = static::upsertKeys()[0];
+
+        DB::statement(
+            "SELECT setval(pg_get_serial_sequence(?, ?), COALESCE((SELECT MAX({$primary_key}) FROM {$table}), 1), true)",
+            [$table, $primary_key],
+        );
     }
 
     protected static function forceSync(): bool {

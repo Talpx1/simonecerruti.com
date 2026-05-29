@@ -32,8 +32,12 @@
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array" force="true"/>
-        <env name="DB_CONNECTION" value="sqlite" force="true"/>
-        <env name="DB_DATABASE" value=":memory:" force="true"/>
+        <env name="DB_CONNECTION" value="pgsql" force="true"/>
+        <env name="DB_HOST" value="db" force="true"/>
+        <env name="DB_PORT" value="5432" force="true"/>
+        <env name="DB_DATABASE" value="simone_cerruti_website_testing" force="true"/>
+        <env name="DB_USERNAME" value="db_user" force="true"/>
+        <env name="DB_PASSWORD" value="db_passw" force="true"/>
         <env name="MAIL_MAILER" value="array" force="true"/>
         <env name="INTERNAL_RECIPIENT_EMAIL" value="internal@simonecerruti.com" force="true"/>
         <env name="PULSE_ENABLED" value="false" force="true"/>
@@ -47,8 +51,12 @@
         -->
         <server name="APP_ENV" value="testing" force="true"/>
         <server name="CACHE_STORE" value="array" force="true"/>
-        <server name="DB_CONNECTION" value="sqlite" force="true"/>
-        <server name="DB_DATABASE" value=":memory:" force="true"/>
+        <server name="DB_CONNECTION" value="pgsql" force="true"/>
+        <server name="DB_HOST" value="db" force="true"/>
+        <server name="DB_PORT" value="5432" force="true"/>
+        <server name="DB_DATABASE" value="simone_cerruti_website_testing" force="true"/>
+        <server name="DB_USERNAME" value="db_user" force="true"/>
+        <server name="DB_PASSWORD" value="db_passw" force="true"/>
         <server name="MAIL_MAILER" value="array" force="true"/>
         <server name="INTERNAL_RECIPIENT_EMAIL" value="internal@simonecerruti.com" force="true"/>
         <server name="PULSE_ENABLED" value="false" force="true"/>
