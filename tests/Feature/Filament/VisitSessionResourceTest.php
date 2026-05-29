@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\DeviceType;
 use App\Filament\Resources\VisitSessions\Pages\ListVisitSessions;
 use App\Filament\Resources\VisitSessions\Pages\ViewVisitSession;
 use App\Filament\Resources\VisitSessions\VisitSessionResource;
@@ -71,6 +72,16 @@ describe('list page', function () {
             ->filterTable('campaign_id', $campaign->id)
             ->assertCanSeeTableRecords(collect([$matched]))
             ->assertCanNotSeeTableRecords(collect([$other]));
+    });
+
+    it('filters by device type, excluding bots', function () {
+        $human = VisitSession::factory()->create(['device_type' => DeviceType::DESKTOP->value]);
+        $bot = VisitSession::factory()->create(['device_type' => DeviceType::BOT->value]);
+
+        livewire(ListVisitSessions::class)
+            ->filterTable('device_type', [DeviceType::MOBILE->value, DeviceType::TABLET->value, DeviceType::DESKTOP->value])
+            ->assertCanSeeTableRecords(collect([$human]))
+            ->assertCanNotSeeTableRecords(collect([$bot]));
     });
 
     it('filters by date range', function () {

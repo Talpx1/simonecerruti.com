@@ -9,6 +9,7 @@ use App\Filament\Macros\Field\CapitalizeFirstCharMacro;
 use App\Filament\Macros\Field\CapitalizeWordsMacro;
 use App\Filament\Macros\Field\LowercaseMacro;
 use App\Filament\Macros\Field\UppercaseMacro;
+use App\Http\Middleware\TrackVisit;
 use App\Macros\Concerns\Macro;
 use App\Macros\Request\CookieStringOrDefaultMacro;
 use App\Macros\Request\QueryStringOrDefaultMacro;
@@ -50,6 +51,11 @@ class AppServiceProvider extends ServiceProvider {
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
             $this->app->register(TelescopeServiceProvider::class);
         }
+
+        // Share one TrackVisit instance between handle() and terminate() so the
+        // request state captured in handle() survives into terminate(), which
+        // runs after the response is sent. See the middleware's $state property.
+        $this->app->singleton(TrackVisit::class);
     }
 
     /**

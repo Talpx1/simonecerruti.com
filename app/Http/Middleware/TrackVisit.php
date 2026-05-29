@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Actions\Analytics\DetectVisitSource;
+use App\DataTransferObjects\Analytics\ExistingSessionState;
+use App\DataTransferObjects\Analytics\NewSessionState;
 use App\DataTransferObjects\Analytics\VisitSourceData;
 use App\Models\PageView;
 use App\Models\VisitSession;
@@ -17,135 +19,95 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TrackVisit {
     /**
-     * Request attribute key used to carry state from handle() to terminate().
-     * We can't use instance properties: Laravel resolves middleware via the
-     * container in both phases, getting a fresh instance each time.
+     * State carried from handle() to terminate(). This relies on the middleware
+     * being registered as a singleton (see AppServiceProvider) so both phases
+     * share the same instance. It is reset at the start of every handle() so a
+     * stale value can never bleed into the next request on long-running runtimes.
      */
-    private const STATE_KEY = 'track_visit.state';
+    private ExistingSessionState|NewSessionState|null $state = null;
 
     public function handle(Request $request, Closure $next): Response {
+        $this->state = null;
+
         /** @var Response $response */
         $response = $next($request);
 
-        if (! $this->shouldTrack($request, $response)) {
-            return $response;
+        if ($this->shouldTrack($request, $response)) {
+            $this->state = $this->captureState($request);
         }
 
-        $consent = (bool) (view()->shared('cookieConsent')['analytics'] ?? false);
+        return $response;
+    }
 
-        $session_cookie_name = config()->string('analytics.session_cookie_name');
-        $visitor_cookie_name = config()->string('analytics.visitor_cookie_name');
-        $window_minutes = config()->integer('analytics.session_window_minutes');
-        $visitor_days = config()->integer('analytics.visitor_cookie_days');
+    public function terminate(Request $request, Response $response): void {
+        if ($this->state === null) {
+            return;
+        }
 
-        $existing_session_id = $request->cookieStringOrDefault($session_cookie_name);
+        $session = $this->resolveSession($request, $this->state);
+
+        $this->recordPageView($request, $session);
+    }
+
+    /**
+     * Build the tracking state and queue any cookies onto the response. Cookies
+     * must be queued here in handle() (before the response is sent), not in
+     * terminate() where it would be too late to reach the browser.
+     */
+    private function captureState(Request $request): ExistingSessionState|NewSessionState {
+        $consent = $this->hasAnalyticsConsent();
+
+        $existing_session_id = $request->cookieStringOrDefault(config()->string('analytics.session_cookie_name'));
 
         if ($existing_session_id !== null) {
-            $request->attributes->set(self::STATE_KEY, [
-                'existing_session_id' => $existing_session_id,
-                'new_session_id' => null,
-                'visitor_id' => null,
-                'consent' => $consent,
-                'source' => null,
-                'user_agent' => null,
-            ]);
-
-            return $response;
+            return new ExistingSessionState($consent, $existing_session_id);
         }
+
+        return $this->openNewSession($request, $consent);
+    }
+
+    private function openNewSession(Request $request, bool $consent): NewSessionState {
+        $session_cookie_name = config()->string('analytics.session_cookie_name');
+        $visitor_cookie_name = config()->string('analytics.visitor_cookie_name');
 
         $new_session_id = (string) Str::uuid();
         $visitor_id = $consent
             ? $request->cookieStringOrDefault($visitor_cookie_name, (string) Str::uuid())
             : null;
 
-        Cookie::queue(
-            $session_cookie_name,
-            $new_session_id,
-            $window_minutes,
-            '/',
-            null,
-            (bool) config('session.secure'),
-            true,
-            false,
-            'Lax',
-        );
+        $this->queueCookie($session_cookie_name, $new_session_id, config()->integer('analytics.session_window_minutes'));
 
         if ($consent && $request->cookieStringOrDefault($visitor_cookie_name) === null) {
-            Cookie::queue(
-                $visitor_cookie_name,
-                (string) $visitor_id,
-                $visitor_days * 24 * 60,
-                '/',
-                null,
-                (bool) config('session.secure'),
-                true,
-                false,
-                'Lax',
-            );
+            $this->queueCookie($visitor_cookie_name, (string) $visitor_id, config()->integer('analytics.visitor_cookie_days') * 24 * 60);
         }
 
-        $request->attributes->set(self::STATE_KEY, [
-            'existing_session_id' => null,
-            'new_session_id' => $new_session_id,
-            'visitor_id' => $visitor_id,
-            'consent' => $consent,
-            'source' => DetectVisitSource::run(
-                utm_source: $request->queryStringOrNull('utm_source'),
-                utm_medium: $request->queryStringOrNull('utm_medium'),
-                utm_campaign: $request->queryStringOrNull('utm_campaign'),
-                utm_term: $request->queryStringOrNull('utm_term'),
-                utm_content: $request->queryStringOrNull('utm_content'),
-                referrer_url: $request->headers->get('referer'),
-                current_host: $request->getHost(),
-            ),
-            'user_agent' => $consent ? $request->userAgent() : null,
-        ]);
-
-        return $response;
+        return new NewSessionState(
+            consent: $consent,
+            new_session_id: $new_session_id,
+            source: $this->resolveSource($request),
+            visitor_id: $visitor_id,
+            user_agent: $consent ? $request->userAgent() : null,
+        );
     }
 
-    public function terminate(Request $request, Response $response): void {
-        /**
-         * @var array{
-         *     existing_session_id: string|null,
-         *     new_session_id: string|null,
-         *     visitor_id: string|null,
-         *     consent: bool,
-         *     source: VisitSourceData|null,
-         *     user_agent: string|null
-         * }|null $state
-         */
-        $state = $request->attributes->get(self::STATE_KEY);
-
-        if ($state === null) {
-            return;
+    private function resolveSession(Request $request, ExistingSessionState|NewSessionState $state): VisitSession {
+        if ($state instanceof NewSessionState) {
+            return $this->createSession($request, $state);
         }
 
-        if ($state['existing_session_id'] !== null) {
-            $session = VisitSession::query()
-                ->whereKey($state['existing_session_id'])
-                ->activeWindow()
-                ->first();
+        $session = VisitSession::query()
+            ->whereKey($state->existing_session_id)
+            ->activeWindow()
+            ->first();
 
-            if ($session === null) {
-                $session = $this->createSession($request, $this->fallbackStateForExpiredCookie($request, $state));
-            } else {
-                $session->forceFill([
-                    'last_activity_at' => now(),
-                    'pageview_count' => $session->pageview_count + 1,
-                ])->save();
-            }
-        } else {
-            $session = $this->createSession($request, $state);
+        if ($session !== null) {
+            return $this->touchSession($session);
         }
 
-        PageView::query()->create([
-            'visit_session_id' => $session->id,
-            'url_path' => '/'.ltrim($request->path(), '/'),
-            'route_name' => $request->route()?->getName(),
-            'locale' => app()->getLocale(),
-            'viewed_at' => now(),
-        ]);
+        // The cookie points to a session that no longer matches the active
+        // window (deleted row, schema reset, clock skew); recover by opening a
+        // fresh session, re-resolving the data handle() skipped for this branch.
+        return $this->createSession($request, $this->recoverAsNewSession($request, $state));
     }
 
     private function shouldTrack(Request $request, Response $response): bool {
@@ -163,44 +125,68 @@ class TrackVisit {
         return ! $request->is(...$skip_paths);
     }
 
-    /**
-     * When a `vs_id` cookie points to a session that no longer matches the
-     * active window (deleted row, schema reset, clock skew), we recover by
-     * treating the request as a new session. We still need to detect the
-     * source, since handle() skipped detection on the existing-cookie branch.
-     *
-     * @param  array{existing_session_id: string|null, new_session_id: string|null, visitor_id: string|null, consent: bool, source: VisitSourceData|null, user_agent: string|null}  $state
-     * @return array{existing_session_id: null, new_session_id: string, visitor_id: string|null, consent: bool, source: VisitSourceData, user_agent: string|null}
-     */
-    private function fallbackStateForExpiredCookie(Request $request, array $state): array {
-        return [
-            'existing_session_id' => null,
-            'new_session_id' => (string) Str::uuid(),
-            'visitor_id' => $state['visitor_id'],
-            'consent' => $state['consent'],
-            'source' => DetectVisitSource::run(
-                utm_source: $request->queryStringOrNull('utm_source'),
-                utm_medium: $request->queryStringOrNull('utm_medium'),
-                utm_campaign: $request->queryStringOrNull('utm_campaign'),
-                utm_term: $request->queryStringOrNull('utm_term'),
-                utm_content: $request->queryStringOrNull('utm_content'),
-                referrer_url: $request->headers->get('referer'),
-                current_host: $request->getHost(),
-            ),
-            'user_agent' => $state['consent'] ? $request->userAgent() : null,
-        ];
+    private function hasAnalyticsConsent(): bool {
+        $cookie_consent = view()->shared('cookieConsent');
+
+        return is_array($cookie_consent) && ($cookie_consent['analytics'] ?? false);
     }
 
-    /**
-     * @param  array{existing_session_id: string|null, new_session_id: string|null, visitor_id: string|null, consent: bool, source: VisitSourceData|null, user_agent: string|null}  $state
-     */
-    private function createSession(Request $request, array $state): VisitSession {
-        $source = $state['source'];
-        $user_agent = $state['user_agent'];
+    private function recoverAsNewSession(Request $request, ExistingSessionState $state): NewSessionState {
+        return new NewSessionState(
+            consent: $state->consent,
+            new_session_id: (string) Str::uuid(),
+            source: $this->resolveSource($request),
+            user_agent: $state->consent ? $request->userAgent() : null,
+        );
+    }
+
+    private function resolveSource(Request $request): VisitSourceData {
+        return DetectVisitSource::make()->handle(
+            utm_source: $request->queryStringOrNull('utm_source'),
+            utm_medium: $request->queryStringOrNull('utm_medium'),
+            utm_campaign: $request->queryStringOrNull('utm_campaign'),
+            utm_term: $request->queryStringOrNull('utm_term'),
+            utm_content: $request->queryStringOrNull('utm_content'),
+            referrer_url: $request->headers->get('referer'),
+            current_host: $request->getHost(),
+        );
+    }
+
+    private function queueCookie(string $name, string $value, int $minutes): void {
+        Cookie::queue(
+            $name,
+            $value,
+            $minutes,
+            '/',
+            null,
+            (bool) config('session.secure'),
+            true,
+            false,
+            'Lax',
+        );
+    }
+
+    private function touchSession(VisitSession $session): VisitSession {
+        $session->forceFill([
+            'last_activity_at' => now(),
+            'pageview_count' => $session->pageview_count + 1,
+        ])->save();
+
+        return $session;
+    }
+
+    private function createSession(Request $request, NewSessionState $state): VisitSession {
+        $source = $state->source;
+
+        // Coarse device classification (incl. bot detection) is derived
+        // transiently from the request User-Agent regardless of consent: it is
+        // not stored as an identifier and is needed to filter non-human traffic.
+        // The raw user agent, IP and visitor_id stay gated behind consent.
+        $detected_user_agent = $request->userAgent();
 
         return VisitSession::query()->create([
-            'id' => $state['new_session_id'],
-            'visitor_id' => $state['visitor_id'],
+            'id' => $state->new_session_id,
+            'visitor_id' => $state->visitor_id,
             'source' => $source->source,
             'medium' => $source->medium,
             'campaign_id' => $source->campaign_id,
@@ -211,19 +197,33 @@ class TrackVisit {
             'utm_content' => $source->utm_content,
             'referrer_url' => $source->referrer_url,
             'referrer_host' => $source->referrer_host,
-            'landing_path' => '/'.ltrim($request->path(), '/'),
+            'landing_path' => $this->currentPath($request),
             'landing_route_name' => $request->route()?->getName(),
             'locale' => app()->getLocale(),
-            'ip' => $state['consent'] ? $request->ip() : null,
-            'user_agent' => $user_agent,
-            'device_type' => $state['consent'] && is_string($user_agent) && $user_agent !== ''
-                ? DeviceTypeDetector::detect($user_agent)->value
+            'ip' => $state->consent ? $request->ip() : null,
+            'user_agent' => $state->user_agent,
+            'device_type' => is_string($detected_user_agent) && $detected_user_agent !== ''
+                ? DeviceTypeDetector::detect($detected_user_agent)->value
                 : null,
             'country' => $request->headers->get('CF-IPCountry') ?: null,
-            'consent_analytics' => $state['consent'],
+            'consent_analytics' => $state->consent,
             'started_at' => now(),
             'last_activity_at' => now(),
             'pageview_count' => 1,
         ]);
+    }
+
+    private function recordPageView(Request $request, VisitSession $session): void {
+        PageView::query()->create([
+            'visit_session_id' => $session->id,
+            'url_path' => $this->currentPath($request),
+            'route_name' => $request->route()?->getName(),
+            'locale' => app()->getLocale(),
+            'viewed_at' => now(),
+        ]);
+    }
+
+    private function currentPath(Request $request): string {
+        return '/'.ltrim($request->path(), '/');
     }
 }

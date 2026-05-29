@@ -94,7 +94,7 @@ describe('new session', function () {
 });
 
 describe('consent gating', function () {
-    it('omits IP, user agent, device, visitor_id without analytics consent', function () {
+    it('omits IP, user agent, visitor_id without analytics consent', function () {
         $this->withHeaders(['User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X) Chrome/124.0'])
             ->get('/_test_track/landing');
 
@@ -103,8 +103,18 @@ describe('consent gating', function () {
         expect($session->consent_analytics)->toBeFalse()
             ->and($session->ip)->toBeNull()
             ->and($session->user_agent)->toBeNull()
-            ->and($session->device_type)->toBeNull()
             ->and($session->visitor_id)->toBeNull();
+    });
+
+    it('classifies device type even without analytics consent so bots can be filtered', function () {
+        $this->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'])
+            ->get('/_test_track/landing');
+
+        $session = VisitSession::query()->first();
+
+        expect($session->consent_analytics)->toBeFalse()
+            ->and($session->user_agent)->toBeNull()
+            ->and($session->device_type)->toBe(DeviceType::BOT);
     });
 
     it('captures IP, user agent, device, visitor_id with analytics consent', function () {
@@ -122,6 +132,20 @@ describe('consent gating', function () {
             ->and($session->user_agent)->toContain('Macintosh')
             ->and($session->device_type)->toBe(DeviceType::DESKTOP)
             ->and($session->visitor_id)->not->toBeNull();
+    });
+});
+
+describe('shared instance state', function () {
+    it('does not bleed request state into a subsequent untracked request', function () {
+        // TrackVisit is a singleton, so handle() and terminate() share one
+        // instance across requests in this test. handle() must reset its state
+        // each request or the previous request's state would leak into the next
+        // request's terminate() and record a phantom session.
+        $this->get('/_test_track/landing');
+        $this->post('/_test_track/post');
+
+        expect(VisitSession::query()->count())->toBe(1)
+            ->and(PageView::query()->count())->toBe(1);
     });
 });
 

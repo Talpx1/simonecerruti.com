@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\VisitSessions\Tables;
 
+use App\Enums\DeviceType;
 use App\Enums\TagTypes;
 use App\Enums\VisitMediumType;
 use App\Enums\VisitSourceType;
@@ -63,6 +64,12 @@ class VisitSessionsTable {
                     ->label(__('Pageviews'))
                     ->numeric()
                     ->sortable(),
+
+                TextColumn::make('device_type')
+                    ->label(__('Device'))
+                    ->badge()
+                    ->placeholder('-')
+                    ->toggleable(),
 
                 TextColumn::make('country')
                     ->label(__('Country'))
@@ -134,6 +141,11 @@ class VisitSessionsTable {
                             fn (Builder $q) => $q->whereIn('tags.id', $data['values'])
                         );
                     }),
+
+                SelectFilter::make('device_type')
+                    ->label(__('Device'))
+                    ->multiple()
+                    ->options(DeviceType::class),
 
                 SelectFilter::make('locale')
                     ->label(__('Locale'))
