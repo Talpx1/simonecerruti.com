@@ -41,7 +41,7 @@ When approaching a need that may be satisfied by an external package, make the f
 
 ## Pay attention to Static Analysis
 
-- This project uses phpstan with larastan. Try to satisfy the Static Analysis needs.'
+- This project uses phpstan with larastan. Try to satisfy the Static Analysis needs.
 - Prefer the usage of safe functions offered by thecodingmachine/safe
 
 ## Comments
@@ -71,6 +71,7 @@ When approaching a need that may be satisfied by an external package, make the f
 - In views, or where imports are not available, prefer helpers over facades. For example, use str()->slug('An Example') instead of Str::slug('An Example').
 - Only where imports are available, import the facade instead of using the global namespace alias.
 - **CRITICAL** always use strict types and fully type hint
+- always type constants
 
 ## Laravel instructions
  
