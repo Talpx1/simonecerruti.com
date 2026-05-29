@@ -10,6 +10,9 @@ use App\Filament\Macros\Field\CapitalizeWordsMacro;
 use App\Filament\Macros\Field\LowercaseMacro;
 use App\Filament\Macros\Field\UppercaseMacro;
 use App\Macros\Concerns\Macro;
+use App\Macros\Request\CookieStringOrDefaultMacro;
+use App\Macros\Request\QueryStringOrDefaultMacro;
+use App\Macros\Request\QueryStringOrNullMacro;
 use App\Macros\Str\ReplacePlaceholdersMacro;
 use Carbon\CarbonImmutable;
 use Filament\Forms\Components\DatePicker;
@@ -19,6 +22,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +37,7 @@ use Illuminate\Support\Uri;
 use Livewire\Livewire;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use Mcamara\LaravelLocalization\Traits\LoadsTranslatedCachedRoutes;
+use Pan\PanConfiguration;
 
 class AppServiceProvider extends ServiceProvider {
     use LoadsTranslatedCachedRoutes;
@@ -113,5 +118,43 @@ class AppServiceProvider extends ServiceProvider {
         });
 
         Str::macro(...ReplacePlaceholdersMacro::register());
+
+        collect([
+            QueryStringOrDefaultMacro::class,
+            QueryStringOrNullMacro::class,
+            CookieStringOrDefaultMacro::class,
+        ])->each(function (string $macro): void {
+            /** @var class-string<Macro> $macro */
+            Request::macro(...$macro::register());
+        });
+
+        $this->configurePan();
+    }
+
+    private function configurePan(): void {
+        PanConfiguration::maxAnalytics(100);
+        PanConfiguration::allowedAnalytics([
+            'cta-nav-home',
+            'cta-nav-about',
+            'cta-nav-projects',
+            'cta-nav-how_i_work',
+            'cta-nav-contacts',
+            'cta-nav-blog',
+            'cta-social-linkedin',
+            'cta-social-instagram',
+            'cta-social-github',
+            'cta-social-bluesky',
+            'cta-social-x',
+            'cta-hero-projects',
+            'cta-hero-contacts',
+            'cta-contact-email',
+            'cta-contact-form',
+            'card-project-click',
+            'card-blog-click',
+            'section-impression-hero',
+            'section-impression-services',
+            'section-impression-projects',
+            'section-impression-cta',
+        ]);
     }
 }

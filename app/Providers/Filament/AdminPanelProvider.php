@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\AnalyticsStatsOverview;
+use App\Filament\Widgets\PanEventsWidget;
+use App\Filament\Widgets\TopCampaignsTable;
+use App\Filament\Widgets\TopPagesTable;
+use App\Filament\Widgets\TopReferrersTable;
+use App\Filament\Widgets\VisitsByDayChart;
+use App\Filament\Widgets\VisitsBySourcePieChart;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -39,6 +46,13 @@ class AdminPanelProvider extends PanelProvider {
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
+                AnalyticsStatsOverview::class,
+                VisitsByDayChart::class,
+                VisitsBySourcePieChart::class,
+                TopReferrersTable::class,
+                TopPagesTable::class,
+                TopCampaignsTable::class,
+                PanEventsWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

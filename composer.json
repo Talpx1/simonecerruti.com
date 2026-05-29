@@ -33,6 +33,7 @@
         "lorisleiva/laravel-actions": "^2.9",
         "mcamara/laravel-localization": "^2.3",
         "owenvoke/blade-fontawesome": "^2.9",
+        "panphp/pan": "^0.1.10",
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-backup": "^9.3",
         "spatie/laravel-sitemap": "^8.0",
