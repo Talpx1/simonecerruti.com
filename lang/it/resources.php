@@ -15,4 +15,12 @@ return [
         'label' => 'Tag',
         'plural_label' => 'Tags',
     ],
+    'campaign' => [
+        'label' => 'Campagna',
+        'plural_label' => 'Campagne',
+    ],
+    'visit_session' => [
+        'label' => 'Sessione di visita',
+        'plural_label' => 'Sessioni di visita',
+    ],
 ];

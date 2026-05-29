@@ -31,4 +31,30 @@ return [
         'practical' => ['label' => 'pratico'],
         'technical' => ['label' => 'tecnico'],
     ],
+
+    'visit_source_type' => [
+        'direct' => ['label' => 'Diretto'],
+        'internal' => ['label' => 'Interno'],
+        'unknown' => ['label' => 'Sconosciuto'],
+    ],
+
+    'visit_medium_type' => [
+        'social' => ['label' => 'Social'],
+        'email' => ['label' => 'Email'],
+        'organic' => ['label' => 'Organica'],
+        'paid' => ['label' => 'A pagamento'],
+        'display' => ['label' => 'Display'],
+        'referral' => ['label' => 'Referral'],
+        'affiliate' => ['label' => 'Affiliate'],
+        'print' => ['label' => 'Stampa'],
+        'physical' => ['label' => 'Fisico'],
+    ],
+
+    'device_type' => [
+        'mobile' => ['label' => 'Mobile'],
+        'tablet' => ['label' => 'Tablet'],
+        'desktop' => ['label' => 'Desktop'],
+        'bot' => ['label' => 'Bot'],
+        'unknown' => ['label' => 'Sconosciuto'],
+    ],
 ];
