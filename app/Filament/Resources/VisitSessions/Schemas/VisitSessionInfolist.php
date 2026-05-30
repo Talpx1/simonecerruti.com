@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\VisitSessions\Schemas;
 
-use App\Enums\DeviceType;
 use App\Enums\VisitMediumType;
 use App\Enums\VisitSourceType;
 use Filament\Infolists\Components\IconEntry;
@@ -70,8 +69,6 @@ class VisitSessionInfolist {
                     TextEntry::make('device_type')
                         ->label(__('Device type'))
                         ->badge()
-                        ->formatStateUsing(fn (?string $state): ?string => $state === null ? null : (DeviceType::tryFrom($state)?->getLabel() ?? $state))
-                        ->color(fn (?string $state) => $state === null ? null : (DeviceType::tryFrom($state)?->getColor() ?? 'gray'))
                         ->placeholder('-'),
                     TextEntry::make('user_agent')->label(__('User agent'))->placeholder('-')->columnSpanFull(),
                 ]),

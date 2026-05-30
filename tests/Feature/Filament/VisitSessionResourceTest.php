@@ -100,7 +100,7 @@ describe('list page', function () {
 
 describe('view page', function () {
     it('renders the infolist for a session and its page views', function () {
-        $session = VisitSession::factory()->create();
+        $session = VisitSession::factory()->create(['device_type' => DeviceType::DESKTOP->value]);
         PageView::factory()->count(2)->create(['visit_session_id' => $session->id]);
 
         livewire(ViewVisitSession::class, ['record' => $session->getKey()])
