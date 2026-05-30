@@ -15,6 +15,7 @@ use App\Macros\Request\CookieStringOrDefaultMacro;
 use App\Macros\Request\QueryStringOrDefaultMacro;
 use App\Macros\Request\QueryStringOrNullMacro;
 use App\Macros\Str\ReplacePlaceholdersMacro;
+use App\View\Composers\SeoComposer;
 use Carbon\CarbonImmutable;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -30,6 +31,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Sleep;
@@ -124,6 +126,8 @@ class AppServiceProvider extends ServiceProvider {
         });
 
         Str::macro(...ReplacePlaceholdersMacro::register());
+
+        View::composer(['layouts::public.index', 'layouts.public.index'], SeoComposer::class);
 
         collect([
             QueryStringOrDefaultMacro::class,
