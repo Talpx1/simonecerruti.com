@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\View\Composers;
 
 use App\DataTransferObjects\SeoData;
+use App\Models\SeoSetting;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Uri;
@@ -54,11 +55,10 @@ class SeoComposer {
     }
 
     /**
-     * Title separator. Fase 2 will source this from the cached global
-     * `SeoSetting::current()->title_separator` (cached, so no per-request DB hit).
+     * Title separator, from the cached global settings (no per-request DB hit).
      */
     private function separator(): string {
-        return ' | ';
+        return SeoSetting::current()->title_separator;
     }
 
     /**
