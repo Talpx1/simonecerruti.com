@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use App\Enums\BlogArticleStatuses;
+use App\Enums\RobotsDirective;
+use App\Enums\SchemaType;
+use App\Enums\TwitterCard;
 use App\Filament\Resources\BlogArticles\Pages\CreateBlogArticle;
 use App\Filament\Resources\BlogArticles\Pages\EditBlogArticle;
 use App\Filament\Resources\BlogArticles\Pages\ListBlogArticles;
@@ -62,6 +65,47 @@ it('validates the required fields on create', function () {
         ])
         ->call('create')
         ->assertHasFormErrors(['title', 'slug', 'summary', 'content', 'status']);
+});
+
+describe('SEO overrides', function () {
+    it('saves translatable SEO overrides to the active locale, preserving the other', function () {
+        $article = BlogArticle::factory()->create();
+
+        $component = livewire(EditBlogArticle::class, ['record' => $article->id]);
+
+        $component->fillForm(['seo.title' => 'Titolo SEO'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $component->call('setActiveLocale', 'en')
+            ->fillForm(['seo.title' => 'SEO Title'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $article->refresh()->load('seo');
+
+        expect($article->seo->getTranslation('title', 'it', false))->toBe('Titolo SEO')
+            ->and($article->seo->getTranslation('title', 'en', false))->toBe('SEO Title');
+    });
+
+    it('persists the non-translatable enum fields and robots directives', function () {
+        $article = BlogArticle::factory()->create();
+
+        livewire(EditBlogArticle::class, ['record' => $article->id])
+            ->fillForm([
+                'seo.schema_type' => SchemaType::ARTICLE->value,
+                'seo.twitter_card' => TwitterCard::SUMMARY->value,
+                'seo.robots' => [RobotsDirective::NOINDEX->value, RobotsDirective::NOFOLLOW->value],
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $article->refresh()->load('seo');
+
+        expect($article->seo->schema_type)->toBe(SchemaType::ARTICLE)
+            ->and($article->seo->twitter_card)->toBe(TwitterCard::SUMMARY)
+            ->and($article->seo->robots)->toBe([RobotsDirective::NOINDEX->value, RobotsDirective::NOFOLLOW->value]);
+    });
 });
 
 describe('published_at stamping (regression for the ?? precedence bug)', function () {

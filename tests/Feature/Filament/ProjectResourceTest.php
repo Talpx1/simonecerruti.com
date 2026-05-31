@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Enums\SchemaType;
 use App\Filament\Resources\Projects\Pages\CreateProject;
+use App\Filament\Resources\Projects\Pages\EditProject;
 use App\Filament\Resources\Projects\Pages\ListProjects;
 use App\Models\Project;
 
@@ -30,6 +32,27 @@ it('creates a project', function () {
         ->assertHasNoFormErrors();
 
     expect(Project::query()->count())->toBe(1);
+});
+
+it('saves SEO overrides for a project per locale', function () {
+    $project = Project::factory()->create();
+
+    $component = livewire(EditProject::class, ['record' => $project->id]);
+
+    $component->fillForm([
+        'seo.title' => 'Titolo Progetto',
+        'seo.schema_type' => SchemaType::PRODUCT->value,
+    ])->call('save')->assertHasNoFormErrors();
+
+    $component->call('setActiveLocale', 'en')
+        ->fillForm(['seo.title' => 'Project Title'])
+        ->call('save')->assertHasNoFormErrors();
+
+    $project->refresh()->load('seo');
+
+    expect($project->seo->getTranslation('title', 'it', false))->toBe('Titolo Progetto')
+        ->and($project->seo->getTranslation('title', 'en', false))->toBe('Project Title')
+        ->and($project->seo->schema_type)->toBe(SchemaType::PRODUCT);
 });
 
 describe('slug uniqueness (regression: uniqueness must check the slug column, not title)', function () {

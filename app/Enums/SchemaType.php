@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum SchemaType: string {
+use Filament\Support\Contracts\HasLabel;
+
+enum SchemaType: string implements HasLabel {
     case ARTICLE = 'article';
     case BLOG_POSTING = 'blog_posting';
     case CREATIVE_WORK = 'creative_work';
@@ -15,6 +17,13 @@ enum SchemaType: string {
     case PRODUCT = 'product';
     case FAQ_PAGE = 'faq_page';
     case BREADCRUMB_LIST = 'breadcrumb_list';
+
+    /**
+     * Admin label: the schema.org `@type` (a technical proper noun, not localized).
+     */
+    public function getLabel(): string {
+        return $this->schemaOrgType();
+    }
 
     /**
      * The canonical schema.org `@type` identifier emitted in JSON-LD.

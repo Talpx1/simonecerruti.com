@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Projects\Schemas;
 
 use App\Enums\TagTypes;
+use App\Filament\Components\SeoFields;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -144,6 +145,13 @@ class ProjectForm {
                             ->default(false),
                     ])
                     ->columns(1),
+
+                Section::make(__('SEO'))
+                    ->description(__('Optional overrides. Left blank, search-engine metadata is generated automatically from the project.'))
+                    ->collapsed()
+                    ->schema([
+                        SeoFields::make(['title', 'excerpt', 'client', 'tags', 'site_name', 'current_year']),
+                    ]),
             ]);
     }
 }
