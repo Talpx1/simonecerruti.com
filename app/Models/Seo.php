@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\SchemaType;
+use App\Enums\TwitterCard;
 use App\Models\Concerns\LogsAllDirtyChanges;
 use Carbon\CarbonImmutable;
 use Database\Factories\SeoFactory;
@@ -32,7 +33,7 @@ use Spatie\Translatable\HasTranslations;
  * @property list<string>|null $robots
  * @property array<string, mixed>|null $schema_overrides
  * @property SchemaType|null $schema_type
- * @property string|null $twitter_card
+ * @property TwitterCard|null $twitter_card
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
@@ -60,6 +61,7 @@ class Seo extends Model {
     protected function casts(): array {
         return [
             'schema_type' => SchemaType::class,
+            'twitter_card' => TwitterCard::class,
             'robots' => 'array',
             'schema_overrides' => 'array',
         ];

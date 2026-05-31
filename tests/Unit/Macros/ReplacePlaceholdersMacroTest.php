@@ -55,3 +55,8 @@ it('stringifies non-string replacements', function () {
 it('leaves unmatched placeholders intact', function () {
     expect(Str::replacePlaceholders('{unknown}', []))->toBe('{unknown}');
 });
+
+it('strips unmatched placeholders when asked to', function () {
+    expect(Str::replacePlaceholders('{name}-{unknown}', ['name' => 'John'], strip_unmatched: true))
+        ->toBe('John-');
+});

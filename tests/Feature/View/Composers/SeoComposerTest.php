@@ -21,7 +21,7 @@ it('renders every section present on the SeoData', function () {
         ],
         open_graph: ['og:title' => 'My Page', 'og:type' => 'article'],
         twitter: ['twitter:card' => 'summary_large_image'],
-        json_ld: [['@context' => 'https://schema.org', '@type' => 'Article', 'headline' => 'My Page']],
+        json_ld: [['@type' => 'Article', 'headline' => 'My Page']],
     )])->render();
 
     expect($html)
@@ -35,8 +35,9 @@ it('renders every section present on the SeoData', function () {
         ->toContain('<meta property="og:type" content="article">')
         ->toContain('<meta name="twitter:card" content="summary_large_image">')
         ->toContain('<script type="application/ld+json">')
-        ->toContain('"@type":"Article"')
-        ->toContain('"@context":"https://schema.org"');
+        ->toContain('"@context":"https://schema.org"')
+        ->toContain('"@graph":[')
+        ->toContain('"@type":"Article"');
 });
 
 it('always emits a title, falling back to the app name', function (?string $title) {

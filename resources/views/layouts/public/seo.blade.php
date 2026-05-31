@@ -30,7 +30,8 @@
         <meta name="{{ $name }}" content="{{ $content }}">
     @endforeach
 
-    @foreach ($seo_data->json_ld as $schema)
-        <script type="application/ld+json">{!! \Safe\json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
-    @endforeach
+    @if ($seo_data->json_ld)
+        {{-- @@context is escaped to a literal "@context" so Blade doesn't treat it as a directive. --}}
+        <script type="application/ld+json">{!! \Safe\json_encode(['@@context' => 'https://schema.org', '@graph' => $seo_data->json_ld], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+    @endif
 @endif

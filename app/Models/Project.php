@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\DataTransferObjects\SeoConfig;
+use App\Enums\SchemaType;
 use App\Models\Concerns\HasRoutableSlug;
+use App\Models\Concerns\HasSeo;
 use App\Models\Concerns\HasSitemapTag;
 use App\Models\Concerns\LogsAllDirtyChanges;
 use App\Models\Concerns\ResolvesRoutBindingByLocalizedSlug;
@@ -41,10 +44,11 @@ use Spatie\Translatable\HasTranslations;
  * @property CarbonImmutable $updated_at
  * @property-read string $featured_image_url
  * @property-read string $short_description_or_excerpt
+ * @property-read Seo $seo
  */
 class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapable {
     /** @use HasFactory<ProjectFactory> */
-    use HasCurrentLocaleTranslationScope, HasFactory, HasRoutableSlug, HasSitemapTag, HasTags, HasTranslations, InteractsWithMedia, LogsAllDirtyChanges, ResolvesRoutBindingByLocalizedSlug;
+    use HasCurrentLocaleTranslationScope, HasFactory, HasRoutableSlug, HasSeo, HasSitemapTag, HasTags, HasTranslations, InteractsWithMedia, LogsAllDirtyChanges, ResolvesRoutBindingByLocalizedSlug;
 
     /** @var list<string> */
     public array $translatable = [
@@ -113,6 +117,46 @@ class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapab
         return $this->created_at->gt(now()->subDays(2))
             ? Url::CHANGE_FREQUENCY_DAILY
             : Url::CHANGE_FREQUENCY_MONTHLY;
+    }
+
+    protected function canAddToSitemap(): bool {
+        return $this->published;
+    }
+
+    public function seoDefaults(): SeoConfig {
+        return new SeoConfig(
+            schema_type: SchemaType::CREATIVE_WORK,
+            title: '{title} {title_separator} {site_name}',
+            description: '{excerpt}',
+            og_image: '{featured_image}',
+            schema: [
+                'name' => '{title}',
+                'description' => '{excerpt}',
+                'image' => '{featured_image}',
+                'dateCreated' => '{created_iso}',
+                'dateModified' => '{modified_iso}',
+                'inLanguage' => '{locale}',
+            ],
+        );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function seoVariables(): array {
+        return [
+            'title' => $this->title,
+            'excerpt' => $this->short_description_or_excerpt,
+            'client' => $this->client ?? '',
+            'tags' => $this->tags->pluck('name')->implode(', '),
+            'featured_image' => $this->featured_image_url,
+            'created_iso' => $this->created_at->toIso8601String(),
+            'modified_iso' => $this->updated_at->toIso8601String(),
+        ];
+    }
+
+    protected function isCrawlableByStatus(): bool {
+        return $this->published;
     }
 
     /** @return Attribute<string, never> */

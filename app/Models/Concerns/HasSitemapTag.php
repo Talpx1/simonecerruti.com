@@ -33,6 +33,10 @@ trait HasSitemapTag {
         $locales = $this->locales();
 
         foreach ($locales as $locale) {
+            if (method_exists($this, 'isIndexable') && ! $this->isIndexable($locale)) {
+                continue;
+            }
+
             $route = $this->getSitemapRoute($locale);
 
             /** @var Uri */
@@ -55,6 +59,10 @@ trait HasSitemapTag {
 
         foreach ($locales as $alternate) {
             if ($alternate === $current_locale) {
+                continue;
+            }
+
+            if (method_exists($this, 'isIndexable') && ! $this->isIndexable($alternate)) {
                 continue;
             }
 
