@@ -3,10 +3,14 @@
 declare(strict_types=1);
 
 use App\Enums\BlogArticleStatuses;
+use App\Enums\RobotsDirective;
+use App\Enums\SchemaType;
+use App\Enums\TwitterCard;
 use App\Filament\Resources\BlogArticles\Pages\CreateBlogArticle;
 use App\Filament\Resources\BlogArticles\Pages\EditBlogArticle;
 use App\Filament\Resources\BlogArticles\Pages\ListBlogArticles;
 use App\Models\BlogArticle;
+use App\Models\Seo;
 
 use function Pest\Livewire\livewire;
 
@@ -62,6 +66,74 @@ it('validates the required fields on create', function () {
         ])
         ->call('create')
         ->assertHasFormErrors(['title', 'slug', 'summary', 'content', 'status']);
+});
+
+describe('SEO overrides', function () {
+    it('saves translatable SEO overrides to the active locale, preserving the other', function () {
+        $article = BlogArticle::factory()->create();
+
+        $component = livewire(EditBlogArticle::class, ['record' => $article->id]);
+
+        $component->fillForm(['seo.title' => 'Titolo SEO'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $component->call('setActiveLocale', 'en')
+            ->fillForm(['seo.title' => 'SEO Title'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $article->refresh()->load('seo');
+
+        expect($article->seo->getTranslation('title', 'it', false))->toBe('Titolo SEO')
+            ->and($article->seo->getTranslation('title', 'en', false))->toBe('SEO Title');
+    });
+
+    it('creates no Seo row when the section is left blank', function () {
+        $article = BlogArticle::factory()->create();
+
+        livewire(EditBlogArticle::class, ['record' => $article->id])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        expect(Seo::query()->where('seoable_id', $article->id)->exists())->toBeFalse();
+    });
+
+    it('prunes the Seo row once every override is cleared', function () {
+        $article = BlogArticle::factory()->create();
+        // A row whose only override is the title, so clearing it empties the record.
+        Seo::factory()->for($article, 'seoable')->create([
+            'title' => ['it' => 'Temporaneo'],
+            'description' => null,
+            'schema_type' => null,
+        ]);
+
+        livewire(EditBlogArticle::class, ['record' => $article->id])
+            ->fillForm(['seo.title' => null])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        expect(Seo::query()->where('seoable_id', $article->id)->exists())->toBeFalse();
+    });
+
+    it('persists the non-translatable enum fields and robots directives', function () {
+        $article = BlogArticle::factory()->create();
+
+        livewire(EditBlogArticle::class, ['record' => $article->id])
+            ->fillForm([
+                'seo.schema_type' => SchemaType::ARTICLE->value,
+                'seo.twitter_card' => TwitterCard::SUMMARY->value,
+                'seo.robots' => [RobotsDirective::NOINDEX->value, RobotsDirective::NOFOLLOW->value],
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $article->refresh()->load('seo');
+
+        expect($article->seo->schema_type)->toBe(SchemaType::ARTICLE)
+            ->and($article->seo->twitter_card)->toBe(TwitterCard::SUMMARY)
+            ->and($article->seo->robots)->toBe([RobotsDirective::NOINDEX->value, RobotsDirective::NOFOLLOW->value]);
+    });
 });
 
 describe('published_at stamping (regression for the ?? precedence bug)', function () {

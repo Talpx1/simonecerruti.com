@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models\Concerns;
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Uri;
 use Spatie\Sitemap\Tags\Url;
 
 trait HasSitemapTag {
@@ -27,40 +26,47 @@ trait HasSitemapTag {
             return '';
         }
 
-        $urls = [];
-
         /** @var list<string> $locales */
         $locales = $this->locales();
 
+        // Resolve indexability once per locale; both the main loop and the
+        // alternates reuse this map instead of re-checking each locale twice.
+        $indexable = [];
         foreach ($locales as $locale) {
-            $route = $this->getSitemapRoute($locale);
+            $indexable[$locale] = ! method_exists($this, 'isIndexable') || $this->isIndexable($locale);
+        }
 
-            /** @var Uri */
-            $uri = Route::localizedUrl($locale, $route);
+        $urls = [];
 
-            $url = Url::create($uri->__toString())
+        foreach ($locales as $locale) {
+            if (! $indexable[$locale]) {
+                continue;
+            }
+
+            $url = Url::create(Route::localizedUrlString($locale, $this->getSitemapRoute($locale)))
                 ->setPriority($this->getSitemapPriority())
                 ->setChangeFrequency($this->getSitemapChangeFrequency());
 
-            $url = $this->attachSitemapAlternates($url, $locale);
+            $url = $this->attachSitemapAlternates($url, $locale, $indexable);
             $urls[] = $url;
         }
 
         return $urls;
     }
 
-    private function attachSitemapAlternates(Url $url, string $current_locale): Url {
+    /**
+     * @param  array<string, bool>  $indexable  indexability per locale, resolved once by the caller
+     */
+    private function attachSitemapAlternates(Url $url, string $current_locale, array $indexable): Url {
         /** @var list<string> $locales */
         $locales = $this->locales();
 
         foreach ($locales as $alternate) {
-            if ($alternate === $current_locale) {
+            if ($alternate === $current_locale || ! $indexable[$alternate]) {
                 continue;
             }
 
-            /** @var Uri */
-            $uri = Route::localizedUrl($alternate, $this->getSitemapRoute($alternate));
-            $url->addAlternate($uri->__toString(), $alternate);
+            $url->addAlternate(Route::localizedUrlString($alternate, $this->getSitemapRoute($alternate)), $alternate);
         }
 
         return $url;

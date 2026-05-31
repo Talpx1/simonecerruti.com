@@ -15,6 +15,7 @@ use App\Macros\Request\CookieStringOrDefaultMacro;
 use App\Macros\Request\QueryStringOrDefaultMacro;
 use App\Macros\Request\QueryStringOrNullMacro;
 use App\Macros\Str\ReplacePlaceholdersMacro;
+use App\View\Composers\SeoComposer;
 use Carbon\CarbonImmutable;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -30,6 +31,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Sleep;
@@ -81,20 +83,31 @@ class AppServiceProvider extends ServiceProvider {
 
         App::macro('supportedLocales', fn (): array => LaravelLocalization::getSupportedLocales());
 
-        Route::macro('localizedUrl',
-            function (
+        $localizedUri = function (
+            string|bool|null $locale = null,
+            string|false|null $url = null,
+            array $attributes = [],
+            bool $force_default_location = false
+        ): Uri {
+            try {
+                return Uri::of((string) LaravelLocalization::getLocalizedURL($locale, $url, $attributes, $force_default_location))
+                    ->withoutQuery(['missing_translations']);
+            } catch (MissingRoutableLocalizedRouteKeyException) {
+                return Uri::of(request()->url())->withQuery(['missing_translations' => $locale]);
+            }
+        };
+
+        Route::macro('localizedUrl', $localizedUri);
+
+        // Same as localizedUrl(), but returns the URL already cast to a string —
+        // saves callers the `->__toString()` (and the @var Uri hint larastan needs).
+        Route::macro('localizedUrlString',
+            fn (
                 string|bool|null $locale = null,
                 string|false|null $url = null,
                 array $attributes = [],
                 bool $force_default_location = false
-            ) {
-                try {
-                    return Uri::of((string) LaravelLocalization::getLocalizedURL($locale, $url, $attributes, $force_default_location))
-                        ->withoutQuery(['missing_translations']);
-                } catch (MissingRoutableLocalizedRouteKeyException) {
-                    return Uri::of(request()->url())->withQuery(['missing_translations' => $locale]);
-                }
-            }
+            ): string => $localizedUri($locale, $url, $attributes, $force_default_location)->__toString()
         );
 
         Route::macro('livewireLocalized',
@@ -124,6 +137,8 @@ class AppServiceProvider extends ServiceProvider {
         });
 
         Str::macro(...ReplacePlaceholdersMacro::register());
+
+        View::composer(['layouts::public.index', 'layouts.public.index'], SeoComposer::class);
 
         collect([
             QueryStringOrDefaultMacro::class,

@@ -16,7 +16,7 @@ class BlogArticleShow extends Component {
     public ?BlogArticle $next = null;
 
     public function mount(BlogArticle $blog_article): void {
-        $this->blog_article = $blog_article->load(['tags', 'media', 'relatables.relatable']);
+        $this->blog_article = $blog_article->load(['tags', 'media', 'relatables.relatable', 'author', 'seo']);
         $this->previous = $blog_article->previous();
         $this->next = $blog_article->next();
     }
@@ -25,7 +25,9 @@ class BlogArticleShow extends Component {
         $view = view('pages.blog-article.show')
             ->with(['related_blog_articles' => $this->blog_article->relatedBlogArticles()]);
 
-        $view->title($this->blog_article->title);
+        $view->layout('layouts.public.index', [
+            'seo_data' => $this->blog_article->toSeoData(),
+        ]);
 
         return $view;
     }

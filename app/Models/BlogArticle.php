@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\DataTransferObjects\SeoConfig;
 use App\Enums\BlogArticleStatuses;
+use App\Enums\SchemaType;
+use App\Enums\TagTypes;
 use App\Models\Concerns\HasRoutableSlug;
+use App\Models\Concerns\HasSeo;
 use App\Models\Concerns\HasSitemapTag;
 use App\Models\Concerns\LogsAllDirtyChanges;
 use App\Models\Concerns\ResolvesRoutBindingByLocalizedSlug;
@@ -45,10 +49,12 @@ use Spatie\Translatable\HasTranslations;
  * @property-read bool $can_be_crawled
  * @property-read string $featured_image_url
  * @property-read string $summary_or_excerpt
+ * @property-read User $author
+ * @property-read Seo|null $seo
  */
 class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapable {
     /** @use HasFactory<BlogArticleFactory> */
-    use HasCurrentLocaleTranslationScope, HasFactory, HasRoutableSlug, HasSitemapTag, HasTags, HasTranslations, InteractsWithMedia, LogsAllDirtyChanges, ResolvesRoutBindingByLocalizedSlug;
+    use HasCurrentLocaleTranslationScope, HasFactory, HasRoutableSlug, HasSeo, HasSitemapTag, HasTags, HasTranslations, InteractsWithMedia, LogsAllDirtyChanges, ResolvesRoutBindingByLocalizedSlug;
 
     /** @var list<string> */
     public array $translatable = ['title', 'slug', 'summary', 'content'];
@@ -135,6 +141,46 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
     /** @return Attribute<bool, never> */
     protected function canBeCrawled(): Attribute {
         return Attribute::get(fn () => $this->status->allowsCrawling() && ($this->published_at?->isNowOrPast() ?? false));
+    }
+
+    public function seoDefaults(): SeoConfig {
+        return new SeoConfig(
+            schema_type: SchemaType::BLOG_POSTING,
+            title: '{title} {title_separator} {site_name}',
+            description: '{excerpt}',
+            og_image: '{featured_image}',
+            schema: [
+                'headline' => '{title}',
+                'description' => '{excerpt}',
+                'image' => '{featured_image}',
+                'datePublished' => '{published_iso}',
+                'dateModified' => '{modified_iso}',
+                'inLanguage' => '{locale}',
+                'articleSection' => '{category}',
+                'author' => '{author}',
+            ],
+        );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function seoVariables(): array {
+        return [
+            'title' => $this->title,
+            'excerpt' => $this->summary_or_excerpt,
+            'author' => $this->author->name,
+            'category' => $this->tags->where('type', TagTypes::BLOG_CATEGORY->value)->pluck('name')->implode(', '),
+            'tags' => $this->tags->where('type', TagTypes::TAG->value)->pluck('name')->implode(', '),
+            'featured_image' => $this->featured_image_url,
+            'published_date' => $this->published_at?->translatedFormat('d F Y') ?? '',
+            'published_iso' => $this->published_at?->toIso8601String() ?? '',
+            'modified_iso' => $this->updated_at->toIso8601String(),
+        ];
+    }
+
+    protected function isCrawlableByStatus(): bool {
+        return $this->can_be_crawled;
     }
 
     /** @param Builder<self> $query */

@@ -14,21 +14,7 @@
     <meta name="apple-mobile-web-app-title" content="{{ config('app.name') }}" />
     <link rel="manifest" href="/favicon/site.webmanifest" />
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>
-        {{ __($title) }}
-
-        @if (!isset($suffix))
-            |&nbsp;{{ config('app.name') }}
-        @elseif ($suffix !== false)
-            |&nbsp;{{ __($suffix) }}
-        @endif
-    </title>
-
-    <link rel="canonical" href="{{ url()->current() }}">
-    @foreach (app()->supportedLocales() as $locale => $props)
-        <link rel="alternate" hreflang="{{ $locale }}"
-            href="{{ Route::localizedUrl(locale: $locale, force_default_location: true) }}">
-    @endforeach
+    @include('layouts.public.seo', ['seo_data' => $seo_data ?? null])
 
     @stack('seo')
 

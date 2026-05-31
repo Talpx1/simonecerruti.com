@@ -12,11 +12,13 @@ class ProjectShow extends Component {
     public Project $project;
 
     public function mount(Project $project): void {
-        $this->project = $project->load(['tags', 'media']);
+        $this->project = $project->load(['tags', 'media', 'seo']);
     }
 
     public function render(): View {
         return view('pages.projects.show')
-            ->title($this->project->title);
+            ->layout('layouts.public.index', [
+                'seo_data' => $this->project->toSeoData(),
+            ]);
     }
 }

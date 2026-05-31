@@ -6,6 +6,7 @@ namespace App\Filament\Resources\BlogArticles\Schemas;
 
 use App\Enums\BlogArticleStatuses;
 use App\Enums\TagTypes;
+use App\Filament\Components\SeoFields;
 use App\Models\Project;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MorphToSelect;
@@ -177,6 +178,13 @@ class BlogArticleForm {
                             ->columnSpanFull(),
                     ])
                     ->columns(1),
+
+                Section::make(__('SEO'))
+                    ->description(__('Optional overrides. Left blank, search-engine metadata is generated automatically from the article.'))
+                    ->collapsed()
+                    ->schema([
+                        SeoFields::make(['title', 'excerpt', 'author', 'category', 'tags', 'site_name', 'published_date', 'current_year']),
+                    ]),
             ]);
     }
 }
