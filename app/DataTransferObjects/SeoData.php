@@ -29,4 +29,23 @@ readonly class SeoData {
         public array $twitter = [],
         public array $json_ld = [],
     ) {}
+
+    /**
+     * A copy with the given schema.org nodes prepended to the JSON-LD @graph,
+     * used to add sitewide nodes (WebSite, site identity) ahead of the page node.
+     *
+     * @param  list<array<string, mixed>>  $nodes
+     */
+    public function prependJsonLd(array $nodes): self {
+        return new self(
+            title: $this->title,
+            description: $this->description,
+            canonical: $this->canonical,
+            robots: $this->robots,
+            alternates: $this->alternates,
+            open_graph: $this->open_graph,
+            twitter: $this->twitter,
+            json_ld: [...$nodes, ...$this->json_ld],
+        );
+    }
 }

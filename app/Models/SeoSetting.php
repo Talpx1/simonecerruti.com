@@ -10,7 +10,10 @@ use Carbon\CarbonImmutable;
 use Database\Factories\SeoSettingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Uri;
 use Spatie\Translatable\HasTranslations;
 
 /**
@@ -68,5 +71,57 @@ class SeoSetting extends Model {
     protected static function booted(): void {
         static::saved(fn () => Cache::forget(self::CACHE_KEY));
         static::deleted(fn () => Cache::forget(self::CACHE_KEY));
+    }
+
+    /**
+     * Sitewide schema.org nodes for the JSON-LD @graph: the WebSite (when
+     * enabled) and the site identity (Person or Organization). Prepended to
+     * every page's @graph so crawlers always see the site's identity.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function schemaNodes(): array {
+        $name = $this->name ?? config()->string('app.name');
+        $url = $this->homeUrl();
+
+        $nodes = [];
+
+        if ($this->website_schema) {
+            $nodes[] = [
+                '@type' => SchemaType::WEB_SITE->schemaOrgType(),
+                'name' => $name,
+                'url' => $url,
+                'inLanguage' => App::getLocale(),
+            ];
+        }
+
+        $identity = [
+            '@type' => $this->type->schemaOrgType(),
+            'name' => $name,
+            'url' => $url,
+        ];
+
+        if ($this->description !== null && $this->description !== '') {
+            $identity['description'] = $this->description;
+        }
+
+        if ($this->default_og_image !== null && $this->default_og_image !== '') {
+            $identity['image'] = $this->default_og_image;
+        }
+
+        if ($this->social_profiles !== null && $this->social_profiles !== []) {
+            $identity['sameAs'] = $this->social_profiles;
+        }
+
+        $nodes[] = $identity;
+
+        return $nodes;
+    }
+
+    private function homeUrl(): string {
+        /** @var Uri $uri */
+        $uri = Route::localizedUrl(App::getLocale(), route('home'));
+
+        return $uri->__toString();
     }
 }

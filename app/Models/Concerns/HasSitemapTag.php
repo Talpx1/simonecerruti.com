@@ -27,42 +27,46 @@ trait HasSitemapTag {
             return '';
         }
 
-        $urls = [];
-
         /** @var list<string> $locales */
         $locales = $this->locales();
 
+        // Resolve indexability once per locale; both the main loop and the
+        // alternates reuse this map instead of re-checking each locale twice.
+        $indexable = [];
         foreach ($locales as $locale) {
-            if (method_exists($this, 'isIndexable') && ! $this->isIndexable($locale)) {
+            $indexable[$locale] = ! method_exists($this, 'isIndexable') || $this->isIndexable($locale);
+        }
+
+        $urls = [];
+
+        foreach ($locales as $locale) {
+            if (! $indexable[$locale]) {
                 continue;
             }
 
-            $route = $this->getSitemapRoute($locale);
-
             /** @var Uri */
-            $uri = Route::localizedUrl($locale, $route);
+            $uri = Route::localizedUrl($locale, $this->getSitemapRoute($locale));
 
             $url = Url::create($uri->__toString())
                 ->setPriority($this->getSitemapPriority())
                 ->setChangeFrequency($this->getSitemapChangeFrequency());
 
-            $url = $this->attachSitemapAlternates($url, $locale);
+            $url = $this->attachSitemapAlternates($url, $locale, $indexable);
             $urls[] = $url;
         }
 
         return $urls;
     }
 
-    private function attachSitemapAlternates(Url $url, string $current_locale): Url {
+    /**
+     * @param  array<string, bool>  $indexable  indexability per locale, resolved once by the caller
+     */
+    private function attachSitemapAlternates(Url $url, string $current_locale, array $indexable): Url {
         /** @var list<string> $locales */
         $locales = $this->locales();
 
         foreach ($locales as $alternate) {
-            if ($alternate === $current_locale) {
-                continue;
-            }
-
-            if (method_exists($this, 'isIndexable') && ! $this->isIndexable($alternate)) {
+            if ($alternate === $current_locale || ! $indexable[$alternate]) {
                 continue;
             }
 

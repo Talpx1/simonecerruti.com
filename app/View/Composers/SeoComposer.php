@@ -20,16 +20,19 @@ class SeoComposer {
     public function compose(View $view): void {
         $data = $view->getData();
 
-        // A page (or a later phase) may already provide its own resolved SeoData.
-        if (isset($data['seo_data'])) {
-            return;
-        }
+        // A page may supply its own resolved SeoData (show pages do); otherwise
+        // fall back to a minimal default built from the page title.
+        $seo_data = isset($data['seo_data']) && $data['seo_data'] instanceof SeoData
+            ? $data['seo_data']
+            : new SeoData(
+                title: $this->title($data),
+                canonical: url()->current(),
+                alternates: $this->alternates(),
+            );
 
-        $view->with('seo_data', new SeoData(
-            title: $this->title($data),
-            canonical: url()->current(),
-            alternates: $this->alternates(),
-        ));
+        // The sitewide identity (WebSite + Person/Organization) is prepended to
+        // every page's @graph, whether the SeoData is page-provided or default.
+        $view->with('seo_data', $seo_data->prependJsonLd(SeoSetting::current()->schemaNodes()));
     }
 
     /**

@@ -83,13 +83,23 @@ it('escapes JSON-LD so it cannot break out of the script tag', function () {
         ->toContain('alert(1)');
 });
 
-it('does not override a SeoData already provided to the layout', function () {
-    $provided = new SeoData(title: 'Provided by the page');
+it('keeps a page-provided SeoData and only prepends the sitewide schema nodes', function () {
+    $provided = new SeoData(
+        title: 'Provided by the page',
+        json_ld: [['@type' => 'Article', 'headline' => 'Provided by the page']],
+    );
     $view = view('layouts.public.index', ['seo_data' => $provided]);
 
     (new SeoComposer)->compose($view);
 
-    expect($view->getData()['seo_data'])->toBe($provided);
+    $resolved = $view->getData()['seo_data'];
+
+    expect($resolved)->not->toBe($provided)
+        ->and($resolved->title)->toBe('Provided by the page')
+        // Sitewide nodes (WebSite + identity) come first, the page node stays last.
+        ->and($resolved->json_ld)->toHaveCount(3)
+        ->and($resolved->json_ld[2])->toBe(['@type' => 'Article', 'headline' => 'Provided by the page'])
+        ->and($resolved->json_ld[0]['@type'])->toBe('WebSite');
 });
 
 it('emits one title, one canonical and one hreflang per locale on a rendered page', function () {
