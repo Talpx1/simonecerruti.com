@@ -32,9 +32,7 @@ class SeoFields {
             // Only persist a Seo row when at least one field is filled; an
             // all-blank section saves nothing (and prunes an existing empty row),
             // keeping "no overrides" as the absence of a row.
-            ->relationship('seo', condition: fn (?array $state): bool => collect($state ?? [])
-                ->except(['id', 'seoable_type', 'seoable_id', 'created_at', 'updated_at'])
-                ->contains(fn (mixed $value): bool => filled($value)))
+            ->relationship('seo', condition: fn (?array $state): bool => self::hasAnyOverride($state))
             ->schema([
                 Tabs::make('seo')
                     ->columnSpanFull()
@@ -128,6 +126,18 @@ class SeoFields {
                     ->valueLabel(__('Value or template'))
                     ->helperText(__('Override individual schema.org properties; leave a property out to keep its automatic value.')),
             ]);
+    }
+
+    /**
+     * Whether the SEO section holds at least one override, ignoring the Seo
+     * row's own keys/timestamps. Drives whether a row is saved or pruned.
+     *
+     * @param  array<array-key, mixed>|null  $state
+     */
+    private static function hasAnyOverride(?array $state): bool {
+        return Collection::make($state ?? [])
+            ->except(['id', 'seoable_type', 'seoable_id', 'created_at', 'updated_at'])
+            ->contains(fn (mixed $value): bool => filled($value));
     }
 
     /**

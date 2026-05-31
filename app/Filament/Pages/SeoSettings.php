@@ -80,15 +80,7 @@ class SeoSettings extends Page {
                                 ->placeholder(config()->string('app.name')),
 
                             Tabs::make('description')
-                                ->tabs(array_map(
-                                    fn (string $locale): Tab => Tab::make(strtoupper($locale))
-                                        ->schema([
-                                            Textarea::make("description.{$locale}")
-                                                ->label(__('Description'))
-                                                ->rows(3),
-                                        ]),
-                                    $this->locales(),
-                                )),
+                                ->tabs(array_map($this->localeDescriptionTab(...), $this->locales())),
 
                             Repeater::make('social_profiles')
                                 ->label(__('Social profiles'))
@@ -152,6 +144,18 @@ class SeoSettings extends Page {
 
     public function getRecord(): SeoSetting {
         return SeoSetting::query()->firstOrNew();
+    }
+
+    /**
+     * One tab editing the translatable description for a single locale.
+     */
+    private function localeDescriptionTab(string $locale): Tab {
+        return Tab::make(strtoupper($locale))
+            ->schema([
+                Textarea::make("description.{$locale}")
+                    ->label(__('Description'))
+                    ->rows(3),
+            ]);
     }
 
     /**
