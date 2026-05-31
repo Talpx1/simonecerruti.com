@@ -83,20 +83,31 @@ class AppServiceProvider extends ServiceProvider {
 
         App::macro('supportedLocales', fn (): array => LaravelLocalization::getSupportedLocales());
 
-        Route::macro('localizedUrl',
-            function (
+        $localizedUri = function (
+            string|bool|null $locale = null,
+            string|false|null $url = null,
+            array $attributes = [],
+            bool $force_default_location = false
+        ): Uri {
+            try {
+                return Uri::of((string) LaravelLocalization::getLocalizedURL($locale, $url, $attributes, $force_default_location))
+                    ->withoutQuery(['missing_translations']);
+            } catch (MissingRoutableLocalizedRouteKeyException) {
+                return Uri::of(request()->url())->withQuery(['missing_translations' => $locale]);
+            }
+        };
+
+        Route::macro('localizedUrl', $localizedUri);
+
+        // Same as localizedUrl(), but returns the URL already cast to a string —
+        // saves callers the `->__toString()` (and the @var Uri hint larastan needs).
+        Route::macro('localizedUrlString',
+            fn (
                 string|bool|null $locale = null,
                 string|false|null $url = null,
                 array $attributes = [],
                 bool $force_default_location = false
-            ) {
-                try {
-                    return Uri::of((string) LaravelLocalization::getLocalizedURL($locale, $url, $attributes, $force_default_location))
-                        ->withoutQuery(['missing_translations']);
-                } catch (MissingRoutableLocalizedRouteKeyException) {
-                    return Uri::of(request()->url())->withQuery(['missing_translations' => $locale]);
-                }
-            }
+            ): string => $localizedUri($locale, $url, $attributes, $force_default_location)->__toString()
         );
 
         Route::macro('livewireLocalized',

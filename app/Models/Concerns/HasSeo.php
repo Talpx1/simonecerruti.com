@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
-use Illuminate\Support\Uri;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 /**
@@ -65,17 +64,17 @@ trait HasSeo {
         $seo = $this->seo;
         $vars = $this->resolvedSeoVariables();
 
-        $title = $this->resolveTemplate($seo->title ?? $defaults->title, $vars);
-        $description = $this->resolveTemplate($seo->description ?? $defaults->description, $vars);
-        $og_title = $this->resolveTemplate($seo->og_title ?? $defaults->og_title, $vars) ?: $title;
-        $og_description = $this->resolveTemplate($seo->og_description ?? $defaults->og_description, $vars) ?: $description;
-        $og_image = $this->resolveTemplate($seo->og_image ?? $defaults->og_image, $vars);
-        $twitter_title = $this->resolveTemplate($seo->twitter_title ?? $defaults->twitter_title, $vars) ?: $og_title;
-        $twitter_description = $this->resolveTemplate($seo->twitter_description ?? $defaults->twitter_description, $vars) ?: $og_description;
-        $twitter_image = $this->resolveTemplate($seo->twitter_image ?? $defaults->twitter_image, $vars) ?: $og_image;
+        $title = $this->resolveTemplate($this->override($seo, 'title') ?? $defaults->title, $vars);
+        $description = $this->resolveTemplate($this->override($seo, 'description') ?? $defaults->description, $vars);
+        $og_title = $this->resolveTemplate($this->override($seo, 'og_title') ?? $defaults->og_title, $vars) ?: $title;
+        $og_description = $this->resolveTemplate($this->override($seo, 'og_description') ?? $defaults->og_description, $vars) ?: $description;
+        $og_image = $this->resolveTemplate($this->override($seo, 'og_image') ?? $defaults->og_image, $vars);
+        $twitter_title = $this->resolveTemplate($this->override($seo, 'twitter_title') ?? $defaults->twitter_title, $vars) ?: $og_title;
+        $twitter_description = $this->resolveTemplate($this->override($seo, 'twitter_description') ?? $defaults->twitter_description, $vars) ?: $og_description;
+        $twitter_image = $this->resolveTemplate($this->override($seo, 'twitter_image') ?? $defaults->twitter_image, $vars) ?: $og_image;
         $card = ($seo->twitter_card ?? $defaults->twitter_card)->value;
 
-        $canonical = $seo->canonical
+        $canonical = $this->override($seo, 'canonical')
             ?: $this->localizedUrl(App::getLocale());
 
         return new SeoData(
@@ -105,6 +104,18 @@ trait HasSeo {
     }
 
     /**
+     * A stored override for a translatable string field in the current locale,
+     * or null when unset there. Read WITHOUT the spatie fallback locale, so an
+     * override set only in another locale does not leak in — the field falls
+     * through to the model's default template instead.
+     */
+    private function override(Seo $seo, string $field): ?string {
+        $value = $seo->getTranslation($field, App::getLocale(), false);
+
+        return is_string($value) && $value !== '' ? $value : null;
+    }
+
+    /**
      * @return array<string, string>
      */
     private function resolvedSeoVariables(): array {
@@ -118,12 +129,21 @@ trait HasSeo {
      * @return array<string, string>
      */
     private function globalSeoVariables(): array {
+        $settings = SeoSetting::current();
+
         return [
-            'site_name' => config()->string('app.name'),
-            'title_separator' => SeoSetting::current()->title_separator,
+            'site_name' => $this->siteName(),
+            'title_separator' => $settings->title_separator,
             'locale' => App::getLocale(),
             'current_year' => (string) now()->year,
         ];
+    }
+
+    /**
+     * The configured SEO site name, falling back to the app name.
+     */
+    private function siteName(): string {
+        return SeoSetting::current()->name ?? config()->string('app.name');
     }
 
     /**
@@ -140,7 +160,13 @@ trait HasSeo {
     }
 
     private function resolveRobots(Seo $seo, SeoConfig $config): ?string {
-        $directives = $seo->robots ?? array_map(fn (RobotsDirective $directive): string => $directive->value, $config->robots);
+        // Read robots for the current locale only (no fallback), so a per-locale
+        // noindex does not bleed into other locales via the spatie fallback.
+        $stored = $seo->getTranslation('robots', App::getLocale(), false);
+
+        $directives = is_array($stored) && $stored !== []
+            ? array_values(array_filter($stored, 'is_string'))
+            : array_map(fn (RobotsDirective $directive): string => $directive->value, $config->robots);
 
         if (! $this->isCrawlableByStatus()) {
             $directives[] = RobotsDirective::NOINDEX->value;
@@ -171,10 +197,7 @@ trait HasSeo {
     }
 
     private function localizedUrl(string $locale): string {
-        /** @var Uri $uri */
-        $uri = Route::localizedUrl($locale, $this->getSitemapRoute($locale));
-
-        return $uri->__toString();
+        return Route::localizedUrlString($locale, $this->getSitemapRoute($locale));
     }
 
     /**
@@ -188,7 +211,7 @@ trait HasSeo {
             'og:title' => $title,
             'og:description' => $description,
             'og:url' => $url,
-            'og:site_name' => config()->string('app.name'),
+            'og:site_name' => $this->siteName(),
             'og:locale' => $regional,
             'og:image' => $image,
         ], fn (string $value): bool => $value !== '');
@@ -216,8 +239,9 @@ trait HasSeo {
     private function primarySchemaNode(SeoConfig $config, Seo $seo, array $vars): array {
         $type = ($seo->schema_type ?? $config->schema_type)->schemaOrgType();
 
-        /** @var array<string, mixed> $overrides */
-        $overrides = $seo->schema_overrides ?? [];
+        // Per-property overrides for the current locale only (no fallback).
+        $stored = $seo->getTranslation('schema_overrides', App::getLocale(), false);
+        $overrides = is_array($stored) ? $stored : [];
 
         $node = ['@type' => $type];
 

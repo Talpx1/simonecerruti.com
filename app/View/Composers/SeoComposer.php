@@ -8,7 +8,6 @@ use App\DataTransferObjects\SeoData;
 use App\Models\SeoSetting;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Uri;
 use Illuminate\View\View;
 
 /**
@@ -74,12 +73,9 @@ class SeoComposer {
         $alternates = [];
 
         foreach (array_keys(App::supportedLocales()) as $locale) {
-            /** @var Uri $uri */
-            $uri = Route::localizedUrl(locale: $locale, force_default_location: true);
-
             $alternates[] = [
                 'hreflang' => $locale,
-                'href' => $uri->__toString(),
+                'href' => Route::localizedUrlString(locale: $locale, force_default_location: true),
             ];
         }
 

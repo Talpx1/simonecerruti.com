@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models\Concerns;
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Uri;
 use Spatie\Sitemap\Tags\Url;
 
 trait HasSitemapTag {
@@ -44,10 +43,7 @@ trait HasSitemapTag {
                 continue;
             }
 
-            /** @var Uri */
-            $uri = Route::localizedUrl($locale, $this->getSitemapRoute($locale));
-
-            $url = Url::create($uri->__toString())
+            $url = Url::create(Route::localizedUrlString($locale, $this->getSitemapRoute($locale)))
                 ->setPriority($this->getSitemapPriority())
                 ->setChangeFrequency($this->getSitemapChangeFrequency());
 
@@ -70,9 +66,7 @@ trait HasSitemapTag {
                 continue;
             }
 
-            /** @var Uri */
-            $uri = Route::localizedUrl($alternate, $this->getSitemapRoute($alternate));
-            $url->addAlternate($uri->__toString(), $alternate);
+            $url->addAlternate(Route::localizedUrlString($alternate, $this->getSitemapRoute($alternate)), $alternate);
         }
 
         return $url;

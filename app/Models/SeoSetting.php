@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Uri;
 use Spatie\Translatable\HasTranslations;
 
 /**
@@ -119,9 +118,6 @@ class SeoSetting extends Model {
     }
 
     private function homeUrl(): string {
-        /** @var Uri $uri */
-        $uri = Route::localizedUrl(App::getLocale(), route('home'));
-
-        return $uri->__toString();
+        return Route::localizedUrlString(App::getLocale(), route('home'));
     }
 }
