@@ -50,7 +50,7 @@ use Spatie\Translatable\HasTranslations;
  * @property-read string $featured_image_url
  * @property-read string $summary_or_excerpt
  * @property-read User $author
- * @property-read Seo $seo
+ * @property-read Seo|null $seo
  */
 class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapable {
     /** @use HasFactory<BlogArticleFactory> */

@@ -49,14 +49,12 @@ trait HasSeo {
     abstract protected function getSitemapRoute(string $locale): string;
 
     /**
-     * The per-record SEO overrides. withDefault() yields an empty (non-persisted)
-     * Seo when no row exists, so $this->seo is always a Seo whose every field is
-     * null — each one then falls back to the model's declared defaults.
+     * The per-record SEO overrides, or null when none have been stored.
      *
      * @return MorphOne<Seo, $this>
      */
     public function seo(): MorphOne {
-        return $this->morphOne(Seo::class, 'seoable')->withDefault();
+        return $this->morphOne(Seo::class, 'seoable');
     }
 
     public function toSeoData(): SeoData {
@@ -64,17 +62,18 @@ trait HasSeo {
         $seo = $this->seo;
         $vars = $this->resolvedSeoVariables();
 
-        $title = $this->resolveTemplate($this->override($seo, 'title') ?? $defaults->title, $vars);
-        $description = $this->resolveTemplate($this->override($seo, 'description') ?? $defaults->description, $vars);
-        $og_title = $this->resolveTemplate($this->override($seo, 'og_title') ?? $defaults->og_title, $vars) ?: $title;
-        $og_description = $this->resolveTemplate($this->override($seo, 'og_description') ?? $defaults->og_description, $vars) ?: $description;
-        $og_image = $this->resolveTemplate($this->override($seo, 'og_image') ?? $defaults->og_image, $vars);
-        $twitter_title = $this->resolveTemplate($this->override($seo, 'twitter_title') ?? $defaults->twitter_title, $vars) ?: $og_title;
-        $twitter_description = $this->resolveTemplate($this->override($seo, 'twitter_description') ?? $defaults->twitter_description, $vars) ?: $og_description;
-        $twitter_image = $this->resolveTemplate($this->override($seo, 'twitter_image') ?? $defaults->twitter_image, $vars) ?: $og_image;
-        $card = ($seo->twitter_card ?? $defaults->twitter_card)->value;
+        $title = $this->substituteSeoVars($this->seoOverride($seo, 'title') ?? $defaults->title, $vars);
+        $description = $this->substituteSeoVars($this->seoOverride($seo, 'description') ?? $defaults->description, $vars);
+        $og_title = $this->substituteSeoVars($this->seoOverride($seo, 'og_title') ?? $defaults->og_title, $vars) ?: $title;
+        $og_description = $this->substituteSeoVars($this->seoOverride($seo, 'og_description') ?? $defaults->og_description, $vars) ?: $description;
+        $og_image = $this->substituteSeoVars($this->seoOverride($seo, 'og_image') ?? $defaults->og_image, $vars);
+        $twitter_title = $this->substituteSeoVars($this->seoOverride($seo, 'twitter_title') ?? $defaults->twitter_title, $vars) ?: $og_title;
+        $twitter_description = $this->substituteSeoVars($this->seoOverride($seo, 'twitter_description') ?? $defaults->twitter_description, $vars) ?: $og_description;
+        $twitter_image = $this->substituteSeoVars($this->seoOverride($seo, 'twitter_image') ?? $defaults->twitter_image, $vars) ?: $og_image;
+        $stored_card = $seo?->twitter_card;
+        $card = ($stored_card ?? $defaults->twitter_card)->value;
 
-        $canonical = $this->override($seo, 'canonical')
+        $canonical = $this->seoOverride($seo, 'canonical')
             ?: $this->localizedUrl(App::getLocale());
 
         return new SeoData(
@@ -98,19 +97,19 @@ trait HasSeo {
     }
 
     private function hasSeoNoindex(string $locale): bool {
-        $robots = $this->seo->getTranslation('robots', $locale, false);
+        $robots = $this->seo?->getTranslation('robots', $locale, false);
 
         return is_array($robots) && in_array(RobotsDirective::NOINDEX->value, $robots, true);
     }
 
     /**
      * A stored override for a translatable string field in the current locale,
-     * or null when unset there. Read WITHOUT the spatie fallback locale, so an
-     * override set only in another locale does not leak in — the field falls
-     * through to the model's default template instead.
+     * or null when there is no Seo row or no value for that locale. Read WITHOUT
+     * the spatie fallback locale, so an override set only in another locale does
+     * not leak in — the field falls through to the model's default template.
      */
-    private function override(Seo $seo, string $field): ?string {
-        $value = $seo->getTranslation($field, App::getLocale(), false);
+    private function seoOverride(?Seo $seo, string $field): ?string {
+        $value = $seo?->getTranslation($field, App::getLocale(), false);
 
         return is_string($value) && $value !== '' ? $value : null;
     }
@@ -147,9 +146,12 @@ trait HasSeo {
     }
 
     /**
+     * Substitute the SEO {variables} in a template, dropping any unmatched ones,
+     * then collapse the whitespace they may leave behind.
+     *
      * @param  array<string, string>  $vars
      */
-    private function resolveTemplate(?string $template, array $vars): string {
+    private function substituteSeoVars(?string $template, array $vars): string {
         if (! $template) {
             return '';
         }
@@ -159,10 +161,10 @@ trait HasSeo {
         return trim((string) \Safe\preg_replace('/\s+/', ' ', $resolved));
     }
 
-    private function resolveRobots(Seo $seo, SeoConfig $config): ?string {
+    private function resolveRobots(?Seo $seo, SeoConfig $config): ?string {
         // Read robots for the current locale only (no fallback), so a per-locale
         // noindex does not bleed into other locales via the spatie fallback.
-        $stored = $seo->getTranslation('robots', App::getLocale(), false);
+        $stored = $seo?->getTranslation('robots', App::getLocale(), false);
 
         $directives = is_array($stored) && $stored !== []
             ? array_values(array_filter($stored, 'is_string'))
@@ -236,18 +238,19 @@ trait HasSeo {
      * @param  array<string, string>  $vars
      * @return array<string, mixed>
      */
-    private function primarySchemaNode(SeoConfig $config, Seo $seo, array $vars): array {
-        $type = ($seo->schema_type ?? $config->schema_type)->schemaOrgType();
+    private function primarySchemaNode(SeoConfig $config, ?Seo $seo, array $vars): array {
+        $stored_type = $seo?->schema_type;
+        $type = ($stored_type ?? $config->schema_type)->schemaOrgType();
 
         // Per-property overrides for the current locale only (no fallback).
-        $stored = $seo->getTranslation('schema_overrides', App::getLocale(), false);
+        $stored = $seo?->getTranslation('schema_overrides', App::getLocale(), false);
         $overrides = is_array($stored) ? $stored : [];
 
         $node = ['@type' => $type];
 
         foreach ($config->schema as $property => $template) {
             $override = $overrides[$property] ?? null;
-            $value = $this->resolveTemplate(is_string($override) ? $override : $template, $vars);
+            $value = $this->substituteSeoVars(is_string($override) ? $override : $template, $vars);
 
             if ($value !== '') {
                 $node[$property] = $value;

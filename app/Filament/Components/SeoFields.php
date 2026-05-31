@@ -29,7 +29,12 @@ class SeoFields {
      */
     public static function make(array $variables = []): Group {
         return Group::make()
-            ->relationship('seo')
+            // Only persist a Seo row when at least one field is filled; an
+            // all-blank section saves nothing (and prunes an existing empty row),
+            // keeping "no overrides" as the absence of a row.
+            ->relationship('seo', condition: fn (?array $state): bool => collect($state ?? [])
+                ->except(['id', 'seoable_type', 'seoable_id', 'created_at', 'updated_at'])
+                ->contains(fn (mixed $value): bool => filled($value)))
             ->schema([
                 Tabs::make('seo')
                     ->columnSpanFull()

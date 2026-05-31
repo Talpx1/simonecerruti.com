@@ -44,7 +44,7 @@ use Spatie\Translatable\HasTranslations;
  * @property CarbonImmutable $updated_at
  * @property-read string $featured_image_url
  * @property-read string $short_description_or_excerpt
- * @property-read Seo $seo
+ * @property-read Seo|null $seo
  */
 class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapable {
     /** @use HasFactory<ProjectFactory> */

@@ -10,6 +10,7 @@ use App\Filament\Resources\BlogArticles\Pages\CreateBlogArticle;
 use App\Filament\Resources\BlogArticles\Pages\EditBlogArticle;
 use App\Filament\Resources\BlogArticles\Pages\ListBlogArticles;
 use App\Models\BlogArticle;
+use App\Models\Seo;
 
 use function Pest\Livewire\livewire;
 
@@ -86,6 +87,33 @@ describe('SEO overrides', function () {
 
         expect($article->seo->getTranslation('title', 'it', false))->toBe('Titolo SEO')
             ->and($article->seo->getTranslation('title', 'en', false))->toBe('SEO Title');
+    });
+
+    it('creates no Seo row when the section is left blank', function () {
+        $article = BlogArticle::factory()->create();
+
+        livewire(EditBlogArticle::class, ['record' => $article->id])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        expect(Seo::query()->where('seoable_id', $article->id)->exists())->toBeFalse();
+    });
+
+    it('prunes the Seo row once every override is cleared', function () {
+        $article = BlogArticle::factory()->create();
+        // A row whose only override is the title, so clearing it empties the record.
+        Seo::factory()->for($article, 'seoable')->create([
+            'title' => ['it' => 'Temporaneo'],
+            'description' => null,
+            'schema_type' => null,
+        ]);
+
+        livewire(EditBlogArticle::class, ['record' => $article->id])
+            ->fillForm(['seo.title' => null])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        expect(Seo::query()->where('seoable_id', $article->id)->exists())->toBeFalse();
     });
 
     it('persists the non-translatable enum fields and robots directives', function () {
