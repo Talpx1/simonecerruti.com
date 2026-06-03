@@ -26,7 +26,7 @@ class SeoComposer {
             : new SeoData(
                 title: $this->title($data),
                 canonical: url()->current(),
-                robots: $this->robots($data),
+                robots: $this->stringField($data, 'robots'),
                 alternates: $this->alternates(),
             );
 
@@ -44,9 +44,7 @@ class SeoComposer {
     private function title(array $data): string {
         $separator = $this->separator();
         $app_name = config()->string('app.name');
-        $title = isset($data['title']) && is_string($data['title']) && $data['title'] !== ''
-            ? $data['title']
-            : $app_name;
+        $title = $this->stringField($data, 'title') ?? $app_name;
 
         if (! isset($data['suffix'])) {
             return $title.$separator.$app_name;
@@ -58,15 +56,15 @@ class SeoComposer {
     }
 
     /**
-     * Optional robots directives a page may opt into (e.g. 'noindex' on the
-     * legal pages). Pages pass it as a layout variable; when absent no robots
-     * meta tag is emitted at all.
+     * A non-empty string value from the page data for the given key, or null
+     * when the key is absent, not a string, or empty. Reads optional layout
+     * variables such as the page `title` or `robots` directives.
      *
      * @param  array<array-key, mixed>  $data
      */
-    private function robots(array $data): ?string {
-        return isset($data['robots']) && is_string($data['robots']) && $data['robots'] !== ''
-            ? $data['robots']
+    private function stringField(array $data, string $key): ?string {
+        return isset($data[$key]) && is_string($data[$key]) && $data[$key] !== ''
+            ? $data[$key]
             : null;
     }
 

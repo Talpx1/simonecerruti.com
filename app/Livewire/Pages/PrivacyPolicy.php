@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages;
 
+use App\Enums\RobotsDirective;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -12,7 +13,7 @@ class PrivacyPolicy extends Component {
         $view = view('pages.legal.privacy-policy');
 
         $view->title(__('Privacy Policy'));
-        $view->layout('layouts::public.index', ['robots' => 'noindex']);
+        $view->layout('layouts::public.index', ['robots' => RobotsDirective::NOINDEX->value]);
 
         return $view;
     }

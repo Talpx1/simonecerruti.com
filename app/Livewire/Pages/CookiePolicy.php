@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages;
 
+use App\Enums\RobotsDirective;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -12,7 +13,7 @@ class CookiePolicy extends Component {
         $view = view('pages.legal.cookie-policy');
 
         $view->title(__('Cookie Policy'));
-        $view->layout('layouts::public.index', ['robots' => 'noindex']);
+        $view->layout('layouts::public.index', ['robots' => RobotsDirective::NOINDEX->value]);
 
         return $view;
     }
