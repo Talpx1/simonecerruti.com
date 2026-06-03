@@ -89,6 +89,7 @@ When approaching a need that may be satisfied by an external package, make the f
 - Always use Laravel's @session() directive instead of @if(session()) for displaying flash messages in Blade templates.
 - In Blade files always use `@selected()` and `@checked()` directives instead of `selected` and `checked` HTML attributes. Good example: @selected(old('status') === App\Enums\ProjectStatus::Pending->value). Bad example: {{ old('status') === App\Enums\ProjectStatus::Pending->value ? 'selected' : '' }}.
 - use the /laravel-best-practices and /laravel-boost:laravel-code-simplifier skills when writing laravel code
+- Always use the LogsAllDirtyChanges trait in models: its a trait to log model changes via spatie/activity-log
  
 ## Filament Rules
  
