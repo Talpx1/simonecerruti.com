@@ -102,6 +102,22 @@ it('keeps a page-provided SeoData and only prepends the sitewide schema nodes', 
         ->and($resolved->json_ld[0]['@type'])->toBe('WebSite');
 });
 
+it('lets a page opt into robots directives via a layout variable', function () {
+    $view = view('layouts.public.index', ['robots' => 'noindex']);
+
+    (new SeoComposer)->compose($view);
+
+    expect($view->getData()['seo_data']->robots)->toBe('noindex');
+});
+
+it('emits no robots directive by default', function () {
+    $view = view('layouts.public.index');
+
+    (new SeoComposer)->compose($view);
+
+    expect($view->getData()['seo_data']->robots)->toBeNull();
+});
+
 it('emits one title, one canonical and one hreflang per locale on a rendered page', function () {
     // Skip mcamara's locale redirects: without a route cache the prefixed URLs
     // don't exist in tests, so we render the default locale at "/" directly.

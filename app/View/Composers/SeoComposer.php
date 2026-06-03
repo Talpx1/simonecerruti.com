@@ -26,6 +26,7 @@ class SeoComposer {
             : new SeoData(
                 title: $this->title($data),
                 canonical: url()->current(),
+                robots: $this->robots($data),
                 alternates: $this->alternates(),
             );
 
@@ -54,6 +55,19 @@ class SeoComposer {
         return is_string($data['suffix'])
             ? $title.$separator.$data['suffix']
             : $title;
+    }
+
+    /**
+     * Optional robots directives a page may opt into (e.g. 'noindex' on the
+     * legal pages). Pages pass it as a layout variable; when absent no robots
+     * meta tag is emitted at all.
+     *
+     * @param  array<array-key, mixed>  $data
+     */
+    private function robots(array $data): ?string {
+        return isset($data['robots']) && is_string($data['robots']) && $data['robots'] !== ''
+            ? $data['robots']
+            : null;
     }
 
     /**

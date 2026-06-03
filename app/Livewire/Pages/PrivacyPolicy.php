@@ -9,7 +9,11 @@ use Livewire\Component;
 
 class PrivacyPolicy extends Component {
     public function render(): View {
-        return view('pages.legal.privacy-policy')
-            ->title(__('Privacy Policy'));
+        $view = view('pages.legal.privacy-policy');
+
+        $view->title(__('Privacy Policy'));
+        $view->layout('layouts::public.index', ['robots' => 'noindex']);
+
+        return $view;
     }
 }

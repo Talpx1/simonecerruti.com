@@ -9,7 +9,11 @@ use Livewire\Component;
 
 class CookiePolicy extends Component {
     public function render(): View {
-        return view('pages.legal.cookie-policy')
-            ->title(__('Cookie Policy'));
+        $view = view('pages.legal.cookie-policy');
+
+        $view->title(__('Cookie Policy'));
+        $view->layout('layouts::public.index', ['robots' => 'noindex']);
+
+        return $view;
     }
 }
