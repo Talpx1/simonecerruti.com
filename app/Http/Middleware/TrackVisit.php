@@ -8,8 +8,10 @@ use App\Actions\Analytics\DetectVisitSource;
 use App\DataTransferObjects\Analytics\ExistingSessionState;
 use App\DataTransferObjects\Analytics\NewSessionState;
 use App\DataTransferObjects\Analytics\VisitSourceData;
+use App\Enums\DeviceType;
 use App\Models\PageView;
 use App\Models\VisitSession;
+use App\Support\Analytics\BotSignalDetector;
 use App\Support\Analytics\DeviceTypeDetector;
 use Closure;
 use Illuminate\Http\Request;
@@ -59,11 +61,24 @@ class TrackVisit {
 
         $existing_session_id = $request->cookieStringOrDefault(config()->string('analytics.session_cookie_name'));
 
-        if ($existing_session_id !== null) {
+        // Reuse the session only when the cookie still points at an active row.
+        // A cookie aimed at an expired/missing session (pruned row, schema reset,
+        // clock skew) is treated like a first visit and opens a fresh session
+        // HERE in handle(), so the new id and visitor cookie actually reach the
+        // browser. Deferring this to terminate() would be too late to queue a
+        // cookie and would mint a new orphan session on every later request.
+        if ($existing_session_id !== null && $this->activeSessionExists($existing_session_id)) {
             return new ExistingSessionState($consent, $existing_session_id);
         }
 
         return $this->openNewSession($request, $consent);
+    }
+
+    private function activeSessionExists(string $session_id): bool {
+        return VisitSession::query()
+            ->whereKey($session_id)
+            ->activeWindow()
+            ->exists();
     }
 
     private function openNewSession(Request $request, bool $consent): NewSessionState {
@@ -101,12 +116,13 @@ class TrackVisit {
             ->first();
 
         if ($session !== null) {
-            return $this->touchSession($session);
+            return $this->touchSession($request, $session);
         }
 
-        // The cookie points to a session that no longer matches the active
-        // window (deleted row, schema reset, clock skew); recover by opening a
-        // fresh session, re-resolving the data handle() skipped for this branch.
+        // The session was active when captureState() checked it but vanished
+        // before terminate() (a concurrent prune between the two phases). Record
+        // the pageview against a fresh row REUSING the cookie's id, so the
+        // browser's existing cookie stays valid and no orphan session is minted.
         return $this->createSession($request, $this->recoverAsNewSession($request, $state));
     }
 
@@ -132,10 +148,15 @@ class TrackVisit {
     }
 
     private function recoverAsNewSession(Request $request, ExistingSessionState $state): NewSessionState {
+        // The cookie's id had an active session moments ago (verified in
+        // captureState), so it is one we issued: safe to reuse, and the row was
+        // deleted, so there is no primary-key clash. The vs_id/v_id cookies are
+        // already on the browser, so nothing needs re-queuing here.
         return new NewSessionState(
             consent: $state->consent,
-            new_session_id: (string) Str::uuid(),
+            new_session_id: $state->existing_session_id,
             source: $this->resolveSource($request),
+            visitor_id: $state->consent ? $request->cookieStringOrDefault(config()->string('analytics.visitor_cookie_name')) : null,
             user_agent: $state->consent ? $request->userAgent() : null,
         );
     }
@@ -166,11 +187,24 @@ class TrackVisit {
         );
     }
 
-    private function touchSession(VisitSession $session): VisitSession {
-        $session->forceFill([
+    private function touchSession(Request $request, VisitSession $session): VisitSession {
+        // The header-based bot score is per request, so re-evaluate it on every
+        // pageview and keep the session's running maximum. Escalation is one-way:
+        // a session that ever looks automated is flagged a bot, but a later
+        // genuine-looking request never clears that flag.
+        $bot_score = max($session->bot_score, $this->currentBotScore($request, $request->userAgent()));
+
+        $attributes = [
             'last_activity_at' => now(),
             'pageview_count' => $session->pageview_count + 1,
-        ])->save();
+            'bot_score' => $bot_score,
+        ];
+
+        if ($session->device_type !== DeviceType::BOT && BotSignalDetector::isAutomated($bot_score)) {
+            $attributes['device_type'] = DeviceType::BOT->value;
+        }
+
+        $session->forceFill($attributes)->save();
 
         return $session;
     }
@@ -178,11 +212,11 @@ class TrackVisit {
     private function createSession(Request $request, NewSessionState $state): VisitSession {
         $source = $state->source;
 
-        // Coarse device classification (incl. bot detection) is derived
-        // transiently from the request User-Agent regardless of consent: it is
-        // not stored as an identifier and is needed to filter non-human traffic.
-        // The raw user agent, IP and visitor_id stay gated behind consent.
-        $detected_user_agent = $request->userAgent();
+        // IP, raw user agent and visitor_id stay gated behind consent; the
+        // device/bot classification (see classifyVisitor) is derived transiently
+        // and stored regardless, since it filters non-human traffic rather than
+        // identifying anyone.
+        ['device_type' => $device_type, 'bot_score' => $bot_score] = $this->classifyVisitor($request, $request->userAgent());
 
         return VisitSession::query()->create([
             'id' => $state->new_session_id,
@@ -202,15 +236,46 @@ class TrackVisit {
             'locale' => app()->getLocale(),
             'ip' => $state->consent ? $request->ip() : null,
             'user_agent' => $state->user_agent,
-            'device_type' => is_string($detected_user_agent) && $detected_user_agent !== ''
-                ? DeviceTypeDetector::detect($detected_user_agent)->value
-                : null,
+            'device_type' => $device_type?->value,
+            'bot_score' => $bot_score,
             'country' => $request->headers->get('CF-IPCountry') ?: null,
             'consent_analytics' => $state->consent,
             'started_at' => now(),
             'last_activity_at' => now(),
             'pageview_count' => 1,
         ]);
+    }
+
+    /**
+     * Resolve the coarse device bucket and the header-based bot score. Matomo's
+     * UA database only catches self-declared bots, so a forged agent that claims
+     * to be a browser is reclassified as a bot once its request headers betray
+     * an automated client (see BotSignalDetector).
+     *
+     * @return array{device_type: DeviceType|null, bot_score: int}
+     */
+    private function classifyVisitor(Request $request, ?string $user_agent): array {
+        $device_type = is_string($user_agent) && $user_agent !== ''
+            ? DeviceTypeDetector::detect($user_agent)
+            : null;
+
+        $bot_score = $this->currentBotScore($request, $user_agent);
+
+        if ($device_type !== DeviceType::BOT && BotSignalDetector::isAutomated($bot_score)) {
+            $device_type = DeviceType::BOT;
+        }
+
+        return ['device_type' => $device_type, 'bot_score' => $bot_score];
+    }
+
+    private function currentBotScore(Request $request, ?string $user_agent): int {
+        return BotSignalDetector::score(
+            accept: $request->headers->get('Accept'),
+            accept_language: $request->headers->get('Accept-Language'),
+            accept_encoding: $request->headers->get('Accept-Encoding'),
+            sec_fetch_site: $request->headers->get('Sec-Fetch-Site'),
+            user_agent: $user_agent,
+        );
     }
 
     private function recordPageView(Request $request, VisitSession $session): void {

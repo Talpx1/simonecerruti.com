@@ -71,6 +71,12 @@ class VisitSessionsTable {
                     ->placeholder('-')
                     ->toggleable(),
 
+                TextColumn::make('bot_score')
+                    ->label(__('Bot score'))
+                    ->numeric()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('country')
                     ->label(__('Country'))
                     ->badge()

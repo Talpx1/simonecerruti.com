@@ -52,4 +52,26 @@ return [
         'ecosia.org' => 'ecosia',
         'brave.com' => 'brave',
     ],
+
+    /*
+     * Header-consistency heuristic for visits whose User-Agent claims to be a
+     * browser. Matomo's UA database only catches self-declared bots, so a
+     * forged agent slips through as desktop/mobile. Genuine browsers always
+     * send Accept, Accept-Language and Accept-Encoding, and modern engines add
+     * Sec-Fetch-* metadata; each missing signal adds its weight to the visit's
+     * bot_score. Once the score reaches `threshold` the visit is reclassified
+     * as a bot. Defaults are conservative (a real modern browser scores 0;
+     * only multiple concurring signals trip the threshold) — raise the weights
+     * or lower the threshold to be more aggressive.
+     */
+    'bot_detection' => [
+        'threshold' => 4,
+
+        'weights' => [
+            'missing_accept' => 2,
+            'missing_accept_language' => 2,
+            'missing_accept_encoding' => 1,
+            'missing_sec_fetch' => 2,
+        ],
+    ],
 ];

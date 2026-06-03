@@ -6,6 +6,7 @@ namespace App\Filament\Resources\VisitSessions\Schemas;
 
 use App\Enums\VisitMediumType;
 use App\Enums\VisitSourceType;
+use App\Support\Analytics\BotSignalDetector;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -70,6 +71,10 @@ class VisitSessionInfolist {
                         ->label(__('Device type'))
                         ->badge()
                         ->placeholder('-'),
+                    TextEntry::make('bot_score')
+                        ->label(__('Bot score'))
+                        ->badge()
+                        ->color(fn (int $state): string => BotSignalDetector::isAutomated($state) ? 'danger' : 'gray'),
                     TextEntry::make('user_agent')->label(__('User agent'))->placeholder('-')->columnSpanFull(),
                 ]),
         ]);

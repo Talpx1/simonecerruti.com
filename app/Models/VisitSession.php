@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $ip
  * @property string|null $user_agent
  * @property DeviceType|null $device_type
+ * @property int $bot_score
  * @property string|null $country
  * @property bool $consent_analytics
  * @property CarbonImmutable $started_at
@@ -53,6 +54,7 @@ class VisitSession extends Model {
             'last_activity_at' => 'immutable_datetime',
             'consent_analytics' => 'boolean',
             'pageview_count' => 'integer',
+            'bot_score' => 'integer',
         ];
     }
 

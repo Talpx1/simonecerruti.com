@@ -40,6 +40,7 @@ class VisitSessionFactory extends Factory {
             'ip' => null,
             'user_agent' => null,
             'device_type' => null,
+            'bot_score' => 0,
             'country' => fake()->countryCode(),
             'consent_analytics' => false,
             'started_at' => $started_at,
