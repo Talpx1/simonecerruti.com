@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DataTransferObjects\Analytics;
+namespace App\DataTransferObjects;
 
 /**
  * Tracking state for a request that opens a brand-new session, with the visit

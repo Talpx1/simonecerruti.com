@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DataTransferObjects\Analytics;
+namespace App\DataTransferObjects;
 
 /**
  * Tracking state for a request that arrived with a session cookie already

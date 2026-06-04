@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DataTransferObjects\Analytics;
+namespace App\DataTransferObjects;
 
 readonly class VisitSourceData {
     public function __construct(

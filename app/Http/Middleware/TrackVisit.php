@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Actions\Analytics\DetectVisitSource;
-use App\DataTransferObjects\Analytics\ExistingSessionState;
-use App\DataTransferObjects\Analytics\NewSessionState;
-use App\DataTransferObjects\Analytics\VisitSourceData;
+use App\Actions\DetectVisitSource;
+use App\DataTransferObjects\ExistingSessionState;
+use App\DataTransferObjects\NewSessionState;
+use App\DataTransferObjects\VisitSourceData;
 use App\Enums\DeviceType;
 use App\Models\PageView;
 use App\Models\VisitSession;
-use App\Support\Analytics\BotSignalDetector;
-use App\Support\Analytics\DeviceTypeDetector;
+use App\Support\BotSignalDetector;
+use App\Support\DeviceTypeDetector;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;

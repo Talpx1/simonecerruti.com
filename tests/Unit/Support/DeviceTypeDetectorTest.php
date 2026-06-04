@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\DeviceType;
-use App\Support\Analytics\DeviceTypeDetector;
+use App\Support\DeviceTypeDetector;
 
 dataset('user_agents', [
     'iPhone Safari is mobile' => ['Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1', DeviceType::MOBILE],

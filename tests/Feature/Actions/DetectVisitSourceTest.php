@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Actions\Analytics\DetectVisitSource;
+use App\Actions\DetectVisitSource;
 use App\Enums\VisitMediumType;
 use App\Enums\VisitSourceType;
 use App\Models\Campaign;

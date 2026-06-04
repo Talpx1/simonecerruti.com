@@ -6,7 +6,7 @@ namespace App\Filament\Resources\VisitSessions\Schemas;
 
 use App\Enums\VisitMediumType;
 use App\Enums\VisitSourceType;
-use App\Support\Analytics\BotSignalDetector;
+use App\Support\BotSignalDetector;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;

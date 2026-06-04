@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\Analytics;
+namespace App\Actions;
 
-use App\DataTransferObjects\Analytics\VisitSourceData;
+use App\DataTransferObjects\VisitSourceData;
 use App\Enums\VisitMediumType;
 use App\Enums\VisitSourceType;
 use App\Models\Campaign;

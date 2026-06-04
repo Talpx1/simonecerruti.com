@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Support\Analytics;
+namespace App\Support;
 
 use App\Enums\DeviceType;
 use DeviceDetector\DeviceDetector;
