@@ -1,0 +1,85 @@
+# Simone Cerruti — Bespoke Software Developer
+
+> Independent software developer building bespoke, tailor-made software for businesses:
+> management systems (gestionali), ERPs, CRMs, web platforms, SaaS, e-commerce, websites,
+> PWAs and automation. Every product is built from scratch around the way your business
+> actually works — never from templates. Based in Biella (Piedmont, Italy), working remotely
+> with clients across Italy and worldwide.
+
+I'm a freelance software developer and technical partner — not just a coder. I step into your
+domain, understand how your business really works, and deliver solutions that are often better
+than what you first imagined. After years in web agencies and then as a software developer and
+Lead Developer on large-scale management systems, I now work independently, focused on quality,
+reliability and bespoke solutions.
+
+This website is fully bilingual: every page is available in both English and Italian.
+
+## What I build
+
+Everything is custom-built — tailor-made, never off-the-shelf:
+
+- Management software / gestionali — the operational core that keeps a business running
+- ERP — integrated systems for resources, processes and data, end to end
+- CRM — managing customers, leads and relationships
+- Web platforms & SaaS — scalable, multi-user products and subscription software
+- Websites — fast, modern, accessible corporate and marketing sites
+- E-commerce — online stores tailored to the way you sell
+- PWA — installable, app-like web experiences
+- Automation — removing repetitive manual work: reports, sync, documents, notifications
+- AI-powered tools & AI-assisted development — AI as a precision tool, applied with judgment
+
+## Why bespoke (su misura)
+
+- No templates, no shortcuts, no "we adapt what we already have"
+- Every project starts from a blank page and a conversation — your processes, your logic, your
+  needs become the blueprint
+- Software that fits you perfectly because it was designed exclusively for you
+- Built to last and to scale: data structures that grow with your business, without rewrites
+- Covered by automated tests, static analysis and monitoring — fewer bugs, fewer surprises
+- Clean, intuitive interfaces your team learns in minutes, not weeks
+
+## Expertise & stack
+
+- Background: web agencies → software developer for management systems → Lead Developer →
+  independent freelancer
+- Large-scale, structured projects where performance, reliability and scalability are the foundation
+- Core stack: PHP, Laravel, Livewire, Filament, Vue, TypeScript, Tailwind CSS, Docker
+- Quality engineering: unit & end-to-end testing, static analysis, code coverage, mutation testing,
+  error monitoring (Sentry), uptime monitoring (StatusCake)
+- AI-assisted development as a deliberate, controlled part of the workflow
+
+## Pages (English)
+
+- [Home](https://simonecerruti.com/en): introduction and overview
+- [About](https://simonecerruti.com/en/about): who I am, my story and expertise
+- [How I work](https://simonecerruti.com/en/how-i-work): method, quality standards, bespoke approach
+- [Projects](https://simonecerruti.com/en/projects): portfolio of built software
+- [Blog](https://simonecerruti.com/en/blog): articles on software, development and technology
+- [Contacts](https://simonecerruti.com/en/contacts): get in touch
+
+## Pages (Italiano)
+
+- [Home](https://simonecerruti.com/it): introduzione e panoramica
+- [Chi sono](https://simonecerruti.com/it/about): chi sono, la mia storia e le mie competenze
+- [Come lavoro](https://simonecerruti.com/it/come-lavoro): metodo, qualità e approccio su misura
+- [Progetti](https://simonecerruti.com/it/progetti): portfolio dei software realizzati
+- [Blog](https://simonecerruti.com/it/blog): articoli su software, sviluppo e tecnologia
+- [Contatti](https://simonecerruti.com/it/contatti): mettiti in contatto
+
+## Contacts
+
+- Email: hello@simonecerruti.com
+- WhatsApp: +39 347 315 7114 — https://wa.me/393473157114
+- Book a call: https://koalendar.com/e/chiacchierata-con-simone-cerruti
+- LinkedIn: https://www.linkedin.com/in/simone-cerruti/
+- GitHub: https://github.com/Talpx1
+- X / Twitter: https://x.com/simocerruti
+- Bluesky: https://bsky.app/profile/simonecerruti.com
+- Instagram: https://www.instagram.com/simo.software/
+- Pinkary: https://pinkary.com/@simocerruti
+
+## Location & availability
+
+- Based in Biella, Piedmont (Piemonte), Italy
+- Works fully remotely with clients in Piedmont, across Italy and internationally
+- Currently available for new projects

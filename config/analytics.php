@@ -22,6 +22,7 @@ return [
         'storage/*',
         'sitemap*.xml',
         'robots.txt',
+        'llms.txt',
     ],
 
     'social_hosts' => [
