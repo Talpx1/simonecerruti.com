@@ -4,7 +4,7 @@
 
 ### Always Test
 
-- When creating, editing or removing a feature or a piece of code, ALWAYS create or adjust the relevant test suite accordingly.  
+- **CRITICAL** When creating, editing or removing a feature or a piece of code, ALWAYS create or adjust the relevant test suite accordingly.  
 - Use PestPHP.
 - use the /pest-testing skill
  
@@ -54,12 +54,13 @@ When approaching a need that may be satisfied by an external package, make the f
 
 ## Casing Preferences
 
-- variables: use snake_case
+- **CRITICAL** variables: use snake_case
 
 ## Documentation
 
 - always use official docs as preference. Eg: prefer an approach described in the laravel/filament/spatie/... doc instead of one found elsewhere, if they produce the same result.
 - for library documentation, if some library is not available in Laravel Boost 'search-docs', always use context7. Automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.
+- after creating/editing/deleting a feature/fix document the change in the appropriate .md file in the docs directory
 
 ## PHP instructions
  
@@ -72,6 +73,7 @@ When approaching a need that may be satisfied by an external package, make the f
 - Only where imports are available, import the facade instead of using the global namespace alias.
 - **CRITICAL** always use strict types and fully type hint
 - always type constants
+- do not group classes by domain. For example do not create a subfolder in app/Action for analytics related actions. So do not put the actions in app/Actions/Analytics, but simply in app/Actions. The same goes for Support classes, Service classes, etc.
 
 ## Laravel instructions
  
