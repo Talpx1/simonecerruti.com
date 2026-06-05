@@ -6,6 +6,7 @@ return [
     'contacts' => 'contatti',
     'about' => 'about',
     'how-i-work' => 'come-lavoro',
+    'services' => 'servizi',
     'projects' => 'progetti',
     'privacy-policy' => 'privacy-policy',
     'cookie-policy' => 'cookie-policy',

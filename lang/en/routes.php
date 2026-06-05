@@ -6,6 +6,7 @@ return [
     'contacts' => 'contacts',
     'about' => 'about',
     'how-i-work' => 'how-i-work',
+    'services' => 'services',
     'projects' => 'projects',
     'privacy-policy' => 'privacy-policy',
     'cookie-policy' => 'cookie-policy',
