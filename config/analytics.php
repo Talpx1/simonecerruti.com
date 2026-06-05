@@ -75,4 +75,38 @@ return [
             'missing_sec_fetch' => 2,
         ],
     ],
+
+    /*
+     * Pan interaction analytics (laravel/pan). `allowed_analytics` is the
+     * allow-list of `data-pan` names recorded by the package; any name not
+     * listed is silently dropped. `max_analytics` caps how many distinct
+     * names are tracked.
+     */
+    'pan' => [
+        'max_analytics' => 100,
+
+        'allowed_analytics' => [
+            'cta-nav-home',
+            'cta-nav-about',
+            'cta-nav-projects',
+            'cta-nav-how_i_work',
+            'cta-nav-contacts',
+            'cta-nav-blog',
+            'cta-social-linkedin',
+            'cta-social-instagram',
+            'cta-social-github',
+            'cta-social-bluesky',
+            'cta-social-x',
+            'cta-hero-projects',
+            'cta-hero-contacts',
+            'cta-contact-email',
+            'cta-contact-form',
+            'card-project-click',
+            'card-blog-click',
+            'section-impression-hero',
+            'section-impression-services',
+            'section-impression-projects',
+            'section-impression-cta',
+        ],
+    ],
 ];

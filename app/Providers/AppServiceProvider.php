@@ -149,33 +149,10 @@ class AppServiceProvider extends ServiceProvider {
             Request::macro(...$macro::register());
         });
 
-        $this->configurePan();
-    }
+        PanConfiguration::maxAnalytics(config()->integer('analytics.pan.max_analytics'));
 
-    private function configurePan(): void {
-        PanConfiguration::maxAnalytics(100);
-        PanConfiguration::allowedAnalytics([
-            'cta-nav-home',
-            'cta-nav-about',
-            'cta-nav-projects',
-            'cta-nav-how_i_work',
-            'cta-nav-contacts',
-            'cta-nav-blog',
-            'cta-social-linkedin',
-            'cta-social-instagram',
-            'cta-social-github',
-            'cta-social-bluesky',
-            'cta-social-x',
-            'cta-hero-projects',
-            'cta-hero-contacts',
-            'cta-contact-email',
-            'cta-contact-form',
-            'card-project-click',
-            'card-blog-click',
-            'section-impression-hero',
-            'section-impression-services',
-            'section-impression-projects',
-            'section-impression-cta',
-        ]);
+        /** @var array<int, string> $allowed_analytics */
+        $allowed_analytics = config()->array('analytics.pan.allowed_analytics');
+        PanConfiguration::allowedAnalytics($allowed_analytics);
     }
 }
