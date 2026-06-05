@@ -1,55 +1,136 @@
 @php
-    // Inverted "highlight box" applied to key words across the page.
-    $hl = 'bg-light text-dark px-[0.12em] box-decoration-clone';
+    // Highlight markup for headings. The :tag/:close_tag replacements inject the
+    // <x-highlighted-text> component tag, which Blade::render() compiles at runtime.
+    // This MUST stay in a @php block: a literal <x-...> tag written inline in {!! !!}
+    // is rewritten by Blade's component compiler at *compile* time and breaks.
+    $hl_tags = ['tag' => '<x-highlighted-text>', 'close_tag' => '</x-highlighted-text>'];
 @endphp
 
 <div>
     {{-- ============================== HERO ============================== --}}
-    <section data-pan="section-impression-services"
-        class="relative overflow-hidden px-8 lg:px-14 pt-16 lg:pt-24 pb-16 lg:pb-20">
+    <section data-pan="section-impression-services" class="relative overflow-hidden pt-16 lg:pt-24 pb-16 lg:pb-20">
+        <div class="relative max-w-7xl mx-auto px-8 lg:px-14">
 
-        <x-app-logo weight="thin"
-            class="pointer-events-none absolute right-[-8%] top-1/2 -translate-y-1/2 w-[min(70vw,900px)] opacity-5 hidden sm:block" />
+            <x-app-logo weight="thin"
+                class="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 w-[min(55vw,560px)] opacity-5 hidden md:block" />
 
-        <div class="relative z-10">
-            <x-eyebrow>{{ __('Services') }}</x-eyebrow>
+            <div class="relative z-10">
+                <x-eyebrow>{{ __('Services') }}</x-eyebrow>
 
-            <h1
-                class="mt-6 font-black uppercase leading-none tracking-tighter text-light text-6xl sm:text-7xl lg:text-8xl xl:text-9xl max-w-[14ch]">
-                {!! __('What do you want to<br>:solve', [
-                    'solve' => '<span class="' . $hl . '">' . __('solve?') . '</span>',
-                ]) !!}
-            </h1>
+                <h1
+                    class="mt-6 font-black uppercase leading-none tracking-tighter text-light text-6xl sm:text-7xl lg:text-8xl xl:text-9xl max-w-[14ch]">
+                    {!! Blade::render(__('What do you want to<br>:tag solve? :close_tag', $hl_tags)) !!}
+                </h1>
 
-            <p class="mt-7 text-light/55 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
-                {{ __('Pick your goal: I\'ll take you to the right service, explained in plain words. Software, web and AI — tailor-made, built around your processes.') }}
-            </p>
+                <p class="mt-7 text-light/55 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
+                    {{ __('Pick your goal: I\'ll take you to the right service, explained in plain words. Software, web and AI — tailor-made, built around your processes.') }}
+                </p>
 
-            @php
-                $goals = [
-                    ['01', __('Manage the company better'), '#aree'],
-                    ['02', __('Sell online'), '#aree'],
-                    ['03', __('Digitize a process'), '#aree'],
-                    ['04', __('Build or rebuild a website'), '#aree'],
-                    ['05', __('Build a platform'), '#aree'],
-                    ['06', __("I don't know yet"), route('contacts')],
-                ];
-            @endphp
+                @php
+                    $goals = [
+                        [__('Manage the company better'), '#aree'],
+                        [__('Sell online'), '#aree'],
+                        [__('Digitize a process'), '#aree'],
+                        [__('Build or rebuild a website'), '#aree'],
+                        [__('Build a platform'), '#aree'],
+                        [__("I don't know yet"), route('contacts')],
+                    ];
+                @endphp
 
-            <div class="mt-12 lg:mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                @foreach ($goals as [$number, $label, $href])
-                    <a href="{{ $href }}" @unless (str_starts_with($href, '#')) wire:navigate @endunless
-                        class="group flex items-center justify-between gap-4 border border-light/15 p-6 lg:p-7 min-h-[132px] transition-colors duration-300 hover:bg-light hover:text-dark hover:border-light">
-                        <span class="block">
-                            <span
-                                class="block font-mono text-xs text-light/40 transition-colors group-hover:text-dark/50">{{ $number }}</span>
-                            <span class="mt-4 block font-bold uppercase text-xl leading-tight tracking-tight">{{ $label }}</span>
-                        </span>
-                        <x-ri-arrow-right-long-line
-                            class="w-5 shrink-0 opacity-50 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1.5" />
-                    </a>
-                @endforeach
+                <div class="mt-12 lg:mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    @foreach ($goals as $i => [$label, $href])
+                        <a href="{{ $href }}" @unless (str_starts_with($href, '#')) wire:navigate @endunless
+                            class="group flex items-center justify-between gap-4 border border-light/15 p-6 lg:p-7 min-h-[132px] transition-colors duration-300 hover:bg-light hover:text-dark hover:border-light">
+                            <span class="block">
+                                <span
+                                    class="block font-mono text-xs text-light/40 transition-colors group-hover:text-dark/50">{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                                <span
+                                    class="mt-4 block font-bold uppercase text-xl leading-tight tracking-tight">{{ $label }}</span>
+                            </span>
+                            <x-ri-arrow-right-long-line
+                                class="w-5 shrink-0 opacity-50 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1.5" />
+                        </a>
+                    @endforeach
+                </div>
             </div>
+        </div>
+    </section>
+
+    {{-- ============================== AREE ============================== --}}
+    <section id="aree" class="border-t border-light/15 py-20 lg:py-28">
+        <div class="max-w-7xl mx-auto px-8 lg:px-14 space-y-20 lg:space-y-32">
+
+            {{-- Area 01 — Management software · ERP · CRM --}}
+            <x-pages::services.components.feature-row :area="__('Area 01 — Management software · ERP · CRM')"
+                :lead="__('Orders, inventory, customers, invoicing and internal processes in a single system, tailored to how you actually work.')"
+                :bullets="[
+                    __('Workflow automation: less data entry, fewer human errors.'),
+                    __('Real-time data: faster, better-informed decisions.'),
+                    __('Goodbye to scattered spreadsheets and double data entry.'),
+                ]"
+                :button-label="__('Discover tailor-made management software')" :button-href="route('contacts')">
+                <x-slot:media>
+                    <x-pages::services.components.mock-dashboard />
+                </x-slot:media>
+                <x-slot:heading>
+                    {!! Blade::render(__('A single place to<br>:tag run :close_tag the company', $hl_tags)) !!}
+                </x-slot:heading>
+                @if ($area_one_project)
+                    <x-slot:contextual>
+                        <x-pages::services.components.contextual-link :href="route('project.show', $area_one_project->slug)"
+                            :prefix="__('Project:')" :label="$area_one_project->title" pan="cta-services-area-1" />
+                    </x-slot:contextual>
+                @endif
+            </x-pages::services.components.feature-row>
+
+            {{-- Area 02 — Websites · E-commerce · Platforms · Web apps (flipped) --}}
+            <x-pages::services.components.feature-row flip
+                :area="__('Area 02 — Websites · E-commerce · Platforms · Web apps')"
+                :lead="__('From a showcase site to a tailor-made web app, all the way to an e-commerce that truly converts.')"
+                :bullets="[
+                    __('Fast and SEO-optimized from the very first line of code.'),
+                    __('Scalable: it grows together with your business.'),
+                    __('Immersive experience and fluid navigation.'),
+                ]"
+                :button-label="__('Build your website or e-commerce')" :button-href="route('contacts')">
+                <x-slot:media>
+                    <x-pages::services.components.mock-shop />
+                </x-slot:media>
+                <x-slot:heading>
+                    {!! Blade::render(__('The web that<br>:tag sells :close_tag and scales', $hl_tags)) !!}
+                </x-slot:heading>
+                @if ($area_two_project)
+                    <x-slot:contextual>
+                        <x-pages::services.components.contextual-link :href="route('project.show', $area_two_project->slug)"
+                            :prefix="__('Project:')" :label="$area_two_project->title" pan="cta-services-area-2" />
+                    </x-slot:contextual>
+                @endif
+            </x-pages::services.components.feature-row>
+
+            {{-- Area 03 — Consulting · SEO --}}
+            <x-pages::services.components.feature-row :area="__('Area 03 — Consulting · SEO')"
+                :lead="__('Let\'s figure out together what you really need — before writing a single line of code.')"
+                :bullets="[
+                    __('Independent technology choices, with no vendor lock-in.'),
+                    __('SEO consulting paired with the website: solid technical foundations to rank you on Google.'),
+                    __('Support alongside your team, when needed.'),
+                ]"
+                :button-label="__('Request a consultation')" :button-href="route('contacts')">
+                <x-slot:media>
+                    <x-pages::services.components.mock-seo />
+                </x-slot:media>
+                <x-slot:heading>
+                    {!! Blade::render(__('First of all,<br>the :tag strategy :close_tag', $hl_tags)) !!}
+                </x-slot:heading>
+                @if ($area_three_article)
+                    <x-slot:contextual>
+                        <x-pages::services.components.contextual-link
+                            :href="route('blog_article.show', $area_three_article->slug)" :prefix="__('Read:')"
+                            :label="$area_three_article->title" pan="cta-services-area-3" />
+                    </x-slot:contextual>
+                @endif
+            </x-pages::services.components.feature-row>
+
         </div>
     </section>
 </div>
