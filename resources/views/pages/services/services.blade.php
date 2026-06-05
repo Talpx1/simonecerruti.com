@@ -133,4 +133,76 @@
 
         </div>
     </section>
+
+    {{-- ============================== VALORI ============================== --}}
+    <section class="border-t border-light/15 py-20 lg:py-28">
+        <div class="max-w-7xl mx-auto px-8 lg:px-14">
+            <x-eyebrow>{{ __('Why bespoke') }}</x-eyebrow>
+
+            <h2
+                class="mt-5 font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-6xl max-w-[18ch]">
+                {{ __('The advantages of software tailored to you') }}
+            </h2>
+
+            @php
+                $values = [
+                    [__('Full flexibility'), __('You don\'t adapt to the software: it shapes itself around your needs and grows with your company, one feature at a time.')],
+                    [__('100% your code'), __('You own the code. No lifelong fees, no lock-in: if you change provider, the software stays yours.')],
+                    [__('Full control'), __('Features, scalability, look and functionality: you decide, in direct contact with whoever builds the product.')],
+                    [__('Competitive edge'), __('Tailored technology and innovation: more efficiency and differentiation to stand out in a crowded market.')],
+                ];
+            @endphp
+
+            <div class="mt-12 lg:mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border-t border-light/15">
+                @foreach ($values as $i => [$title, $description])
+                    <div @class([
+                        'p-7 lg:p-8 border-b border-light/15',
+                        'md:border-l' => in_array($i, [1, 3], true),
+                        'lg:border-l' => $i === 2,
+                    ])>
+                        <div class="font-mono text-xs text-light/40 mb-5">
+                            {{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</div>
+                        <h3 class="font-black uppercase tracking-tight text-light text-xl lg:text-2xl mb-3">{{ $title }}</h3>
+                        <p class="text-light/55 text-sm leading-relaxed font-light">{{ $description }}</p>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- ============================== AI BAND ============================== --}}
+    <section class="py-12 lg:py-20">
+        <div class="max-w-7xl mx-auto px-8 lg:px-14">
+            <div
+                class="bg-light text-dark grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-14 items-center p-10 lg:p-16">
+                <div>
+                    <x-eyebrow tone="dark">{{ __('With AI') }}</x-eyebrow>
+
+                    <h2 class="mt-5 font-black uppercase leading-none tracking-tighter text-dark text-4xl lg:text-6xl">
+                        {!! __('Artificial intelligence,<br>inside your products') !!}
+                    </h2>
+
+                    <p class="mt-5 text-dark/60 text-base lg:text-lg font-light leading-relaxed max-w-[40ch]">
+                        {{ __('I build AI into the software I create — and I use it every day to develop better, more solid and reliable apps.') }}
+                    </p>
+                </div>
+
+                @php
+                    $ai_points = [
+                        [__('AI built into your products.'), __('Assistants, smart automations, semantic search and data analysis, inside your management software or platform.')],
+                        [__('AI-assisted development.'), __('I build more robust, reliable software — without compromising on code quality.')],
+                    ];
+                @endphp
+
+                <div class="flex flex-col gap-3.5">
+                    @foreach ($ai_points as [$lead, $body])
+                        <div class="flex gap-3 border border-dark/15 p-5 text-sm lg:text-base leading-relaxed">
+                            <x-ri-arrow-right-long-line class="w-4 mt-1 shrink-0 text-dark" />
+                            <span class="text-dark/80"><b class="font-bold text-dark">{{ $lead }}</b> {{ $body }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </section>
 </div>

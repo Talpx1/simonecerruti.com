@@ -34,3 +34,11 @@ it('keeps the Area 02 and Area 03 contextual CTAs hidden', function () {
         ->assertDontSeeHtml('cta-services-area-2')
         ->assertDontSeeHtml('cta-services-area-3');
 });
+
+it('frames the AI section around quality, not speed', function () {
+    livewire(Services::class)
+        ->assertOk()
+        ->assertSee(__('I build more robust, reliable software — without compromising on code quality.'))
+        ->assertDontSee('più in fretta')
+        ->assertDontSee('tempi più corti');
+});
