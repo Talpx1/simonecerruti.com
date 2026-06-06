@@ -1,9 +1,9 @@
-@props(['article', 'index' => null, 'eager' => false, 'showTags' => true])
+@props(['article', 'index' => null, 'eager' => false, 'showTags' => true, 'showDate' => true, 'imageHeight' => 'h-48 lg:h-56'])
 
 <article class="group relative flex flex-col overflow-hidden border border-light/10">
 
     @if ($article->featured_image_url)
-        <div class="overflow-hidden h-48 lg:h-56 border-b border-light/10 relative">
+        <div class="overflow-hidden {{ $imageHeight }} border-b border-light/10 relative">
             <picture>
                 @if ($article->getFirstMedia('featured_image')?->hasGeneratedConversion('featured_image_webp'))
                     <source srcset="{{ $article->getFirstMediaUrl('featured_image', 'featured_image_webp') }}"
@@ -29,13 +29,13 @@
 
     <div class="flex flex-col justify-between gap-6 p-8 grow">
         <div class="space-y-4">
-            <div class="flex items-center gap-4 text-light/25 text-xs font-mono tracking-widest">
-                @if ($article->published_at)
+            @if ($showDate && $article->published_at)
+                <div class="flex items-center gap-4 text-light/25 text-xs font-mono tracking-widest">
                     <time datetime="{{ $article->published_at->toDateString() }}">
                         {{ $article->published_at->format('d.m.Y') }}
                     </time>
-                @endif
-            </div>
+                </div>
+            @endif
 
             <h2 class="font-black uppercase leading-none tracking-tighter text-light text-2xl lg:text-3xl">
                 {{ $article->title }}
