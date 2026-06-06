@@ -1,5 +1,5 @@
 {{-- Monochrome CSS illustration: analytics / SEO (Area 03). Purely decorative. --}}
-<div class="relative overflow-hidden aspect-[4/3] border border-light/15 bg-gradient-to-br from-light/5 to-transparent">
+<x-pages::services.components.mock-frame :label="__('Analysis & SEO')">
     <div class="absolute inset-0 p-4 lg:p-6 flex flex-col gap-3 lg:gap-4">
         <div class="flex items-center justify-between">
             <span class="h-[9px] w-20 bg-light/15"></span>
@@ -34,6 +34,4 @@
         </div>
     </div>
 
-    <span
-        class="absolute left-3 bottom-3 z-10 font-mono text-[10px] tracking-[0.14em] uppercase text-light/55 bg-dark/40 border border-light/15 px-2.5 py-1 backdrop-blur-sm">{{ __('Analysis & SEO') }}</span>
-</div>
+</x-pages::services.components.mock-frame>

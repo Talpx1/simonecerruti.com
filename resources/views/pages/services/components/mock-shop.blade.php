@@ -1,5 +1,5 @@
 {{-- Monochrome CSS illustration: e-commerce / web app (Area 02). Purely decorative. --}}
-<div class="relative overflow-hidden aspect-[4/3] border border-light/15 bg-gradient-to-br from-light/5 to-transparent">
+<x-pages::services.components.mock-frame :label="__('E-commerce / web app')">
     <div class="absolute inset-0 p-4 lg:p-6 flex flex-col gap-2.5 lg:gap-3">
         {{-- top nav --}}
         <div class="flex items-center gap-3 pb-2.5 lg:pb-3 border-b border-light/15">
@@ -45,6 +45,4 @@
         </div>
     </div>
 
-    <span
-        class="absolute left-3 bottom-3 z-10 font-mono text-[10px] tracking-[0.14em] uppercase text-light/55 bg-dark/40 border border-light/15 px-2.5 py-1 backdrop-blur-sm">{{ __('E-commerce / web app') }}</span>
-</div>
+</x-pages::services.components.mock-frame>

@@ -1,5 +1,5 @@
 {{-- Monochrome CSS illustration: management dashboard (Area 01). Purely decorative. --}}
-<div class="relative overflow-hidden aspect-[4/3] border border-light/15 bg-gradient-to-br from-light/5 to-transparent">
+<x-pages::services.components.mock-frame :label="__('Management dashboard')">
     <div class="absolute inset-0 p-4 lg:p-6 flex flex-row gap-3 lg:gap-4">
         {{-- sidebar --}}
         <div class="w-1/4 max-w-[116px] shrink-0 border-r border-light/15 pr-3 lg:pr-4 flex flex-col gap-2">
@@ -40,6 +40,4 @@
         </div>
     </div>
 
-    <span
-        class="absolute left-3 bottom-3 z-10 font-mono text-[10px] tracking-[0.14em] uppercase text-light/55 bg-dark/40 border border-light/15 px-2.5 py-1 backdrop-blur-sm">{{ __('Management dashboard') }}</span>
-</div>
+</x-pages::services.components.mock-frame>
