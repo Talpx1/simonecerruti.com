@@ -18,15 +18,27 @@ Produce a brief but meaningful presentation of the steps. DO NOT write a huge te
 
 ## Stop after every step
 
-**ALWAYS** stop after every step and ask for review, but only after having ran tests, linting, rector, pint, skills to enforce best practices and code cleanliness.  
-Present a very brief summary of what you did, highlighting eventual notes.
+**ALWAYS** stop after every step and run:
+- tests
+- rector
+- pint
+- /simplify skill
+- /laravel-best-practices skill
+- /laravel-boost:laravel-code-simplifier skill
+
+Only then present a very brief summary of what you did, highlighting eventual notes, and ask for review
 **CRITICAL** DO NOT commit before review approval.  
 
 ## At the end
 
-After finishing all the steps, **ALWAYS** run the full test suite and all the tools needed such as rector, pint a the various skills. 
+After finishing all the steps, **ALWAYS** run the full test suite and, on the full task, run:
+- rector
+- pint
+- /simplify skill
+- /laravel-best-practices skill
+- /laravel-boost:laravel-code-simplifier skill
 After that, launch a /code-review, reminding the user to use max effort.
-Ultimately, present a final brief and ask the user for a final review.  
+Ultimately, present a final brief and ask the user for a final review of the whole product.  
 
 ## Commits
 
