@@ -8,7 +8,7 @@
 
 <div>
     {{-- ============================== HERO ============================== --}}
-    <section data-pan="section-impression-services" class="relative overflow-hidden pt-16 lg:pt-24 pb-16 lg:pb-20">
+    <section data-pan="section-impression-services-hero" class="relative overflow-hidden pt-16 lg:pt-24 pb-16 lg:pb-20">
         <div class="relative max-w-7xl mx-auto px-8 lg:px-14">
 
             <x-app-logo weight="thin"
@@ -28,12 +28,12 @@
 
                 @php
                     $goals = [
-                        [__('Manage the company better'), '#aree'],
-                        [__('Sell online'), '#aree'],
-                        [__('Digitize a process'), '#aree'],
-                        [__('Build or rebuild a website'), '#aree'],
-                        [__('Build a platform'), '#aree'],
-                        [__("I don't know yet"), route('contacts')],
+                        [__('Manage the company better'), '#area-01'],
+                        [__('Sell online'), '#area-02'],
+                        [__('Digitize a process'), '#area-01'],
+                        [__('Build or rebuild a website'), '#area-02'],
+                        [__('Build a platform'), '#area-02'],
+                        [__("I don't know yet"), '#area-03'],
                     ];
                 @endphp
 
@@ -61,7 +61,7 @@
         <div class="max-w-7xl mx-auto px-8 lg:px-14 space-y-20 lg:space-y-32">
 
             {{-- Area 01 — Management software · ERP · CRM --}}
-            <x-pages::services.components.feature-row :area="__('Area 01 — Management software · ERP · CRM')"
+            <x-pages::services.components.feature-row id="area-01" :area="__('Area 01 — Management software · ERP · CRM')"
                 :lead="__('Orders, inventory, customers, invoicing and internal processes in a single system, tailored to how you actually work.')"
                 :bullets="[
                     __('Workflow automation: less data entry, fewer human errors.'),
@@ -84,7 +84,7 @@
             </x-pages::services.components.feature-row>
 
             {{-- Area 02 — Websites · E-commerce · Platforms · Web apps (flipped) --}}
-            <x-pages::services.components.feature-row flip
+            <x-pages::services.components.feature-row id="area-02" flip
                 :area="__('Area 02 — Websites · E-commerce · Platforms · Web apps')"
                 :lead="__('From a showcase site to a tailor-made web app, all the way to an e-commerce that truly converts.')"
                 :bullets="[
@@ -108,7 +108,7 @@
             </x-pages::services.components.feature-row>
 
             {{-- Area 03 — Consulting · SEO --}}
-            <x-pages::services.components.feature-row :area="__('Area 03 — Consulting · SEO')"
+            <x-pages::services.components.feature-row id="area-03" :area="__('Area 03 — Consulting · SEO')"
                 :lead="__('Let\'s figure out together what you really need — before writing a single line of code.')"
                 :bullets="[
                     __('Independent technology choices, with no vendor lock-in.'),
@@ -258,9 +258,9 @@
             </p>
 
             <div class="mt-11 flex flex-col sm:flex-row gap-4">
-                <x-button :href="route('contacts')" data-pan="cta-hero-contacts">{{ __('Book a call') }}</x-button>
+                <x-button :href="route('contacts')" data-pan="cta-services-contacts">{{ __('Book a call') }}</x-button>
                 <x-button :href="route('projects')" variant="secondary"
-                    data-pan="cta-hero-projects">{{ __('See projects') }}</x-button>
+                    data-pan="cta-services-projects">{{ __('See projects') }}</x-button>
             </div>
         </div>
     </section>

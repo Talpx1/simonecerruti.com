@@ -13,8 +13,20 @@ beforeEach(fn () => $this->withoutVite());
 it('renders with no featured content', function () {
     livewire(Services::class)
         ->assertOk()
+        ->assertSeeHtml('data-pan="section-impression-services-hero"')
         ->assertDontSeeHtml('cta-services-area-1')
         ->assertDontSee(__('Real cases & insights'));
+});
+
+it('routes each hero goal to its matching area anchor', function () {
+    livewire(Services::class)
+        ->assertOk()
+        ->assertSeeHtml('id="area-01"')
+        ->assertSeeHtml('id="area-02"')
+        ->assertSeeHtml('id="area-03"')
+        ->assertSeeHtml('href="#area-01"')
+        ->assertSeeHtml('href="#area-02"')
+        ->assertSeeHtml('href="#area-03"');
 });
 
 it('surfaces the featured project in the Area 01 contextual CTA', function () {
@@ -38,11 +50,15 @@ it('keeps the Area 02 and Area 03 contextual CTAs hidden', function () {
 });
 
 it('frames the AI section around quality, not speed', function () {
+    // The AI band must stay framed around quality/reliability, never speed.
+    // Asserting the exact reworded copy is the real guard — reverting either
+    // line to a speed-framed version drops these strings and fails here. A
+    // blanket "no speed words" check is unusable: Area 02 legitimately uses
+    // "Veloce" for the website's own performance.
     livewire(Services::class)
         ->assertOk()
-        ->assertSee(__('I build more robust, reliable software — without compromising on code quality.'))
-        ->assertDontSee('più in fretta')
-        ->assertDontSee('tempi più corti');
+        ->assertSee(__('I build AI into the software I create — and I use it every day to develop better, more solid and reliable apps.'))
+        ->assertSee(__('I build more robust, reliable software — without compromising on code quality.'));
 });
 
 it('showcases featured projects and the latest article as cards', function () {
@@ -67,6 +83,6 @@ it('renders the final call to action', function () {
         ->assertOk()
         ->assertSee(__('Not sure where to start?'))
         ->assertSee(__('Book a call'))
-        ->assertSeeHtml('data-pan="cta-hero-contacts"')
-        ->assertSeeHtml('data-pan="cta-hero-projects"');
+        ->assertSeeHtml('data-pan="cta-services-contacts"')
+        ->assertSeeHtml('data-pan="cta-services-projects"');
 });

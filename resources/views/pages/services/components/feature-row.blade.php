@@ -5,9 +5,11 @@
     'bullets' => [],
     'buttonLabel',
     'buttonHref',
+    'id' => null,
 ])
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+<div @if ($id) id="{{ $id }}" @endif
+    @class(['grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center', 'scroll-mt-24' => $id])>
     <div @class(['lg:order-2' => $flip])>
         {{ $media }}
     </div>
