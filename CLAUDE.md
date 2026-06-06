@@ -20,6 +20,7 @@ Produce a brief but meaningful presentation of the steps. DO NOT write a huge te
 
 **ALWAYS** stop after every step and ask for review, but only after having ran tests, linting, rector, pint, skills to enforce best practices and code cleanliness.  
 Present a very brief summary of what you did, highlighting eventual notes.
+**CRITICAL** DO NOT commit before review approval.  
 
 ## At the end
 
