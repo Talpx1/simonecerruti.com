@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Livewire\Pages\Services;
+use App\Models\BlogArticle;
 use App\Models\Project;
 
 use function Pest\Livewire\livewire;
@@ -12,7 +13,8 @@ beforeEach(fn () => $this->withoutVite());
 it('renders with no featured content', function () {
     livewire(Services::class)
         ->assertOk()
-        ->assertDontSeeHtml('cta-services-area-1');
+        ->assertDontSeeHtml('cta-services-area-1')
+        ->assertDontSee(__('Real cases & insights'));
 });
 
 it('surfaces the featured project in the Area 01 contextual CTA', function () {
@@ -41,4 +43,30 @@ it('frames the AI section around quality, not speed', function () {
         ->assertSee(__('I build more robust, reliable software — without compromising on code quality.'))
         ->assertDontSee('più in fretta')
         ->assertDontSee('tempi più corti');
+});
+
+it('showcases featured projects and the latest article as cards', function () {
+    $projects = Project::factory()->published()->featured()->count(2)->create();
+    $article = BlogArticle::factory()->published()->featured()->create();
+
+    $component = livewire(Services::class)
+        ->assertOk()
+        ->assertSee(__('Real cases & insights'))
+        ->assertSee(__('All projects'))
+        ->assertSee($article->title)
+        ->assertSeeHtml(route('blog_article.show', $article->slug))
+        ->assertDontSee($article->published_at->format('d.m.Y'));
+
+    foreach ($projects as $project) {
+        $component->assertSee($project->title);
+    }
+});
+
+it('renders the final call to action', function () {
+    livewire(Services::class)
+        ->assertOk()
+        ->assertSee(__('Not sure where to start?'))
+        ->assertSee(__('Book a call'))
+        ->assertSeeHtml('data-pan="cta-hero-contacts"')
+        ->assertSeeHtml('data-pan="cta-hero-projects"');
 });

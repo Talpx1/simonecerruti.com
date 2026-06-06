@@ -18,7 +18,7 @@
                 <x-eyebrow>{{ __('Services') }}</x-eyebrow>
 
                 <h1
-                    class="mt-6 font-black uppercase leading-none tracking-tighter text-light text-6xl sm:text-7xl lg:text-8xl xl:text-9xl max-w-[14ch]">
+                    class="mt-6 font-black uppercase leading-none tracking-tighter text-light text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl max-w-[14ch]">
                     {!! Blade::render(__('What do you want to<br>:tag solve? :close_tag', $hl_tags)) !!}
                 </h1>
 
@@ -202,6 +202,65 @@
                         </div>
                     @endforeach
                 </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- ============================== CASI REALI ============================== --}}
+    @if ($cards_projects->isNotEmpty() || $cards_article)
+        <section class="border-t border-light/15 py-20 lg:py-28">
+            <div class="max-w-7xl mx-auto px-8 lg:px-14">
+                <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <x-eyebrow>{{ __('Real cases & insights') }}</x-eyebrow>
+                        <h2
+                            class="mt-5 font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-6xl">
+                            {!! __('Seen in the<br>field') !!}
+                        </h2>
+                    </div>
+                    <a wire:navigate href="{{ route('projects') }}"
+                        class="group inline-flex shrink-0 items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-light/55 transition-colors hover:text-light">
+                        {{ __('All projects') }}
+                        <x-ri-arrow-right-long-line
+                            class="w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </a>
+                </div>
+
+                <div class="mt-12 lg:mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                    @foreach ($cards_projects as $project)
+                        <x-project-card :$project :showTags="false" />
+                    @endforeach
+                    @if ($cards_article)
+                        <x-blog-article-card :article="$cards_article" :showTags="false" :showDate="false"
+                            imageHeight="h-56 lg:h-64" />
+                    @endif
+                </div>
+            </div>
+        </section>
+    @endif
+
+    {{-- ============================== CTA FINALE ============================== --}}
+    <section class="border-t border-light/15 py-20 lg:py-32">
+        <div class="max-w-7xl mx-auto px-8 lg:px-14">
+            <x-eyebrow>{{ __("Don't wait") }}</x-eyebrow>
+
+            <h2
+                class="mt-6 font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-6xl max-w-[16ch]">
+                {{ __('Not sure where to start?') }}
+            </h2>
+
+            <p class="mt-5 font-black uppercase leading-none tracking-tighter text-light/55 text-3xl lg:text-4xl">
+                {{ __("Let's talk about it.") }}
+            </p>
+
+            <p class="mt-6 text-light/55 text-lg lg:text-xl font-light leading-relaxed max-w-[48ch]">
+                {{ __('15 minutes to frame the problem and figure out where to act. Free, no strings attached.') }}
+            </p>
+
+            <div class="mt-11 flex flex-col sm:flex-row gap-4">
+                <x-button :href="route('contacts')" data-pan="cta-hero-contacts">{{ __('Book a call') }}</x-button>
+                <x-button :href="route('projects')" variant="secondary"
+                    data-pan="cta-hero-projects">{{ __('See projects') }}</x-button>
             </div>
         </div>
     </section>
