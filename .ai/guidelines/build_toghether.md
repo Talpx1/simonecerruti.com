@@ -15,10 +15,11 @@ Produce a brief but meaningful presentation of the steps. DO NOT write a huge te
 **ALWAYS** stop after every step and run:
 - tests
 - rector
+- phpstan
 - pint
 - /simplify skill
 - /laravel-best-practices skill
-- /laravel-boost:laravel-code-simplifier skill
+- laravel-code-simplifier MCP Prompt
 
 Only then present a very brief summary of what you did, highlighting eventual notes, and ask for review
 **CRITICAL** DO NOT commit before review approval.  
@@ -26,10 +27,11 @@ Only then present a very brief summary of what you did, highlighting eventual no
 ## At the end
 After finishing all the steps, **ALWAYS** run the full test suite and, on the full task, run:
 - rector
+- phpstan
 - pint
 - /simplify skill
 - /laravel-best-practices skill
-- /laravel-boost:laravel-code-simplifier skill
+- laravel-code-simplifier MCP Prompt
 After that, launch a /code-review, reminding the user to use max effort.
 Ultimately, present a final brief and ask the user for a final review of the whole product.  
 
