@@ -35,6 +35,12 @@ it('links the Area 01 button to the dedicated landing page', function () {
         ->assertSeeHtml(route('services.management_erp_crm'));
 });
 
+it('links the Area 02 button to the dedicated landing page', function () {
+    livewire(Services::class)
+        ->assertOk()
+        ->assertSeeHtml(route('services.web_ecommerce_platforms'));
+});
+
 it('surfaces the featured project in the Area 01 contextual CTA', function () {
     $project = Project::factory()->published()->featured()->create();
 
