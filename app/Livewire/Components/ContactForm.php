@@ -37,7 +37,7 @@ class ContactForm extends Component implements HasSchemas {
                 ]),
                 $this->makeContactForm()
             ))
-            ->columns(['xs' => 1, 'lg' => 3, 'xl' => 5])
+            ->columns(['default' => 1, 'sm' => 2])
             ->statePath('data');
     }
 
@@ -48,31 +48,39 @@ class ContactForm extends Component implements HasSchemas {
         return [
             TextInput::make('first_name')
                 ->label(__('First Name'))
+                ->placeholder('Mario')
                 ->required()
                 ->maxLength(255),
 
             TextInput::make('last_name')
                 ->label(__('Last Name'))
+                ->placeholder('Rossi')
                 ->required()
-                ->maxLength(255),
-
-            TextInput::make('company_name')
-                ->label(__('Company Name'))
                 ->maxLength(255),
 
             TextInput::make('email')
                 ->label(__('Email'))
+                ->placeholder('mario@azienda.it')
                 ->email()
                 ->inputMode('email')
                 ->required(),
 
             TextInput::make('phone')
                 ->label(__('Phone'))
+                ->placeholder('+39 ___ _______')
                 ->tel()
                 ->inputMode('tel'),
 
+            TextInput::make('company_name')
+                ->label(__('Company Name'))
+                ->placeholder(__('Your business name'))
+                ->columnSpanFull()
+                ->maxLength(255),
+
             Textarea::make('message')
                 ->label(__('Message'))
+                ->placeholder(__('Tell me about your project in a few lines: what you need, where you are today and where you want to get to.'))
+                ->rows(6)
                 ->columnSpanFull()
                 ->required(),
 

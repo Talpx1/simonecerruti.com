@@ -15,8 +15,8 @@ class FormDataProcessingAcceptance {
             ->columnSpanFull()
             ->label(__('Data processing'))
             ->belowContent(function () {
-                $privacy_policy_url = '#';
-                $terms_and_conditions_url = '#';
+                $privacy_policy_url = route('privacy_policy');
+                $terms_and_conditions_url = route('terms_and_conditions');
 
                 return new HtmlString(__("I agree to receive communications from :company_name. By checking this box, I agree to :company_name's :terms_of_use and :privacy_policy.", [
                     'company_name' => config()->string('company.name'),

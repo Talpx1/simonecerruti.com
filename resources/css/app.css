@@ -65,6 +65,50 @@
     --tw-ring-color: var(--color-light)
 }
 
+/* Contact form — restyle the Filament fields to the hi-fi design (square, dark,
+   hairline border, white focus) without a separate theme. Scoped to .contact-fields
+   so the admin panel keeps Filament's defaults. */
+.contact-fields .fi-input-wrp {
+    border-radius: 0;
+    background-color: #0a0a0a;
+    border: 1px solid color-mix(in oklab, var(--color-light) 16%, transparent);
+    box-shadow: none;
+    --tw-ring-shadow: 0 0 #0000;
+}
+
+.contact-fields .fi-input-wrp:focus-within {
+    border-color: var(--color-light);
+    background-color: var(--color-dark);
+    box-shadow: none;
+    --tw-ring-shadow: 0 0 #0000;
+}
+
+.contact-fields .fi-input {
+    color: var(--color-light);
+    background-color: transparent;
+}
+
+.contact-fields .fi-input::placeholder {
+    color: color-mix(in oklab, var(--color-light) 38%, transparent);
+}
+
+.contact-fields textarea.fi-input {
+    min-height: 168px;
+}
+
+/* The global rule forces every field label to solid white; the contact labels are
+   muted (uppercase + wide tracking) with a white required asterisk, as in the design. */
+.contact-fields .fi-fo-field-label-content {
+    color: color-mix(in oklab, var(--color-light) 56%, transparent) !important;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+}
+
+.contact-fields .fi-checkbox-input {
+    border-radius: 0;
+}
+
 .grecaptcha-badge { visibility: hidden !important; }
 
 .fi-no {

@@ -12,16 +12,15 @@
                 'formSubmitted.{{ $this->getName() }}', { form_params: formParams }
             );
         },
-    }" class="mt-8 flex flex-col xl:flex-row gap-4">
-        <div class="grow">
+    }" class="flex flex-col gap-7">
+        <div class="contact-fields">
             {{ $this->form }}
         </div>
 
-        <x-filament::button type="submit"
-            class="w-full xl:w-fit text-dark bg-light hover:opacity-60 transition-all duration-500 mt-4 rounded-none uppercase font-black text-2xl flex gap-1 items-center">
-            {{ __('Let\'s talk') }} <x-ri-arrow-right-long-line class="w-6" />
-        </x-filament::button>
-
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-4">
+            <x-button as="button" type="submit" data-pan="cta-contacts-submit">{{ __('Let\'s talk') }}</x-button>
+            <span class="text-xs uppercase tracking-[0.18em] text-light/40">{{ __('Reply within 24 hours') }}</span>
+        </div>
     </form>
 
     <x-filament-actions::modals />
