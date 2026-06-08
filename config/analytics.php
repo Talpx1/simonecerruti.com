@@ -88,6 +88,7 @@ return [
         'allowed_analytics' => [
             'cta-nav-home',
             'cta-nav-about',
+            'cta-nav-services',
             'cta-nav-projects',
             'cta-nav-how_i_work',
             'cta-nav-contacts',
