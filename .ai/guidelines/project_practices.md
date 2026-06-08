@@ -74,6 +74,7 @@ When approaching a need that may be satisfied by an external package, make the f
 - **CRITICAL** always use strict types and fully type hint
 - always type constants
 - do not group classes by domain. For example do not create a subfolder in app/Action for analytics related actions. So do not put the actions in app/Actions/Analytics, but simply in app/Actions. The same goes for Support classes, Service classes, etc.
+- prefix special function, such as is_string, with a \ (backslash) to allow compiler optimizations. See: https://php.watch/articles/php-zend-engine-special-inlined-functions#func-list
 
 ## Laravel instructions
  
@@ -92,6 +93,7 @@ When approaching a need that may be satisfied by an external package, make the f
 - In Blade files always use `@selected()` and `@checked()` directives instead of `selected` and `checked` HTML attributes. Good example: @selected(old('status') === App\Enums\ProjectStatus::Pending->value). Bad example: {{ old('status') === App\Enums\ProjectStatus::Pending->value ? 'selected' : '' }}.
 - use the /laravel-best-practices and /laravel-boost:laravel-code-simplifier skills when writing laravel code
 - Always use the LogsAllDirtyChanges trait in models: its a trait to log model changes via spatie/activity-log
+- Always prefer attribute based syntax. For example, in a model, instead of scopeWhereActive, use the #[\Illuminate\Database\Eloquent\Attributes\Scope] attribute on top of the whereActive method.
  
 ## Filament Rules
  
