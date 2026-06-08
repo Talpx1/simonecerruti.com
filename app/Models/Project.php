@@ -14,6 +14,7 @@ use App\Models\Concerns\ResolvesRoutBindingByLocalizedSlug;
 use App\Models\Concerns\Scopes\HasCurrentLocaleTranslationScope;
 use Carbon\CarbonImmutable;
 use Database\Factories\ProjectFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -174,7 +175,22 @@ class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapab
     }
 
     /** @param Builder<self> $query */
-    protected function scopeWherePublished(Builder $query): void {
+    #[Scope]
+    protected function wherePublished(Builder $query): void {
         $query->where('published', true);
+    }
+
+    /**
+     * Published projects available in the current locale, most relevant first
+     * (featured, then newest). Callers add their own ->limit()/->first().
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function featuredRanked(Builder $query): void {
+        $query->whereHasCurrentLocaleTranslation()
+            ->wherePublished()
+            ->orderByDesc('featured')
+            ->orderByDesc('created_at');
     }
 }

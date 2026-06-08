@@ -15,13 +15,7 @@ final class Services extends Component {
      * @return Collection<int, Project>
      */
     private function featuredProjects(int $limit): Collection {
-        return Project::query()
-            ->whereHasCurrentLocaleTranslation()
-            ->wherePublished()
-            ->orderByDesc('featured')
-            ->orderByDesc('created_at')
-            ->limit($limit)
-            ->get();
+        return Project::query()->featuredRanked()->limit($limit)->get();
     }
 
     private function featuredArticle(): ?BlogArticle {
