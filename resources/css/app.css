@@ -20,6 +20,10 @@
 @theme {
     --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    /* The site ships a single typeface (Archivo). The `font-mono` utility is used only as a
+       label/eyebrow aesthetic (uppercase + wide tracking), so map it to Archivo too instead
+       of falling back to the browser's generic monospace, which clashes with the rest of the site. */
+    --font-mono: var(--font-sans);
     --color-light: #ffffff;
     --color-dark: #000000;
 }
