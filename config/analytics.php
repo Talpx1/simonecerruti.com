@@ -121,6 +121,10 @@ return [
             'cta-services-custom-software-development-back',
             'cta-contact-email',
             'cta-contact-form',
+            'cta-contacts-call',
+            'cta-contacts-email',
+            'cta-contacts-whatsapp',
+            'cta-contacts-submit',
             'card-project-click',
             'card-blog-click',
             'section-impression-hero',
@@ -129,6 +133,7 @@ return [
             'section-impression-services-custom-software-development',
             'section-impression-projects',
             'section-impression-cta',
+            'section-impression-contacts',
         ],
     ],
 ];
