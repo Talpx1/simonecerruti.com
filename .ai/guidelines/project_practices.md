@@ -48,6 +48,7 @@ When approaching a need that may be satisfied by an external package, make the f
 
 - Don't generate code comments above the methods or code blocks if they are obvious. Don't add docblock comments when defining variables, unless instructed to, like `/** @var \App\Models\User $currentUser */`. Generate comments only for something that needs extra explanation for the reasons why that code was written.
 - Always write comments in english
+- When writing an explanation comment, only states why the code is the way it is, never explain the niche problem that actually generated it  
 - Add PHPDoc blocks on methods only in the following cases:
     - the method is public
     - the method must be type hinted with phptsan annotations/syntax that is more precise than built in php. Example: array shapes, generics, ...

@@ -39,3 +39,4 @@ Ultimately, present a final brief and ask the user for a final review of the who
 - **CRITICAL** use conventional commits: https://www.conventionalcommits.org/en/v1.0.0/
 - commit messages must not be excessively long and in depth, but must always describe the entirety of the committed changes.  
 - split the work in multiple and atomic commits grouped by logical and domain changes that belongs together
+- **CRITICAL** never commit without explicit approval
