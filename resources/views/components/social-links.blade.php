@@ -53,23 +53,20 @@
         </div>
     @break
 
-    @case('detailed')
-        <div
-            class="flex flex-col lg:flex-row w-fit lg:w-full md:w-auto mx-auto md:flex-row gap-8 md:gap-0 md:justify-between items-start md:items-center">
+    @case('grid')
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 border-t border-l border-light/15">
             @foreach ($socials as $social)
-                <div>
-                    <a target="_blank" rel="noopener" data-pan="cta-social-{{ $social['key'] }}-{{ $placement }}"
-                        href="{{ config('company.socials.' . $social['key'] . '.link') }}">
-                        <div class="flex gap-2 items-center">
-                            @svg($social['icon'], 'w-7')
-                            <h2 class="text-xl font-semibold underline">
-                                {{ config('company.socials.' . $social['key'] . '.username') }}
-                            </h2>
-                            @svg('fas-external-link-alt', 'w-3 self-start')
-                        </div>
-                        <h3 class="mt-1">{{ $social['label'] }}</h3>
-                    </a>
-                </div>
+                <a href="{{ config('company.socials.' . $social['key'] . '.link') }}" target="_blank" rel="noopener"
+                    data-pan="cta-social-{{ $social['key'] }}-{{ $placement }}"
+                    class="group flex flex-col border-r border-b border-light/15 p-6 lg:p-7 transition-colors duration-300 hover:bg-light/[0.03]">
+                    @svg($social['icon'], 'w-7 mb-10 lg:mb-12 text-light/40 group-hover:text-light transition-colors duration-200')
+                    <span class="flex items-center gap-2 font-bold leading-tight tracking-tight text-light">
+                        {{ config('company.socials.' . $social['key'] . '.username') }}
+                        <x-ri-arrow-right-up-line
+                            class="w-3.5 shrink-0 text-light/40 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-light" />
+                    </span>
+                    <span class="mt-3 text-xs uppercase tracking-[0.18em] text-light/40">{{ $social['label'] }}</span>
+                </a>
             @endforeach
         </div>
     @break

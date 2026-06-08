@@ -19,7 +19,7 @@ it('suffixes each social data-pan name with its placement', function (string $va
 })->with([
     'menu placement' => ['menu', 'menu'],
     'footer placement' => ['icons', 'footer'],
-    'contacts placement' => ['detailed', 'contacts'],
+    'contacts placement' => ['grid', 'contacts'],
 ]);
 
 it('falls back to the variant when no placement is given', function () {
