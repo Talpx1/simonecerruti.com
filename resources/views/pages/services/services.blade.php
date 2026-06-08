@@ -115,7 +115,7 @@
                     __('SEO consulting paired with the website: solid technical foundations to rank you on Google.'),
                     __('Support alongside your team, when needed.'),
                 ]"
-                :button-label="__('Request a consultation')" :button-href="route('contacts')">
+                :button-label="__('Request a consultation')" :button-href="route('services.consulting_and_seo')">
                 <x-slot:media>
                     <x-pages::services.components.mock-seo />
                 </x-slot:media>

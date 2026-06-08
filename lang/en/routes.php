@@ -9,6 +9,7 @@ return [
     'services' => 'services',
     'services-management-erp-crm' => 'services/management-software-erp-crm',
     'services-web-ecommerce-platforms' => 'services/websites-ecommerce-platforms',
+    'services-consulting-and-seo' => 'services/consulting-and-seo',
     'projects' => 'projects',
     'privacy-policy' => 'privacy-policy',
     'cookie-policy' => 'cookie-policy',
