@@ -1,7 +1,7 @@
 <div>
     <section class="flex flex-col px-8 lg:px-14 pb-20">
         <div class="flex gap-32">
-            <h1 class="font-black uppercase leading-none tracking-tight text-7xl lg:text-8xl xl:text-9xl">
+            <h1 data-reveal class="font-black uppercase leading-none tracking-tight text-7xl lg:text-8xl xl:text-9xl">
                 {!! __('How <br> :tag I Work :tag_close', [
                     'tag' => '<span class="text-light/20">',
                     'tag_close' => '</span>',
@@ -12,7 +12,7 @@
 
         </div>
 
-        <p class="mt-10 text-light/60 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
+        <p data-reveal class="mt-10 text-light/60 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
             {{ __("Software that doesn't break. Interfaces that don't frustrate. Results that outlast the trend. Here's what that actually means — and why it makes a difference.") }}
         </p>
     </section>
@@ -28,7 +28,7 @@
         __('TAILOR-MADE'),
     ]" />
 
-    <section class="bg-dark px-8 lg:px-14 py-24 lg:py-36 border-b border-light/10">
+    <section data-reveal class="bg-dark px-8 lg:px-14 py-24 lg:py-36 border-b border-light/10">
         <p class="font-semibold leading-tight tracking-tight text-light text-3xl lg:text-5xl 2xl:text-6xl max-w-5xl">
             {{ __('The market is full of software built fast, sold cheap, and replaced in two years.') }} <br>
             <span class="text-light/25"> {{ __("I don't work that way.") }}</span>

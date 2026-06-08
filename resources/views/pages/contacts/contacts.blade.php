@@ -3,7 +3,7 @@
     <section data-pan="section-impression-contacts" class="relative overflow-hidden pt-12 lg:pt-16 pb-16 lg:pb-24">
         <div class="relative max-w-7xl mx-auto px-8 lg:px-14">
 
-            <div class="max-w-2xl">
+            <div data-reveal class="max-w-2xl">
                 <x-eyebrow>{{ __('Let\'s talk about your project') }}</x-eyebrow>
 
                 <h1
@@ -105,7 +105,7 @@
                 ];
             @endphp
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 border-t border-l border-light/15">
+            <div data-reveal class="grid grid-cols-1 lg:grid-cols-3 border-t border-l border-light/15">
                 @foreach ($channels as $channel)
                     <article class="p-8 lg:p-10 border-r border-b border-light/15 flex flex-col">
                         <span class="w-10 h-10 border border-light/30 flex items-center justify-center text-light mb-7">

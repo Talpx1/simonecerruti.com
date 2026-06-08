@@ -47,6 +47,17 @@
     animation: marquee 25s linear infinite;
 }
 
+/* Scroll reveal — elements tagged [data-reveal] start hidden and are faded up as
+   they enter the viewport by GSAP/ScrollTrigger (see public.js). The hidden start
+   state is gated on `scripting: enabled` (so content stays visible when JS is off)
+   and on no-preference (so reduced-motion users get neither hiding nor motion). */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
 .fi-fo-field-label-required-mark, .fi-fo-field-label-content{
     @apply !text-light
 }

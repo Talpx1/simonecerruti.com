@@ -1,9 +1,9 @@
 <div class="min-h-full h-full max-h-full px-4 md:px-16 py-4" id="about">
-    <h1 class="text-7xl lg:text-8xl text-center font-black">{{ __('ABOUT') }}</h1>
+    <h1 data-reveal class="text-7xl lg:text-8xl text-center font-black">{{ __('ABOUT') }}</h1>
     <div class="grid grid-cols-1 lg:grid-cols-[3fr_1fr] mt-16 gap-y-16 lg:gap-y-0">
         <div
             class="space-y-16 lg:border-r lg:border-light pr-8 [&_h2]:text-4xl [&_h2]:mb-4 [&_h2]:uppercase [&_h2]:font-bold [&_p]:text-sm [&_p]:max-w-xl [&_p]:text-light/70 [&_p]:leading-loose">
-            <div>
+            <div data-reveal>
                 <h2>{{ __('BIO') }}</h2>
                 <div class="space-y-4">
                     <p>{{ __("I'm Simone, an independent software developer based in Biella, Italy.") }} </p>
@@ -42,7 +42,7 @@
                 </a>
             </div>
 
-            <div id="about-how-i-started">
+            <div id="about-how-i-started" data-reveal>
                 <h2>{{ __('HOW I STARTED') }}</h2>
                 <div class="space-y-4">
                     <p>{{ __("Here's the story: I was around 4 to 6 years old when my mom, while ironing, would let me mess around in Paint — yes, the doodling program that came on every Windows computer — on one of those old CRT monitors with a trackball mouse.") }}
@@ -58,7 +58,7 @@
                 </div>
             </div>
 
-            <div>
+            <div data-reveal>
                 <h2>{{ __('WHY I DO IT') }}</h2>
                 <div class="space-y-4">
                     <p>{{ __('Out of passion.') }}</p>
@@ -71,7 +71,7 @@
                 </div>
             </div>
 
-            <div>
+            <div data-reveal>
                 <h2>{{ __('ALWAYS LEARNING') }}</h2>
                 <div class="space-y-4">
                     <p>{{ __("In software, evolution isn't linear — it's exponential. Keeping up isn't optional, it's part of the craft. And for me, it's also one of the most stimulating parts.") }}
@@ -85,7 +85,7 @@
                 </div>
             </div>
 
-            <div>
+            <div data-reveal>
                 <h2>{{ __('PERSONAL INTERESTS') }}</h2>
                 <div class="space-y-4">
                     <p>{{ __("I've talked at length about the professional side, and I'm proud of it. But I also want to dedicate a few lines to the person behind it all — because when you choose a partner to work with, you're ultimately choosing a person too.") }}

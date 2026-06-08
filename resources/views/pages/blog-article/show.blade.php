@@ -14,7 +14,7 @@
             </div>
         @endif
 
-        <div class="px-8 lg:px-14 py-16 lg:py-24 space-y-8">
+        <div data-reveal class="px-8 lg:px-14 py-16 lg:py-24 space-y-8">
 
             <a wire:navigate href="{{ route('blog') }}"
                 class="group inline-flex items-center gap-3 text-light/40 hover:text-light transition-colors duration-200 text-sm uppercase tracking-widest font-semibold">

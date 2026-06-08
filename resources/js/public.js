@@ -55,3 +55,38 @@ window.addEventListener('resize', (e) => {
     window.isMobile= !isDesktop
 })
 
+
+
+
+// SCROLL REVEAL
+// Fades [data-reveal] elements up as they scroll into view. The hidden start
+// state lives in CSS (gated on scripting/reduced-motion), so this only animates
+// toward the visible state. Runs on every Livewire navigation; the triggers are
+// killed by the global livewire:navigating cleanup handler.
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+function initScrollReveal() {
+    if (prefersReducedMotion) {
+        return
+    }
+
+    const els = gsap.utils.toArray('[data-reveal]')
+
+    if (!els.length) {
+        return
+    }
+
+    ScrollTrigger.batch(els, {
+        start: 'top 88%',
+        once: true,
+        onEnter: (batch) => gsap.fromTo(batch,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', stagger: 0.08, overwrite: true },
+        ),
+    })
+
+    ScrollTrigger.refresh()
+}
+
+document.addEventListener('livewire:navigated', initScrollReveal)
+

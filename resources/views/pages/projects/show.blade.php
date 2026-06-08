@@ -12,7 +12,7 @@
                 </a>
             </div>
 
-            <div class="space-y-6">
+            <div data-reveal class="space-y-6">
                 <h1
                     class="font-black uppercase leading-none tracking-tighter text-5xl lg:text-8xl xl:text-9xl text-light">
                     {{ $project->title }}
