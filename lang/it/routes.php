@@ -8,6 +8,7 @@ return [
     'how-i-work' => 'come-lavoro',
     'services' => 'servizi',
     'services-management-erp-crm' => 'servizi/gestionali-erp-crm',
+    'services-web-ecommerce-platforms' => 'servizi/siti-web-ecommerce-piattaforme',
     'projects' => 'progetti',
     'privacy-policy' => 'privacy-policy',
     'cookie-policy' => 'cookie-policy',

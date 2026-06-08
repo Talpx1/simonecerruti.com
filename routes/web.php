@@ -14,6 +14,7 @@ use App\Livewire\Pages\Project\ProjectList;
 use App\Livewire\Pages\Project\ProjectShow;
 use App\Livewire\Pages\Services;
 use App\Livewire\Pages\ServicesManagementErpCrm;
+use App\Livewire\Pages\ServicesWebEcommercePlatforms;
 use App\Livewire\Pages\TagArchive;
 use App\Livewire\Pages\TermsAndConditions;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,8 @@ Route::group([
     Route::livewireLocalized('services', Services::class)->name('services');
 
     Route::livewireLocalized('services-management-erp-crm', ServicesManagementErpCrm::class)->name('services.management_erp_crm');
+
+    Route::livewireLocalized('services-web-ecommerce-platforms', ServicesWebEcommercePlatforms::class)->name('services.web_ecommerce_platforms');
 
     Route::livewireLocalized('projects', ProjectList::class)->name('projects');
 

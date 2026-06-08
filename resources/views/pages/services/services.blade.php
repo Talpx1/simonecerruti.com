@@ -92,7 +92,7 @@
                     __('Scalable: it grows together with your business.'),
                     __('Immersive experience and fluid navigation.'),
                 ]"
-                :button-label="__('Build your website or e-commerce')" :button-href="route('contacts')">
+                :button-label="__('Build your website or e-commerce')" :button-href="route('services.web_ecommerce_platforms')">
                 <x-slot:media>
                     <x-pages::services.components.mock-shop />
                 </x-slot:media>
