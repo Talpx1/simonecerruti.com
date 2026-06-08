@@ -57,7 +57,7 @@
     </section>
 
     {{-- ============================== AREE ============================== --}}
-    <section id="aree" class="border-t border-light/15 py-20 lg:py-28">
+    <section id="aree" data-reveal class="border-t border-light/15 py-20 lg:py-28">
         <div class="max-w-7xl mx-auto px-8 lg:px-14 space-y-20 lg:space-y-32">
 
             {{-- Area 01 — Management software · ERP · CRM --}}
@@ -135,7 +135,7 @@
     </section>
 
     {{-- ============================== VALORI ============================== --}}
-    <section class="border-t border-light/15 py-20 lg:py-28">
+    <section data-reveal class="border-t border-light/15 py-20 lg:py-28">
         <div class="max-w-7xl mx-auto px-8 lg:px-14">
             <x-eyebrow>{{ __('Why bespoke') }}</x-eyebrow>
 
@@ -182,7 +182,7 @@
 
     {{-- ============================== CASI REALI ============================== --}}
     @if ($cards_projects->isNotEmpty() || $cards_article)
-        <section class="border-t border-light/15 py-20 lg:py-28">
+        <section data-reveal class="border-t border-light/15 py-20 lg:py-28">
             <div class="max-w-7xl mx-auto px-8 lg:px-14">
                 <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                     <div>
@@ -214,7 +214,7 @@
     @endif
 
     {{-- ============================== CTA FINALE ============================== --}}
-    <section class="border-t border-light/15 py-20 lg:py-32">
+    <section data-reveal class="border-t border-light/15 py-20 lg:py-32">
         <div class="max-w-7xl mx-auto px-8 lg:px-14">
             <x-eyebrow>{{ __("Don't wait") }}</x-eyebrow>
 

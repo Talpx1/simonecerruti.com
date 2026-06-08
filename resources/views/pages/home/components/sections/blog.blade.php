@@ -10,7 +10,7 @@
             }
         }
     </style>
-    <div class="lg:border lg:border-light grid grid-cols-1 grid-rows-2 gap-8 lg:gap-0 lg:justify-between">
+    <div data-reveal class="lg:border lg:border-light grid grid-cols-1 grid-rows-2 gap-8 lg:gap-0 lg:justify-between">
         <x-pages::home.components.articles-list :articles="$practical_blog_articles" pan="cta-home-blog-practical"
             see-all-route="{{ route('blog', ['category' => \App\Enums\BlogCategories::PRACTICAL->model()->slug]) }}">
             <x-slot:heading>
@@ -31,14 +31,3 @@
         </x-pages::home.components.articles-list>
     </div>
 </section>
-
-@push('scripts')
-    <script>
-        document.addEventListener('livewire:navigated', () => {
-
-
-        }, {
-            once: true
-        })
-    </script>
-@endpush

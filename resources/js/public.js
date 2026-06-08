@@ -11,6 +11,10 @@ const snap = new Snap(lenis, {
     type: 'lock',
     distanceThreshold: '100%',
     debounce: 0,
+    // A fixed duration drives the easing below, so every section locks with the
+    // same smooth motion regardless of how far it has to travel (without it the
+    // snap falls back to lerp and the easing is effectively ignored).
+    duration: 1,
     easing: (x) =>  x === 0
         ? 0
         : x === 1

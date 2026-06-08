@@ -56,7 +56,7 @@
     </section>
 
     {{-- ============================== È PER TE SE ============================== --}}
-    <section class="border-t border-light/15 py-20 lg:py-28">
+    <section data-reveal class="border-t border-light/15 py-20 lg:py-28">
         <div class="max-w-7xl mx-auto px-8 lg:px-14 grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-16 items-start">
             <div>
                 <x-eyebrow>{{ __('This is for you if…') }}</x-eyebrow>
@@ -93,7 +93,7 @@
     </section>
 
     {{-- ============================== SOTTO-SERVIZI ============================== --}}
-    <section class="border-t border-light/15 py-20 lg:py-28">
+    <section data-reveal class="border-t border-light/15 py-20 lg:py-28">
         <div class="max-w-7xl mx-auto px-8 lg:px-14">
             <div class="mb-12 lg:mb-16">
                 <x-eyebrow>{{ __('Three answers, one direction') }}</x-eyebrow>
@@ -158,7 +158,7 @@
     </section>
 
     {{-- ============================== PROCESSO ============================== --}}
-    <section class="border-t border-light/15 py-20 lg:py-28">
+    <section data-reveal class="border-t border-light/15 py-20 lg:py-28">
         <div class="max-w-7xl mx-auto px-8 lg:px-14">
             <div class="mb-12 lg:mb-16">
                 <x-eyebrow>{{ __('How I work') }}</x-eyebrow>
@@ -193,7 +193,7 @@
     </section>
 
     {{-- ============================== VALORI ============================== --}}
-    <section class="border-t border-light/15 py-20 lg:py-28">
+    <section data-reveal class="border-t border-light/15 py-20 lg:py-28">
         <div class="max-w-7xl mx-auto px-8 lg:px-14">
             <x-eyebrow>{{ __('Why bespoke') }}</x-eyebrow>
             <h2 class="mt-5 font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-6xl max-w-[18ch]">
@@ -226,7 +226,7 @@
     </section>
 
     {{-- ============================== STACK ============================== --}}
-    <section class="border-t border-light/15 py-16 lg:py-20">
+    <section data-reveal class="border-t border-light/15 py-16 lg:py-20">
         <div class="max-w-7xl mx-auto px-8 lg:px-14 grid grid-cols-1 lg:grid-cols-[0.7fr_1.3fr] gap-10 lg:gap-16 items-center">
             <div>
                 <x-eyebrow>{{ __('Stack & technologies') }}</x-eyebrow>
@@ -254,7 +254,7 @@
 
     {{-- ============================== CASO REALE ============================== --}}
     @if ($case_project)
-        <section id="case" class="border-t border-light/15 py-20 lg:py-28 scroll-mt-24">
+        <section id="case" data-reveal class="border-t border-light/15 py-20 lg:py-28 scroll-mt-24">
             <div class="max-w-7xl mx-auto px-8 lg:px-14">
                 <x-pages::services.components.feature-row :area="__('Real case — Website & portal')"
                     :lead="__('Tailor-made website and portal: enrolments, paperwork and communications handled automatically, with no more queues at the desk.')"
@@ -282,7 +282,7 @@
     @endif
 
     {{-- ============================== FAQ ============================== --}}
-    <section class="border-t border-light/15 py-20 lg:py-28">
+    <section data-reveal class="border-t border-light/15 py-20 lg:py-28">
         <div class="max-w-7xl mx-auto px-8 lg:px-14 grid grid-cols-1 lg:grid-cols-[0.7fr_1.3fr] gap-10 lg:gap-16 items-start">
             <div>
                 <x-eyebrow>{{ __('Frequently asked questions') }}</x-eyebrow>
@@ -329,7 +329,7 @@
     </section>
 
     {{-- ============================== CTA FINALE ============================== --}}
-    <section class="border-t border-light/15 py-20 lg:py-32">
+    <section data-reveal class="border-t border-light/15 py-20 lg:py-32">
         <div class="max-w-7xl mx-auto px-8 lg:px-14">
             <x-eyebrow>{{ __("Don't wait") }}</x-eyebrow>
 

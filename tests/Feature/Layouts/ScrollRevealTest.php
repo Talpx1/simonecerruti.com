@@ -20,4 +20,8 @@ it('marks content with data-reveal so it animates in on scroll', function (strin
     'projects' => ['projects'],
     'blog' => ['blog'],
     'contacts' => ['contacts'],
+    'services hub' => ['services'],
+    'services management' => ['services.management_erp_crm'],
+    'services web' => ['services.web_ecommerce_platforms'],
+    'services consulting' => ['services.consulting_and_seo'],
 ]);
