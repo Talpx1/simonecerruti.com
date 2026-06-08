@@ -51,21 +51,11 @@
         @endif
     </section>
 
-    <section class="bg-dark border-t border-light/10 px-8 lg:px-14 py-24 lg:py-36">
-        <div class="max-w-5xl">
-            <p class="font-semibold leading-tight tracking-tight text-light text-3xl lg:text-5xl 2xl:text-6xl mb-16">
-                {{ __('Have a project in mind?') }}<br>
-                <span class="text-light/25">{{ __("Let's make it happen.") }}</span>
-            </p>
+    <x-cta-section>
+        <x-slot:title>{{ __('Have a project in mind?') }}</x-slot:title>
+        <x-slot:subtitle>{{ __("Let's make it happen.") }}</x-slot:subtitle>
 
-            <a wire:navigate href="{{ route('contacts') }}" data-pan="cta-projects-contacts"
-                class="group relative overflow-hidden border border-light text-light inline-flex items-center justify-between gap-8 px-8 py-5 hover:text-dark transition-colors duration-300">
-                <span
-                    class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
-                <span
-                    class="relative font-semibold uppercase tracking-widest text-sm z-10">{{ __("Let's talk") }}</span>
-                <x-ri-arrow-right-long-line class="z-10 w-5" />
-            </a>
-        </div>
-    </section>
+        <x-button :href="route('contacts')" data-pan="cta-projects-contacts">{{ __("Let's talk") }}</x-button>
+        <x-button :href="route('services')" variant="secondary" data-pan="cta-projects-services">{{ __('Explore services') }}</x-button>
+    </x-cta-section>
 </div>

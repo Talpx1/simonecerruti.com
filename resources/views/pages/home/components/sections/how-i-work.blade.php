@@ -42,7 +42,7 @@
             <div class="text-sm font-extralight">
                 {{ __("just the way you're looking for them, just the way you imagine them.") }}</div>
         </div>
-        <a href="#" wire:navigate
+        <a href="{{ route('services') }}" wire:navigate data-pan="cta-home-services"
             class="text-lg lg:text-2xl underline underline-offset-4 flex items-center gap-1 mx-auto">
             {{ __('Software can revolutionize your business') }} <x-ri-arrow-right-long-line class="w-6" /></a>
     </div>

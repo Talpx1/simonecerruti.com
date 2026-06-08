@@ -261,32 +261,12 @@
 
     </section>
 
-    <section class="bg-dark border-t border-light/10 px-8 lg:px-14 py-24 lg:py-36">
-        <div class="max-w-5xl mx-auto">
-            <p class="font-semibold leading-tight tracking-tight text-light text-3xl lg:text-5xl 2xl:text-6xl mb-16">
-                {{ __("You don't need faster software.") }}<br>
-                <span class="text-light/25">{{ __('You need software that actually works.') }}</span>
-            </p>
+    <x-cta-section centered>
+        <x-slot:title>{{ __("You don't need faster software.") }}</x-slot:title>
+        <x-slot:subtitle>{{ __('You need software that actually works.') }}</x-slot:subtitle>
 
-            <div class="flex flex-col sm:flex-row gap-4">
-                <a wire:navigate href="{{ route('contacts') }}" data-pan="cta-method-contacts"
-                    class="group relative overflow-hidden border border-light text-light flex items-center justify-between gap-8 px-8 py-5 hover:text-dark transition-colors duration-300">
-                    <span
-                        class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
-                    <span
-                        class="relative font-semibold uppercase tracking-widest text-sm z-10">{{ __("Let's talk") }}</span>
-                    <x-ri-arrow-right-long-line class="z-10 w-5" />
-                </a>
-
-                <a wire:navigate href="{{ route('projects') }}" data-pan="cta-method-projects"
-                    class="group relative overflow-hidden border border-light/20 text-light/50 flex items-center justify-between gap-8 px-8 py-5 hover:text-dark hover:border-light transition-colors duration-300">
-                    <span
-                        class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
-                    <span
-                        class="relative font-semibold uppercase tracking-widest text-sm z-10">{{ __('See projects') }}</span>
-                    <x-ri-arrow-right-long-line class="z-10 w-5" />
-                </a>
-            </div>
-        </div>
-    </section>
+        <x-button :href="route('contacts')" data-pan="cta-method-contacts">{{ __("Let's talk") }}</x-button>
+        <x-button :href="route('services')" variant="secondary" data-pan="cta-method-services">{{ __('Explore services') }}</x-button>
+        <x-button :href="route('projects')" variant="secondary" data-pan="cta-method-projects">{{ __('See projects') }}</x-button>
+    </x-cta-section>
 </div>
