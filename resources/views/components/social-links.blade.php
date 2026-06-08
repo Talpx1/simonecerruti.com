@@ -1,4 +1,11 @@
-@props(['variant' => 'icons'])
+@props(['variant' => 'icons', 'placement' => null])
+
+@php
+    // The placement discriminator keeps `data-pan` names unique per location
+    // (menu, footer, contacts page), so Pan stops warning about duplicate names
+    // and can attribute social clicks to where they happened.
+    $placement ??= $variant;
+@endphp
 
 @php
     /**
@@ -21,7 +28,7 @@
         <div class="flex items-center gap-4">
             @foreach ($socials as $social)
                 <a href="{{ config('company.socials.' . $social['key'] . '.link') }}" target="_blank" rel="noopener"
-                    data-pan="cta-social-{{ $social['key'] }}"
+                    data-pan="cta-social-{{ $social['key'] }}-{{ $placement }}"
                     class="opacity-30 hover:opacity-100 text-light" title="{{ $social['label'] }}">
                     @svg($social['icon'], 'w-4')
                 </a>
@@ -33,7 +40,7 @@
         <div class="flex flex-row lg:flex-col justify-between lg:gap-3">
             @foreach ($socials as $social)
                 <div>
-                    <a target="_blank" rel="noopener" data-pan="cta-social-{{ $social['key'] }}"
+                    <a target="_blank" rel="noopener" data-pan="cta-social-{{ $social['key'] }}-{{ $placement }}"
                         href="{{ config('company.socials.' . $social['key'] . '.link') }}">
                         <div
                             class="flex gap-2 items-center text-xs uppercase tracking-widest text-light/40 hover:text-light hover:tracking-[.2em] transition-all duration-200">
@@ -51,7 +58,7 @@
             class="flex flex-col lg:flex-row w-fit lg:w-full md:w-auto mx-auto md:flex-row gap-8 md:gap-0 md:justify-between items-start md:items-center">
             @foreach ($socials as $social)
                 <div>
-                    <a target="_blank" rel="noopener" data-pan="cta-social-{{ $social['key'] }}"
+                    <a target="_blank" rel="noopener" data-pan="cta-social-{{ $social['key'] }}-{{ $placement }}"
                         href="{{ config('company.socials.' . $social['key'] . '.link') }}">
                         <div class="flex gap-2 items-center">
                             @svg($social['icon'], 'w-7')

@@ -73,7 +73,7 @@
 
             <div>
                 <p class="text-[10px] tracking-widest uppercase text-light/30 mb-5">{{ __('Social') }}</p>
-                <x-social-links variant="menu" />
+                <x-social-links variant="menu" placement="menu" />
             </div>
 
             <p class="text-[10px] text-light/20 tracking-widest uppercase">

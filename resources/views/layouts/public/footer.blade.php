@@ -1,6 +1,6 @@
 <footer id="main-footer"
     class="mt-2 px-4 flex flex-col lg:flex-row gap-8 lg:gap-0 items-center justify-between py-4 border-t border-light/[.07]">
-    <x-social-links variant="icons" />
+    <x-social-links variant="icons" placement="footer" />
 
     <div
         class="flex items-center gap-4 text-[10px] text-light/20 uppercase [&>a]:hover:text-light/70 [&>a]:transition-colors [&>a]:duration-500">

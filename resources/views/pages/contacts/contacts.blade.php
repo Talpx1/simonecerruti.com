@@ -56,7 +56,7 @@
         </div>
     </div>
 
-    <x-social-links variant="detailed" />
+    <x-social-links variant="detailed" placement="contacts" />
 </div>
 
 @push('scripts')
