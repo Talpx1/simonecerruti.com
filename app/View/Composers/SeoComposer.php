@@ -25,6 +25,7 @@ class SeoComposer {
             ? $data['seo_data']
             : new SeoData(
                 title: $this->title($data),
+                description: $this->stringField($data, 'description'),
                 canonical: url()->current(),
                 robots: $this->stringField($data, 'robots'),
                 alternates: $this->alternates(),
