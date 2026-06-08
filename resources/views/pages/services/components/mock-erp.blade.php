@@ -20,7 +20,7 @@
                 <div class="border border-light/15 p-2.5 lg:p-3 flex flex-col gap-2.5">
                     <div class="flex items-center justify-between">
                         <span class="h-[5px] w-[58%] bg-light/25"></span>
-                        <span class="font-mono text-base lg:text-2xl leading-none tracking-tight text-light">+38%</span>
+                        <span class="text-base lg:text-2xl leading-none tracking-tight text-light">+38%</span>
                     </div>
                     <div class="flex items-end gap-1.5 h-14">
                         @foreach ([42, 66, 50, 84, 60, 100, 72] as $bar)
@@ -39,7 +39,7 @@
             <div class="border border-light/15 p-2.5 lg:p-3 flex flex-col gap-2.5">
                 <div class="flex items-center justify-between">
                     <span class="h-[5px] w-[58%] bg-light/25"></span>
-                    <span class="font-mono text-base lg:text-2xl leading-none tracking-tight text-light">207</span>
+                    <span class="text-base lg:text-2xl leading-none tracking-tight text-light">207</span>
                 </div>
                 <div class="flex flex-col gap-2.5">
                     @foreach ([['on', 80], ['on', 62], ['off', 46], ['off', 70]] as [$state, $width])

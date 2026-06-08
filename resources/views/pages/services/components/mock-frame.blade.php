@@ -5,5 +5,5 @@
     {{ $slot }}
 
     <span
-        class="absolute left-3 bottom-3 z-10 font-mono text-[10px] tracking-[0.14em] uppercase text-light/55 bg-dark/40 border border-light/15 px-2.5 py-1 backdrop-blur-sm">{{ $label }}</span>
+        class="absolute left-3 bottom-3 z-10 text-[10px] tracking-[0.14em] uppercase text-light/55 bg-dark/40 border border-light/15 px-2.5 py-1 backdrop-blur-sm">{{ $label }}</span>
 </div>

@@ -43,7 +43,7 @@
                             class="group flex items-center justify-between gap-4 border border-light/15 p-6 lg:p-7 min-h-[132px] transition-colors duration-300 hover:bg-light hover:text-dark hover:border-light">
                             <span class="block">
                                 <span
-                                    class="block font-mono text-xs text-light/40 transition-colors group-hover:text-dark/50">{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                                    class="block text-xs text-light/40 transition-colors group-hover:text-dark/50">{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</span>
                                 <span
                                     class="mt-4 block font-bold uppercase text-xl leading-tight tracking-tight">{{ $label }}</span>
                             </span>
@@ -64,7 +64,7 @@
             <x-pages::services.components.feature-row id="area-01" :area="__('Area 01 — Management software · ERP · CRM')"
                 :lead="__('Orders, inventory, customers, invoicing and internal processes in a single system, tailored to how you actually work.')"
                 :bullets="[
-                    __('Workflow automation: less data entry, fewer human errors.'),
+                    __('Workflow automation: less manual work, fewer human errors.'),
                     __('Real-time data: faster, better-informed decisions.'),
                     __('Goodbye to scattered spreadsheets and double data entry.'),
                 ]"
@@ -111,7 +111,7 @@
             <x-pages::services.components.feature-row id="area-03" :area="__('Area 03 — Consulting · SEO')"
                 :lead="__('Let\'s figure out together what you really need — before writing a single line of code.')"
                 :bullets="[
-                    __('Independent technology choices, with no vendor lock-in.'),
+                    __('Independent technology choices, with no ties to a single vendor.'),
                     __('SEO consulting paired with the website: solid technical foundations to rank you on Google.'),
                     __('Support alongside your team, when needed.'),
                 ]"
@@ -160,7 +160,7 @@
                         'md:border-l' => in_array($i, [1, 3], true),
                         'lg:border-l' => $i === 2,
                     ])>
-                        <div class="font-mono text-xs text-light/40 mb-5">
+                        <div class="text-xs text-light/40 mb-5">
                             {{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</div>
                         <h3 class="font-black uppercase tracking-tight text-light text-xl lg:text-2xl mb-3">{{ $title }}</h3>
                         <p class="text-light/55 text-sm leading-relaxed font-light">{{ $description }}</p>
@@ -189,11 +189,11 @@
                         <x-eyebrow>{{ __('Real cases & insights') }}</x-eyebrow>
                         <h2
                             class="mt-5 font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-6xl">
-                            {!! __('Seen in the<br>field') !!}
+                            {!! __('Results that<br>speak for themselves') !!}
                         </h2>
                     </div>
                     <a wire:navigate href="{{ route('projects') }}"
-                        class="group inline-flex shrink-0 items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-light/55 transition-colors hover:text-light">
+                        class="group inline-flex shrink-0 items-center gap-2 text-xs uppercase tracking-[0.2em] text-light/55 transition-colors hover:text-light">
                         {{ __('All projects') }}
                         <x-ri-arrow-right-long-line
                             class="w-4 transition-transform duration-300 group-hover:translate-x-1" />

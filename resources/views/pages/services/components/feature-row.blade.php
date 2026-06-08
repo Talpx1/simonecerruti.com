@@ -16,7 +16,7 @@
     </div>
 
     <div @class(['lg:order-1' => $flip])>
-        <p class="font-mono text-xs lg:text-sm tracking-[0.2em] text-light/40 mb-4 lg:mb-5">{{ $area }}</p>
+        <p class="text-xs lg:text-sm tracking-[0.2em] text-light/40 mb-4 lg:mb-5">{{ $area }}</p>
 
         <h2 class="font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-6xl mb-5">
             {{ $heading }}

@@ -40,7 +40,7 @@
                     <div class="mt-9 flex flex-wrap gap-2.5">
                         @foreach ([__('Tailor-made management software'), __('ERP systems'), __('CRM & customer management')] as $pill)
                             <span
-                                class="inline-flex items-center gap-2.5 font-mono text-xs uppercase tracking-[0.1em] text-light/55 border border-light/15 px-3.5 py-2.5">
+                                class="inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.1em] text-light/55 border border-light/15 px-3.5 py-2.5">
                                 <span class="w-1.5 h-1.5 shrink-0 bg-light" aria-hidden="true"></span>
                                 {{ $pill }}
                             </span>
@@ -81,7 +81,7 @@
             <div class="flex flex-col">
                 @foreach ($pains as $i => [$pain_lead, $pain_body])
                     <div class="flex gap-4 lg:gap-5 items-start py-6 border-t border-light/15 @if ($loop->last) border-b @endif">
-                        <span class="font-mono text-xs text-light/40 pt-1 shrink-0 w-8">{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                        <span class="text-xs text-light/40 pt-1 shrink-0 w-8">{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</span>
                         <p class="text-lg lg:text-xl leading-snug">
                             <b class="font-bold text-light">{{ $pain_lead }}</b>
                             <span class="text-light/55"> {{ $pain_body }}</span>
@@ -140,7 +140,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 border-t border-l border-light/15">
                 @foreach ($sub_services as $i => [$sub_title, $sub_desc, $sub_bullets])
                     <article class="p-7 lg:p-8 border-r border-b border-light/15 flex flex-col">
-                        <p class="font-mono text-xs tracking-[0.18em] text-light/40 mb-6">{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</p>
+                        <p class="text-xs tracking-[0.18em] text-light/40 mb-6">{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</p>
                         <h3 class="font-black uppercase tracking-tight leading-none text-light text-2xl lg:text-3xl mb-4">{{ $sub_title }}</h3>
                         <p class="text-light/55 text-sm leading-relaxed font-light mb-6">{{ $sub_desc }}</p>
                         <ul class="flex flex-col gap-2.5">
@@ -180,7 +180,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 border-t border-l border-light/15">
                 @foreach ($steps as $i => [$step_title, $step_body])
                     <div class="p-7 lg:p-7 border-r border-b border-light/15">
-                        <div class="flex items-center gap-2 font-mono text-xs text-light/40 mb-7">
+                        <div class="flex items-center gap-2 text-xs text-light/40 mb-7">
                             {{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}
                             <span class="h-px flex-1 bg-light/15"></span>
                         </div>
@@ -217,7 +217,7 @@
                         'md:border-l' => in_array($i, [1, 3], true),
                         'lg:border-l' => $i === 2,
                     ])>
-                        <div class="font-mono text-xs text-light/40 mb-5">{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</div>
+                        <div class="text-xs text-light/40 mb-5">{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</div>
                         <h3 class="font-black uppercase tracking-tight text-light text-xl lg:text-2xl mb-3">{{ $value_title }}</h3>
                         <p class="text-light/55 text-sm leading-relaxed font-light">{{ $value_body }}</p>
                     </div>
@@ -237,7 +237,7 @@
             </div>
             <div class="flex flex-wrap gap-3">
                 @foreach (['Laravel', 'PHP', 'PostgreSQL', 'Vue.js', __('REST API'), __('Webhooks & integrations'), 'Docker', 'Git'] as $tech)
-                    <span class="font-mono text-sm text-light border border-light/15 px-5 py-3 hover:bg-light hover:text-dark transition-colors duration-200">{{ $tech }}</span>
+                    <span class="text-sm text-light border border-light/15 px-5 py-3 hover:bg-light hover:text-dark transition-colors duration-200">{{ $tech }}</span>
                 @endforeach
             </div>
         </div>
@@ -272,7 +272,7 @@
                     <x-slot:heading>{{ $case_project->title }}</x-slot:heading>
                     <x-slot:contextual>
                         <a wire:navigate href="{{ route('projects') }}"
-                            class="group/cta inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.08em] text-light/55 hover:text-light transition-colors">
+                            class="group/cta inline-flex items-center gap-2 text-xs uppercase tracking-[0.08em] text-light/55 hover:text-light transition-colors">
                             {{ __('All projects') }}
                             <x-ri-arrow-right-long-line class="w-3.5 shrink-0 transition-transform group-hover/cta:translate-x-1" />
                         </a>
@@ -294,7 +294,7 @@
                     {{ __('Questions about costs, timing or technology? Here are the ones I get asked most often.') }}
                 </p>
                 <a href="{{ route('contacts') }}" wire:navigate
-                    class="group/cta mt-7 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.08em] text-light/55 hover:text-light transition-colors">
+                    class="group/cta mt-7 inline-flex items-center gap-2 text-xs uppercase tracking-[0.08em] text-light/55 hover:text-light transition-colors">
                     {{ __('Got another question? Write to me') }}
                     <x-ri-arrow-right-long-line class="w-3.5 shrink-0 transition-transform group-hover/cta:translate-x-1" />
                 </a>

@@ -3,7 +3,7 @@
     <div class="absolute inset-0 p-4 lg:p-6 flex flex-col gap-3 lg:gap-4">
         <div class="flex items-center justify-between">
             <span class="h-[9px] w-20 bg-light/15"></span>
-            <span class="font-mono text-sm text-light">+38%</span>
+            <span class="text-sm text-light">+38%</span>
         </div>
 
         {{-- chart — markers live inside the SVG (same coordinate space as the
@@ -24,10 +24,10 @@
             @foreach ([['1', 74, true], ['2', 54, true], ['3', 40, false]] as [$rank, $width, $up])
                 <div class="flex items-center gap-2.5">
                     <span
-                        class="w-5 h-5 shrink-0 border border-light/25 font-mono text-[10px] text-light/55 flex items-center justify-center">{{ $rank }}</span>
+                        class="w-5 h-5 shrink-0 border border-light/25 text-[10px] text-light/55 flex items-center justify-center">{{ $rank }}</span>
                     <span class="h-2 bg-light/25" style="width: {{ $width }}%"></span>
                     @if ($up)
-                        <span class="ml-auto font-mono text-xs text-light">&uarr;</span>
+                        <span class="ml-auto text-xs text-light">&uarr;</span>
                     @endif
                 </div>
             @endforeach

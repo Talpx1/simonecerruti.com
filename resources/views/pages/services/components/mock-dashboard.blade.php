@@ -20,7 +20,7 @@
             <div class="grid grid-cols-3 gap-2.5">
                 @foreach (['207', '8377', '98%'] as $stat)
                     <div class="border border-light/15 p-2.5 flex flex-col gap-2">
-                        <span class="font-mono text-sm lg:text-xl leading-none text-light">{{ $stat }}</span>
+                        <span class="text-sm lg:text-xl leading-none text-light">{{ $stat }}</span>
                         <span class="h-[5px] w-[64%] bg-light/25"></span>
                     </div>
                 @endforeach
