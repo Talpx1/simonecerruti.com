@@ -4,7 +4,8 @@ Instructions on how to work with the user, in order to create/edit/remove featur
 This ruleset DO apply **EVEN WHEN IN AUTO MODE**.
 
 ## Branch
-**CRITICAL**, **ALWAYS** create a dedicated branch for the main task.
+**CRITICAL**, **ALWAYS** create a dedicated git worktree for the main task in /var/www/html/.worktrees.  
+Also, add it to the vscode context as this command would do code --add /var/www/html/.worktrees/<worktree_name>/
 
 ## Plan first
 After receiving the prompt, enter plan mode an think how to perform the task in the most optimal way.  
