@@ -68,7 +68,7 @@
                     __('Real-time data: faster, better-informed decisions.'),
                     __('Goodbye to scattered spreadsheets and double data entry.'),
                 ]"
-                :button-label="__('Discover tailor-made management software')" :button-href="route('contacts')">
+                :button-label="__('Discover tailor-made management software')" :button-href="route('services.management_erp_crm')">
                 <x-slot:media>
                     <x-pages::services.components.mock-dashboard />
                 </x-slot:media>
@@ -78,7 +78,7 @@
                 @if ($area_one_project)
                     <x-slot:contextual>
                         <x-pages::services.components.contextual-link :href="route('project.show', $area_one_project->slug)"
-                            :prefix="__('Project:')" :label="$area_one_project->title" pan="cta-services-area-1" />
+                            :prefix="__('Project:')" :label="$area_one_project->title" pan="cta-services-custom-software-development" />
                     </x-slot:contextual>
                 @endif
             </x-pages::services.components.feature-row>
@@ -171,40 +171,14 @@
     </section>
 
     {{-- ============================== AI BAND ============================== --}}
-    <section class="py-12 lg:py-20">
-        <div class="max-w-7xl mx-auto px-8 lg:px-14">
-            <div
-                class="bg-light text-dark grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-14 items-center p-10 lg:p-16">
-                <div>
-                    <x-eyebrow tone="dark">{{ __('With AI') }}</x-eyebrow>
-
-                    <h2 class="mt-5 font-black uppercase leading-none tracking-tighter text-dark text-4xl lg:text-6xl">
-                        {!! __('Artificial intelligence,<br>inside your products') !!}
-                    </h2>
-
-                    <p class="mt-5 text-dark/60 text-base lg:text-lg font-light leading-relaxed max-w-[40ch]">
-                        {{ __('I build AI into the software I create — and I use it every day to develop better, more solid and reliable apps.') }}
-                    </p>
-                </div>
-
-                @php
-                    $ai_points = [
-                        [__('AI built into your products.'), __('Assistants, smart automations, semantic search and data analysis, inside your management software or platform.')],
-                        [__('AI-assisted development.'), __('I build more robust, reliable software — without compromising on code quality.')],
-                    ];
-                @endphp
-
-                <div class="flex flex-col gap-3.5">
-                    @foreach ($ai_points as [$lead, $body])
-                        <div class="flex gap-3 border border-dark/15 p-5 text-sm lg:text-base leading-relaxed">
-                            <x-ri-arrow-right-long-line class="w-4 mt-1 shrink-0 text-dark" />
-                            <span class="text-dark/80"><b class="font-bold text-dark">{{ $lead }}</b> {{ $body }}</span>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </section>
+    <x-pages::services.components.ai-band :eyebrow="__('With AI')"
+        :lead="__('I build AI into the software I create — and I use it every day to develop better, more solid and reliable apps.')"
+        :points="[
+            [__('AI built into your products.'), __('Assistants, smart automations, semantic search and data analysis, inside your management software or platform.')],
+            [__('AI-assisted development.'), __('I build more robust, reliable software — without compromising on code quality.')],
+        ]">
+        {!! __('Artificial intelligence,<br>inside your products') !!}
+    </x-pages::services.components.ai-band>
 
     {{-- ============================== CASI REALI ============================== --}}
     @if ($cards_projects->isNotEmpty() || $cards_article)

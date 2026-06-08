@@ -7,6 +7,7 @@ return [
     'about' => 'about',
     'how-i-work' => 'how-i-work',
     'services' => 'services',
+    'services-management-erp-crm' => 'services/management-software-erp-crm',
     'projects' => 'projects',
     'privacy-policy' => 'privacy-policy',
     'cookie-policy' => 'cookie-policy',

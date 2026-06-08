@@ -5,6 +5,7 @@
     'bullets' => [],
     'buttonLabel',
     'buttonHref',
+    'buttonPan' => null,
     'id' => null,
 ])
 
@@ -33,7 +34,7 @@
         </ul>
 
         <div class="flex flex-wrap items-center gap-x-6 gap-y-4">
-            <x-button :href="$buttonHref">{{ $buttonLabel }}</x-button>
+            <x-button :href="$buttonHref" :data-pan="$buttonPan">{{ $buttonLabel }}</x-button>
             {{ $contextual ?? '' }}
         </div>
     </div>

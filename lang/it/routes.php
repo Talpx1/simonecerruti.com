@@ -7,6 +7,7 @@ return [
     'about' => 'about',
     'how-i-work' => 'come-lavoro',
     'services' => 'servizi',
+    'services-management-erp-crm' => 'servizi/gestionali-erp-crm',
     'projects' => 'progetti',
     'privacy-policy' => 'privacy-policy',
     'cookie-policy' => 'cookie-policy',

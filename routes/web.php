@@ -13,6 +13,7 @@ use App\Livewire\Pages\PrivacyPolicy;
 use App\Livewire\Pages\Project\ProjectList;
 use App\Livewire\Pages\Project\ProjectShow;
 use App\Livewire\Pages\Services;
+use App\Livewire\Pages\ServicesManagementErpCrm;
 use App\Livewire\Pages\TagArchive;
 use App\Livewire\Pages\TermsAndConditions;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,8 @@ Route::group([
     Route::livewireLocalized('how-i-work', HowIWork::class)->name('how_i_work');
 
     Route::livewireLocalized('services', Services::class)->name('services');
+
+    Route::livewireLocalized('services-management-erp-crm', ServicesManagementErpCrm::class)->name('services.management_erp_crm');
 
     Route::livewireLocalized('projects', ProjectList::class)->name('projects');
 

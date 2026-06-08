@@ -8,6 +8,7 @@ use App\Livewire\Pages\CookiePolicy;
 use App\Livewire\Pages\HowIWork;
 use App\Livewire\Pages\PrivacyPolicy;
 use App\Livewire\Pages\Services;
+use App\Livewire\Pages\ServicesManagementErpCrm;
 use App\Livewire\Pages\TermsAndConditions;
 use Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter;
 use Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect;
@@ -22,6 +23,7 @@ it('renders the static pages', function (string $component) {
     'about' => [About::class],
     'how I work' => [HowIWork::class],
     'services' => [Services::class],
+    'services management erp crm' => [ServicesManagementErpCrm::class],
     'contacts' => [Contacts::class],
     'cookie policy' => [CookiePolicy::class],
     'privacy policy' => [PrivacyPolicy::class],
@@ -56,4 +58,5 @@ it('leaves non-legal pages indexable', function (string $route) {
     'about' => ['about'],
     'contacts' => ['contacts'],
     'services' => ['services'],
+    'services management erp crm' => ['services.management_erp_crm'],
 ]);

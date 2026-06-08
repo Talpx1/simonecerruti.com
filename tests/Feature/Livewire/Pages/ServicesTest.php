@@ -14,7 +14,7 @@ it('renders with no featured content', function () {
     livewire(Services::class)
         ->assertOk()
         ->assertSeeHtml('data-pan="section-impression-services-hero"')
-        ->assertDontSeeHtml('cta-services-area-1')
+        ->assertDontSeeHtml('cta-services-custom-software-development')
         ->assertDontSee(__('Real cases & insights'));
 });
 
@@ -29,6 +29,12 @@ it('routes each hero goal to its matching area anchor', function () {
         ->assertSeeHtml('href="#area-03"');
 });
 
+it('links the Area 01 button to the dedicated landing page', function () {
+    livewire(Services::class)
+        ->assertOk()
+        ->assertSeeHtml(route('services.management_erp_crm'));
+});
+
 it('surfaces the featured project in the Area 01 contextual CTA', function () {
     $project = Project::factory()->published()->featured()->create();
 
@@ -37,7 +43,7 @@ it('surfaces the featured project in the Area 01 contextual CTA', function () {
         ->assertSee($project->title)
         ->assertSee(__('Project:'))
         ->assertSeeHtml(route('project.show', $project->slug))
-        ->assertSeeHtml('data-pan="cta-services-area-1"');
+        ->assertSeeHtml('data-pan="cta-services-custom-software-development"');
 });
 
 it('keeps the Area 02 and Area 03 contextual CTAs hidden', function () {
