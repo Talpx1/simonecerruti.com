@@ -35,7 +35,7 @@
                         {{ count($this->getLoadMoreData('projects')) }} / {{ $this->getLoadMoreTotal('projects') }}
                     </span>
 
-                    <button wire:click="loadMore('projects')" wire:loading.attr="disabled"
+                    <button wire:click="loadMore('projects')" wire:loading.attr="disabled" data-pan="cta-projects-load-more"
                         class="group relative overflow-hidden border border-light/20 text-light/50 flex items-center gap-4 px-8 py-4 hover:text-dark hover:border-light transition-colors duration-300">
                         <span
                             class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
@@ -58,7 +58,7 @@
                 <span class="text-light/25">{{ __("Let's make it happen.") }}</span>
             </p>
 
-            <a wire:navigate href="{{ route('contacts') }}"
+            <a wire:navigate href="{{ route('contacts') }}" data-pan="cta-projects-contacts"
                 class="group relative overflow-hidden border border-light text-light inline-flex items-center justify-between gap-8 px-8 py-5 hover:text-dark transition-colors duration-300">
                 <span
                     class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>

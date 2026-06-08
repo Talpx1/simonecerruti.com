@@ -1,4 +1,4 @@
-@props(['articles', 'seeAllRoute'])
+@props(['articles', 'seeAllRoute', 'pan' => null])
 
 <div class="flex flex-col">
     <div
@@ -7,7 +7,7 @@
             {{ $heading }}
         </h3>
 
-        <a href="{{ $seeAllRoute }}" wire:navigate
+        <a href="{{ $seeAllRoute }}" wire:navigate @if ($pan) data-pan="{{ $pan }}" @endif
             class="text-nowrap mt-2 lg:mt-0 text-dark lg:text-light lg:text-lg 2xl:text-2xl underline decoration-2 underline-offset-4 uppercase flex items-center gap-1">
             {{ __('See all') }} <x-ri-arrow-right-long-line class="w-6" />
         </a>

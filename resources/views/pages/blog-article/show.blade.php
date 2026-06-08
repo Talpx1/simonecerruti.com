@@ -83,7 +83,7 @@
             </p>
             <div class="flex flex-col gap-2">
                 @foreach ($blog_article->relatables as $relatable)
-                    <a wire:navigate href="{{ $relatable->show_route }}"
+                    <a wire:navigate href="{{ $relatable->show_route }}" data-pan="cta-blog-article-related"
                         class="w-fit group flex flex-col text-light/50 hover:text-light transition-colors duration-200 text-sm">
                         <span class="text-light/25 text-[10px] tracking-widest uppercase">
                             {{ $relatable->post_type }}
@@ -169,7 +169,7 @@
                 {{ __('Want to work together?') }}<br>
                 <span class="text-light/25">{{ __("Let's build something great.") }}</span>
             </p>
-            <a wire:navigate href="{{ route('contacts') }}"
+            <a wire:navigate href="{{ route('contacts') }}" data-pan="cta-blog-article-contacts"
                 class="group relative overflow-hidden border border-light text-light inline-flex items-center gap-8 px-8 py-5 hover:text-dark transition-colors duration-300">
                 <span
                     class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>

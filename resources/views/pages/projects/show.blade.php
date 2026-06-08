@@ -28,7 +28,7 @@
 
                 <div class="flex gap-4">
                     @if ($project->external_link)
-                        <a href="{{ $project->external_link }}" target="_blank" rel="noopener"
+                        <a href="{{ $project->external_link }}" target="_blank" rel="noopener" data-pan="cta-project-visit-site"
                             class="group relative overflow-hidden border border-light text-light flex items-center gap-3 px-6 py-3 hover:text-dark transition-colors duration-300 text-sm font-semibold uppercase tracking-widest">
                             <span
                                 class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
@@ -96,7 +96,7 @@
                     <div class="flex flex-col gap-2">
                         @if ($project->links->isNotEmpty())
                             @foreach ($project->links->pluck('url') as $link)
-                                <a href="{{ $link }}" target="_blank" rel="noopener"
+                                <a href="{{ $link }}" target="_blank" rel="noopener" data-pan="cta-project-related-link"
                                     class="flex items-center gap-2 text-light/50 hover:text-light transition-colors duration-200 text-sm underline underline-offset-4">
                                     {{ ucfirst(Uri::of($link)->host()) }}
                                     <x-ri-external-link-line class="w-3" />
@@ -105,7 +105,7 @@
                         @endif
 
                         @if ($project->external_link)
-                            <a href="{{ $project->external_link }}" target="_blank" rel="noopener"
+                            <a href="{{ $project->external_link }}" target="_blank" rel="noopener" data-pan="cta-project-website"
                                 class="flex items-center gap-2 text-light/50 hover:text-light transition-colors duration-200 text-sm underline underline-offset-4">
                                 {{ __('Website') }}
                                 <x-ri-external-link-line class="w-3" />
@@ -143,7 +143,7 @@
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4">
-                <a wire:navigate href="{{ route('contacts') }}"
+                <a wire:navigate href="{{ route('contacts') }}" data-pan="cta-project-contacts"
                     class="group relative overflow-hidden border border-light text-light flex items-center justify-between gap-8 px-8 py-5 hover:text-dark transition-colors duration-300">
                     <span
                         class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>

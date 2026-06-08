@@ -90,7 +90,7 @@
                     @endif
                 </div>
 
-                <a wire:navigate href="{{ route('blog_article.show', $this->featured->slug) }}"
+                <a wire:navigate href="{{ route('blog_article.show', $this->featured->slug) }}" data-pan="cta-blog-featured-read"
                     class="w-fit group relative overflow-hidden border border-light text-light flex items-center gap-4 px-8 py-4 hover:text-dark transition-colors duration-300">
                     <span
                         class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
@@ -120,7 +120,7 @@
                         {{ count($this->getLoadMoreData('articles')) }} / {{ $this->getLoadMoreTotal('articles') }}
                     </span>
 
-                    <button wire:click="loadMore('articles')" wire:loading.attr="disabled"
+                    <button wire:click="loadMore('articles')" wire:loading.attr="disabled" data-pan="cta-blog-load-more"
                         class="group relative overflow-hidden border border-light/20 text-light/50 flex items-center gap-4 px-8 py-4 hover:text-dark hover:border-light transition-colors duration-300">
                         <span
                             class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>

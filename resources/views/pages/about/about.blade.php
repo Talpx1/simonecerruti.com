@@ -36,7 +36,7 @@
                     __('TypeScript'),
                     __('Tailwind'),
                 ]" />
-                <a wire:navigate href="{{ route('how_i_work') }}"
+                <a wire:navigate href="{{ route('how_i_work') }}" data-pan="cta-about-method"
                     class="mt-4 font-semibold text-sm uppercase underline underline-offset-4 flex items-center gap-1">
                     {{ __('Discover how I work') }} <x-ri-arrow-right-long-line class="w-4" />
                 </a>
@@ -122,7 +122,7 @@
             </x-ping-dot>
 
             <div class="space-y-4">
-                <a wire:navigate href="{{ route('how_i_work') }}" class="border border-light/[.15] p-5 block">
+                <a wire:navigate href="{{ route('how_i_work') }}" data-pan="cta-about-card-method" class="border border-light/[.15] p-5 block">
                     <p class="text-[9px] tracking-[.2em] uppercase text-light/35 mb-2">
                         {{ __('Process & Method') }}
                     </p>
@@ -135,7 +135,7 @@
                     </p>
                 </a>
 
-                <a wire:navigate href="{{ route('projects') }}" class="border border-light/[.15] p-5 block">
+                <a wire:navigate href="{{ route('projects') }}" data-pan="cta-about-card-projects" class="border border-light/[.15] p-5 block">
                     <p class="text-[9px] tracking-[.2em] uppercase text-light/35 mb-2">{{ __('Portfolio') }}</p>
                     <p
                         class="text-xl xl:text-2xl -tracking-tighter leading-none text-light uppercase flex items-center gap-1">
@@ -147,13 +147,13 @@
 
                 <div class="border border-light/[.15] p-5">
                     <p class="text-[9px] -tracking-tight uppercase text-light/35 mb-3">{{ __('Direct contact') }}</p>
-                    <a href="mailto:{{ config('company.contacts.email') }}"
+                    <a href="mailto:{{ config('company.contacts.email') }}" data-pan="cta-about-email"
                         class="block text-[16px] xl:text-lg tracking-wider text-light underline underline-offset-2 decoration-2 break-all hover:opacity-60 transition-opacity duration-200">
                         {{ config('company.contacts.email') }}
                     </a>
                 </div>
 
-                <a wire:navigate href="{{ route('contacts') }}"
+                <a wire:navigate href="{{ route('contacts') }}" data-pan="cta-about-contacts"
                     class="flex items-center justify-between bg-light text-dark px-5 py-4">
                     <span
                         class="font-display text-sm xl:text-lg tracking-wider uppercase">{{ __('Don\'t wait, let\'s talk') }}</span>

@@ -37,7 +37,7 @@
             </a>
 
             @if ($project->external_link)
-                <a href="{{ $project->external_link }}" target="_blank" rel="noopener"
+                <a href="{{ $project->external_link }}" target="_blank" rel="noopener" data-pan="cta-card-project-visit-site"
                     class="group/ext relative overflow-hidden border border-light/10 text-light/30 flex items-center gap-3 px-5 py-3 hover:text-dark hover:border-light transition-colors duration-300">
                     <span
                         class="absolute inset-0 bg-light translate-y-full group-hover/ext:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>

@@ -13,7 +13,7 @@
                 ]) !!}
             </h3>
 
-            <a href="{{ route('how_i_work') }}" wire:navigate
+            <a href="{{ route('how_i_work') }}" wire:navigate data-pan="cta-home-method"
                 class="text-lg lg:text-2xl underline decoration-2 underline-offset-4 font-semibold flex items-center gap-1">
                 {{ __('Discover my method') }} <x-ri-arrow-right-long-line class="w-6" />
             </a>
