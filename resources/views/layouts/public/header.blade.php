@@ -28,7 +28,7 @@
             let lastScrollY = window.scrollY;
             let isHidden = false;
 
-            window.addEventListener("scroll", () => {
+            const onScroll = () => {
                 const currentScrollY = window.scrollY;
                 const menuOpen = document.body?._x_dataStack?.[0]?.isMenuOpen ?? false;
 
@@ -65,6 +65,16 @@
                 }
 
                 lastScrollY = currentScrollY;
+            };
+
+            window.addEventListener("scroll", onScroll);
+
+            // The header re-renders on every wire:navigate, so drop the listener
+            // before the next page swaps in to avoid stacking duplicates.
+            document.addEventListener('livewire:navigating', () => {
+                window.removeEventListener("scroll", onScroll);
+            }, {
+                once: true
             });
         }, {
             once: true

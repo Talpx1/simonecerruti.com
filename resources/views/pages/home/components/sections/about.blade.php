@@ -48,8 +48,6 @@
 
             if (!img) return;
 
-            const strength = 0.005;
-
             const handleMouseMove = (e) => {
                 const rect = img.getBoundingClientRect();
                 const imgCenterX = rect.left + rect.width / 2;
@@ -72,7 +70,13 @@
 
             document.addEventListener('mousemove', handleMouseMove);
 
-            window.listenersToRemove.push(['mousemove', handleMouseMove]);
+            // Self-clean before the next page swaps in (the section re-renders on
+            // every wire:navigate), instead of relying on a shared global list.
+            document.addEventListener('livewire:navigating', () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+            }, {
+                once: true
+            });
         }, {
             once: true
         })

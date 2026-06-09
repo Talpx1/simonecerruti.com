@@ -42,7 +42,13 @@
 
 @push('scripts')
     <script data-navigate-once>
+        let footerObserver = null;
+
         document.addEventListener('livewire:navigated', () => {
+            // Re-runs on every navigation, so tear down the previous observer
+            // before wiring a new one to the freshly rendered footer.
+            footerObserver?.disconnect();
+
             const widget = document.querySelector('#floating-contacts');
             const footer = document.querySelector('#main-footer');
 
@@ -50,10 +56,11 @@
                 return
             }
 
-            new IntersectionObserver(([entry]) => {
+            footerObserver = new IntersectionObserver(([entry]) => {
                 widget.classList.toggle('opacity-0', entry.isIntersecting);
                 widget.classList.toggle('pointer-events-none', entry.isIntersecting);
-            }).observe(footer);
+            });
+            footerObserver.observe(footer);
         })
     </script>
 @endpush

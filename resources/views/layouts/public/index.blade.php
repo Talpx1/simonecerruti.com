@@ -67,20 +67,9 @@
 
     @filamentScripts
     <script data-navigate-once>
-        document.addEventListener('livewire:navigated', () => {
-            window.listenersToRemove = []
-        }, {
-            once: true
-        })
-
         document.addEventListener('livewire:navigating', () => {
             gsapScrollTrigger.getAll().forEach(t => t.kill());
             gsap.globalTimeline.clear();
-
-            window.listenersToRemove.forEach(l => {
-                document.removeEventListener(l[0], l[1])
-            })
-            window.listenersToRemove = []
         }, {
             once: true
         })
