@@ -1,7 +1,7 @@
 <div>
     <section class="flex flex-col px-8 lg:px-14 pb-20 pt-16 border-b border-light/10">
         <div class="flex items-end justify-between gap-8">
-            <h1 data-reveal class="font-black uppercase leading-none tracking-tight text-7xl lg:text-8xl xl:text-9xl text-light/20">
+            <h1 wire:ignore data-reveal class="font-black uppercase leading-none tracking-tight text-7xl lg:text-8xl xl:text-9xl text-light/20">
                 {{ __('Blog') }}
             </h1>
 
@@ -12,7 +12,7 @@
             @endif
         </div>
 
-        <p data-reveal class="mt-10 text-light/60 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
+        <p wire:ignore data-reveal class="mt-10 text-light/60 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
             {{ __('Thoughts, case studies and technical writing on software, design and the craft of building things that last.') }}
         </p>
 

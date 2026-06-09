@@ -65,14 +65,18 @@ window.addEventListener('resize', (e) => {
 // SCROLL REVEAL
 // Fades [data-reveal] elements up as they scroll into view. The hidden start
 // state lives in CSS (gated on scripting/reduced-motion), so this only animates
-// toward the visible state. Runs on every Livewire navigation; the triggers are
-// killed by the global livewire:navigating cleanup handler.
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+// toward the visible state. The reduced-motion preference is re-read on each run
+// (so a mid-session OS toggle is honoured), and the previous page's triggers are
+// explicitly killed so none are left bound to detached DOM after a navigation.
+let revealTriggers = []
 
 function initScrollReveal() {
-    if (prefersReducedMotion) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         return
     }
+
+    revealTriggers.forEach((trigger) => trigger.kill())
+    revealTriggers = []
 
     const els = gsap.utils.toArray('[data-reveal]')
 
@@ -80,17 +84,22 @@ function initScrollReveal() {
         return
     }
 
-    ScrollTrigger.batch(els, {
+    revealTriggers = ScrollTrigger.batch(els, {
         start: 'top 88%',
         once: true,
         onEnter: (batch) => gsap.fromTo(batch,
             { opacity: 0, y: 20 },
             { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', stagger: 0.08, overwrite: true },
         ),
-    })
+    }) || []
 
     ScrollTrigger.refresh()
 }
 
 document.addEventListener('livewire:navigated', initScrollReveal)
+
+// Tells the inline failsafe in the layout that the reveal pipeline wired up, so it
+// leaves the [data-reveal] hidden state alone. If this module throws before here
+// (e.g. a failed import), the flag stays unset and the failsafe reveals everything.
+window.__revealReady = true
 

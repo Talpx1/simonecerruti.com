@@ -38,6 +38,14 @@
 
         window.__appEnv = '{{ app()->environment() }}';
         window._clarityId = '{{ config('services.clarity.id') }}';
+
+        // Failsafe: if the reveal pipeline (public.js) fails to load or throws,
+        // reveal all [data-reveal] content instead of leaving it stuck hidden.
+        setTimeout(() => {
+            if (!window.__revealReady) {
+                document.documentElement.classList.add('reveal-fallback');
+            }
+        }, 2500);
     </script>
 </head>
 

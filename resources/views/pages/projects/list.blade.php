@@ -1,7 +1,7 @@
 <div>
     <section class="flex flex-col px-8 lg:px-14 pb-20 pt-16">
         <div class="flex items-end justify-between gap-8">
-            <h1 data-reveal class="font-black uppercase leading-none tracking-tight text-6xl lg:text-8xl xl:text-9xl">
+            <h1 wire:ignore data-reveal class="font-black uppercase leading-none tracking-tight text-6xl lg:text-8xl xl:text-9xl">
                 {{ __('Projects') }}
             </h1>
 
@@ -12,7 +12,7 @@
             @endif
         </div>
 
-        <p data-reveal class="mt-10 text-light/60 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
+        <p wire:ignore data-reveal class="mt-10 text-light/60 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
             {{ __('A selection of work built with care. Designed to last, scale, and solve a real problem.') }}
         </p>
     </section>
@@ -51,7 +51,7 @@
         @endif
     </section>
 
-    <x-cta-section>
+    <x-cta-section wire:ignore>
         <x-slot:title>{{ __('Have a project in mind?') }}</x-slot:title>
         <x-slot:subtitle>{{ __("Let's make it happen.") }}</x-slot:subtitle>
 

@@ -58,6 +58,14 @@
     }
 }
 
+/* Failsafe: if public.js never signals readiness (its bundle failed to load or
+   threw), the inline script in the layout adds .reveal-fallback so the hidden
+   content is shown instead of staying invisible. */
+html.reveal-fallback [data-reveal] {
+    opacity: 1;
+    transform: none;
+}
+
 .fi-fo-field-label-required-mark, .fi-fo-field-label-content{
     @apply !text-light
 }
