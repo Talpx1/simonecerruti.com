@@ -48,19 +48,19 @@ class ContactForm extends Component implements HasSchemas {
         return [
             TextInput::make('first_name')
                 ->label(__('First Name'))
-                ->placeholder('Mario')
+                ->placeholder(__('contact_form.placeholder.first_name'))
                 ->required()
                 ->maxLength(255),
 
             TextInput::make('last_name')
                 ->label(__('Last Name'))
-                ->placeholder('Rossi')
+                ->placeholder(__('contact_form.placeholder.last_name'))
                 ->required()
                 ->maxLength(255),
 
             TextInput::make('email')
                 ->label(__('Email'))
-                ->placeholder('mario@azienda.it')
+                ->placeholder(__('contact_form.placeholder.email'))
                 ->email()
                 ->inputMode('email')
                 ->required(),

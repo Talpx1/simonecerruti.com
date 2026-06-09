@@ -263,5 +263,8 @@
     "Who the site represents — feeds the WebSite and Person/Organization schema.": "Who the site represents — feeds the WebSite and Person/Organization schema.",
     "Whoops!": "Whoops!",
     "Yes": "Yes",
-    "You are receiving this email because we received a password reset request for your account.": "You are receiving this email because we received a password reset request for your account."
+    "You are receiving this email because we received a password reset request for your account.": "You are receiving this email because we received a password reset request for your account.",
+    "contact_form.placeholder.first_name": "John",
+    "contact_form.placeholder.last_name": "Doe",
+    "contact_form.placeholder.email": "john@company.com"
 }

@@ -1099,5 +1099,8 @@
     "Your business name": "Nome della tua attività",
     "Your time is <br> :tag too valuable for repetition. :close_tag": "Il tuo tempo è <br> :tag troppo prezioso per la ripetizione. :close_tag",
     "Zero Manual Errors": "Zero errori manuali",
-    "Zero real-time visibility.": "Zero visibilità in tempo reale."
+    "Zero real-time visibility.": "Zero visibilità in tempo reale.",
+    "contact_form.placeholder.first_name": "Mario",
+    "contact_form.placeholder.last_name": "Rossi",
+    "contact_form.placeholder.email": "mario@azienda.it"
 }
