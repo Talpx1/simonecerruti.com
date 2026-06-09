@@ -31,3 +31,10 @@ it('whitelists every static data-pan used in the views', function () {
 
     expect($offenders)->toBe([]);
 });
+
+it('keeps the allow-list within the tracked-names cap', function () {
+    // laravel/pan silently drops any name once max_analytics distinct names are
+    // recorded, so the allow-list must never grow past the cap.
+    expect(count(config('analytics.pan.allowed_analytics')))
+        ->toBeLessThanOrEqual(config()->integer('analytics.pan.max_analytics'));
+});

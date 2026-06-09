@@ -83,7 +83,7 @@ return [
      * names are tracked.
      */
     'pan' => [
-        'max_analytics' => 100,
+        'max_analytics' => 200,
 
         'allowed_analytics' => [
             'cta-nav-home',
