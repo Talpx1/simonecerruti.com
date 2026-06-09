@@ -57,7 +57,7 @@
     </section>
 
     {{-- ============================== AREE ============================== --}}
-    <section id="aree" data-reveal class="border-t border-light/15 py-20 lg:py-28">
+    <x-pages::services.components.section id="aree">
         <div class="max-w-7xl mx-auto px-8 lg:px-14 space-y-20 lg:space-y-32">
 
             {{-- Area 01 — Management software · ERP · CRM --}}
@@ -132,10 +132,10 @@
             </x-pages::services.components.feature-row>
 
         </div>
-    </section>
+    </x-pages::services.components.section>
 
     {{-- ============================== VALORI ============================== --}}
-    <section data-reveal class="border-t border-light/15 py-20 lg:py-28">
+    <x-pages::services.components.section>
         <div class="max-w-7xl mx-auto px-8 lg:px-14">
             <x-eyebrow>{{ __('Why bespoke') }}</x-eyebrow>
 
@@ -168,7 +168,7 @@
                 @endforeach
             </div>
         </div>
-    </section>
+    </x-pages::services.components.section>
 
     {{-- ============================== AI BAND ============================== --}}
     <x-pages::services.components.ai-band :eyebrow="__('With AI')"
@@ -182,7 +182,7 @@
 
     {{-- ============================== CASI REALI ============================== --}}
     @if ($cards_projects->isNotEmpty() || $cards_article)
-        <section data-reveal class="border-t border-light/15 py-20 lg:py-28">
+        <x-pages::services.components.section>
             <div class="max-w-7xl mx-auto px-8 lg:px-14">
                 <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                     <div>
@@ -210,11 +210,11 @@
                     @endif
                 </div>
             </div>
-        </section>
+        </x-pages::services.components.section>
     @endif
 
     {{-- ============================== CTA FINALE ============================== --}}
-    <section data-reveal class="border-t border-light/15 py-20 lg:py-32">
+    <x-pages::services.components.section padding="py-20 lg:py-32">
         <div class="max-w-7xl mx-auto px-8 lg:px-14">
             <x-eyebrow>{{ __("Don't wait") }}</x-eyebrow>
 
@@ -237,5 +237,5 @@
                     data-pan="cta-services-projects">{{ __('See projects') }}</x-button>
             </div>
         </div>
-    </section>
+    </x-pages::services.components.section>
 </div>
