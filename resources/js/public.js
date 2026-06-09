@@ -85,7 +85,7 @@ function initScrollReveal() {
     }
 
     revealTriggers = ScrollTrigger.batch(els, {
-        start: 'top 88%',
+        start: 'top 80%',
         once: true,
         onEnter: (batch) => gsap.fromTo(batch,
             { opacity: 0, y: 20 },
