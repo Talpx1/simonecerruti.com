@@ -17,11 +17,30 @@ services:
       - "~/.ssh:/var/www/.ssh"
     env_file:
       - .env
+    environment:
+      # Project-scoped GitHub auth: gh reads GH_TOKEN from the repo .env instead
+      # of the host-wide ~/.config/gh, so the container can't act on other repos.
+      - GH_TOKEN=${GH_TOKEN:-}
+      - GITHUB_PERSONAL_ACCESS_TOKEN=${GH_TOKEN:-}
+      # Context7 API key auth, avoids the interactive OAuth login whose state
+      # lives outside the persisted volumes and is lost on container rebuild.
+      - CONTEXT7_API_KEY=${CONTEXT7_API_KEY:-}
+      # Passed here and not only through .env so it also applies to `docker exec` shells,
+      # which is where test runs are launched from.
+      - XDEBUG_MODE=${XDEBUG_MODE:-off}
+    extra_hosts:
+      # Lets Xdebug reach the IDE on the host (host.docker.internal is not
+      # auto-resolved on native/Linux Docker, only on Docker Desktop).
+      - "host.docker.internal:host-gateway"
     networks:
       - simone_cerruti_website
     depends_on:
-      - db
-      - mailpit
+      # Without the health condition the queue workers start against a Postgres that is still
+      # initializing, fail, and exhaust Supervisor's retries with no self-recovery.
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
     healthcheck:
       test: ["CMD", "/healthcheck.sh"]
       interval: 30s

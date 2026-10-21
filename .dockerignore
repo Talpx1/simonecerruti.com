@@ -41,6 +41,8 @@
 # AI / editor / IDE configs
 /.ai
 /.claude
+/.codegraph
+/.worktrees
 /.cursor
 /.copilot
 /CLAUDE.md

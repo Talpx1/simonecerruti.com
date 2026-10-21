@@ -1,7 +1,7 @@
 # ========================
 # 1. BASE
 # ========================
-FROM php:8.5-fpm AS base
+FROM php:8.5.12-fpm AS base
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -162,11 +162,25 @@ RUN apt-get update && \
     docker-php-ext-install pcntl && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Coverage + debugging drivers (dev only): PCOV drives Pest/PHPUnit coverage (fast),
+# Xdebug stays off by default (zero overhead) and is enabled on demand via XDEBUG_MODE.
+RUN pecl install xdebug-3.5.3 pcov-1.0.12 && \
+    docker-php-ext-enable xdebug pcov && \
+    rm -rf /tmp/pear
+COPY ./docker/configs/xdebug.ini /usr/local/etc/php/conf.d/zz-xdebug.ini
+COPY ./docker/configs/pcov.ini /usr/local/etc/php/conf.d/zz-pcov.ini
+
 # Node (for running vite dev server inside the container)
 RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm@latest && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# CodeGraph (local code-intelligence graph + MCP server for the agents). The npm package ships
+# the native binary as an optionalDependency, so the build needs no runtime download. Telemetry
+# defaults to ON upstream and the home dir isn't a persisted volume, so it's disabled via env.
+ENV CODEGRAPH_TELEMETRY=0
+RUN npm install -g @colbymchenry/codegraph@1.6.0 && npm cache clean --force
 
 # Claude CLI
 RUN install -d -m 0755 /etc/apt/keyrings && \
