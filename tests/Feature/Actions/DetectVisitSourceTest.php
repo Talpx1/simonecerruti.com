@@ -137,3 +137,16 @@ describe('direct visits', function () {
             ->and($data->referrer_host)->toBeNull();
     });
 });
+
+describe('malformed referrers', function () {
+    it('treats an unparsable referrer url as no referrer', function () {
+        $data = DetectVisitSource::run(
+            utm_source: null, utm_medium: null, utm_campaign: null, utm_term: null, utm_content: null,
+            referrer_url: 'http:///broken',
+            current_host: 'example.test',
+        );
+
+        expect($data->source)->toBe(VisitSourceType::UNKNOWN->value)
+            ->and($data->referrer_host)->toBeNull();
+    });
+});
