@@ -25,3 +25,8 @@ Homestead.yaml
 Thumbs.db
 TODO.md
 .playwright-mcp
+/.codegraph
+/.worktrees
+/.claude/worktrees
+.worktree-slot
+.env.testing

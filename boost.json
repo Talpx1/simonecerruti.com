@@ -15,6 +15,10 @@
         "laravel-best-practices",
         "pest-testing",
         "tailwindcss-development",
-        "laravel-actions"
+        "laravel-actions",
+        "browser-smoke-testing",
+        "dev-workflow-finalize",
+        "dev-workflow-setup",
+        "worktree-local-server-setup"
     ]
 }
