@@ -30,7 +30,7 @@ class DetectVisitSource {
 
             return new VisitSourceData(
                 source: $campaign->source ?? $utm_source ?? VisitSourceType::UNKNOWN->value,
-                medium: $campaign?->medium->value ?? $utm_medium,
+                medium: $campaign?->medium instanceof VisitMediumType ? $campaign->medium->value : $utm_medium,
                 campaign_id: $campaign?->id,
                 utm_source: $utm_source,
                 utm_medium: $utm_medium,

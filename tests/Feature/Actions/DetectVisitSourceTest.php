@@ -31,6 +31,27 @@ describe('utm_campaign matching', function () {
             ->and($data->utm_campaign)->toBe('spring-launch');
     });
 
+    it('falls back to utm_medium when the campaign has no medium', function () {
+        Campaign::factory()->create([
+            'slug' => 'no-medium',
+            'source' => 'newsletter',
+            'medium' => null,
+        ]);
+
+        $data = DetectVisitSource::run(
+            utm_source: null,
+            utm_medium: 'email',
+            utm_campaign: 'no-medium',
+            utm_term: null,
+            utm_content: null,
+            referrer_url: null,
+            current_host: 'example.test',
+        );
+
+        expect($data->source)->toBe('newsletter')
+            ->and($data->medium)->toBe('email');
+    });
+
     it('ignores ended campaigns and falls back to raw utm_source', function () {
         Campaign::factory()->ended()->create([
             'slug' => 'dead-campaign',
