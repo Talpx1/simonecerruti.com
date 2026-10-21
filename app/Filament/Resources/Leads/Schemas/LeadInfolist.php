@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Leads\Schemas;
 
 use App\Models\Lead;
+use Filament\Infolists\Components\Entry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Schema;
@@ -22,7 +23,7 @@ class LeadInfolist {
                     ->columnSpanFull()
                     ->label(fn (Lead $record) => $record->leadable->lead_title)
                     ->schema(fn (Lead $record) => collect($record->leadable->getInfolistComponents())
-                        ->map(fn ($component) => $component->statePath('leadable.'.$component->getName()))
+                        ->map(fn (Entry $component) => $component->statePath('leadable.'.$component->getName()))
                         ->toArray()
                     ),
             ]);

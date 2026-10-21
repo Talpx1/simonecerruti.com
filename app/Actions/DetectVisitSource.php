@@ -9,6 +9,9 @@ use App\Enums\VisitMediumType;
 use App\Enums\VisitSourceType;
 use App\Models\Campaign;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Safe\Exceptions\UrlException;
+
+use function Safe\parse_url;
 
 class DetectVisitSource {
     use AsAction;
@@ -27,7 +30,7 @@ class DetectVisitSource {
 
             return new VisitSourceData(
                 source: $campaign->source ?? $utm_source ?? VisitSourceType::UNKNOWN->value,
-                medium: $campaign?->medium?->value ?? $utm_medium,
+                medium: $campaign?->medium->value ?? $utm_medium,
                 campaign_id: $campaign?->id,
                 utm_source: $utm_source,
                 utm_medium: $utm_medium,
@@ -114,7 +117,11 @@ class DetectVisitSource {
             return null;
         }
 
-        $host = parse_url($url, PHP_URL_HOST);
+        try {
+            $host = parse_url($url, PHP_URL_HOST);
+        } catch (UrlException) {
+            return null;
+        }
 
         return is_string($host) ? strtolower($host) : null;
     }

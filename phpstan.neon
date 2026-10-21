@@ -24,11 +24,6 @@ parameters:
         -
             identifier: theCodingMachineSafe.function
             path: config/mail.php
-        # Livewire's fluent view macros (->title(), ->layout()) are untyped, so PHPStan cannot
-        # infer that render() returns a View even though it does so at runtime.
-        -
-            message: '#::render\(\) should return Illuminate\\View\\View but returns mixed\.#'
-            path: app/Livewire
         # Spatie\Tags\Tag name/slug are translatable JSON columns; checkModelProperties cannot
         # validate "slug->{locale}" JSON-path where clauses against the vendor model.
         -
@@ -49,10 +44,14 @@ parameters:
         # registration; PHPStan cannot connect $this back from the Macro::register() contract.
         -
             identifier: variable.undefined
-            path: app/Filament/Macros/Field
+            paths:
+                - app/Filament/Macros/Field
+                - app/Macros/Request
         -
             identifier: method.nonObject
-            path: app/Filament/Macros/Field
+            paths:
+                - app/Filament/Macros/Field
+                - app/Macros/Request
         # JSON-path where clauses on translatable columns ("slug->{locale}") cannot be validated
         # by checkModelProperties, which only understands literal column names.
         -

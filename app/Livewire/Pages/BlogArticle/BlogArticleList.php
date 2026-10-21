@@ -61,7 +61,7 @@ class BlogArticleList extends Component {
 
         return Tag::query()
             ->where('type', TagTypes::BLOG_CATEGORY->value)
-            ->where(function ($query): void {
+            ->where(function (Builder $query): void {
                 foreach (array_keys(App::supportedLocales()) as $locale) {
                     $query->orWhere("slug->{$locale}", $this->active_category);
                 }

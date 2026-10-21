@@ -125,7 +125,7 @@ class CampaignsTable {
 
                 Filter::make('active_only')
                     ->label(__('Active only'))
-                    ->query(fn (Builder $query) => $query->active()),
+                    ->query(fn (Builder $query) => $query->scopes(['active'])),
             ])
             ->recordActions([
                 EditAction::make(),

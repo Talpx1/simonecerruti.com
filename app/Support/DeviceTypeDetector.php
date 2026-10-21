@@ -17,10 +17,10 @@ class DeviceTypeDetector {
      *
      * @var list<string>
      */
-    private const MOBILE_DEVICES = ['smartphone', 'feature phone', 'phablet', 'portable media player', 'wearable'];
+    private const array MOBILE_DEVICES = ['smartphone', 'feature phone', 'phablet', 'portable media player', 'wearable'];
 
     /** @var list<string> */
-    private const DESKTOP_DEVICES = ['desktop', 'tv', 'console', 'smart display', 'car browser', 'smart speaker'];
+    private const array DESKTOP_DEVICES = ['desktop', 'tv', 'console', 'smart display', 'car browser', 'smart speaker'];
 
     /**
      * Last-resort substring patterns for clients Matomo leaves unclassified:
@@ -29,9 +29,9 @@ class DeviceTypeDetector {
      * the pre-Matomo detector and are consulted ONLY when Matomo yields
      * UNKNOWN, so they never override a positive Matomo verdict.
      */
-    private const FALLBACK_BOT_PATTERN = '/(bot|crawler|spider|crawling|slurp|facebookexternalhit|embedly|preview|fetch|whatsapp|telegram|petalbot|bytespider|semrush|ahrefs|mj12bot)/i';
+    private const string FALLBACK_BOT_PATTERN = '/(bot|crawler|spider|crawling|slurp|facebookexternalhit|embedly|preview|fetch|whatsapp|telegram|petalbot|bytespider|semrush|ahrefs|mj12bot)/i';
 
-    private const FALLBACK_MOBILE_PATTERN = '/(mobi|iphone|ipod|android.*mobile|windows phone|blackberry|opera mini|opera mobi|iemobile)/i';
+    private const string FALLBACK_MOBILE_PATTERN = '/(mobi|iphone|ipod|android.*mobile|windows phone|blackberry|opera mini|opera mobi|iemobile)/i';
 
     /**
      * Resolve the coarse device bucket for a User-Agent using Matomo's

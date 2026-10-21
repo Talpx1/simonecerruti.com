@@ -91,7 +91,7 @@ trait SeedDb {
         return false;
     }
 
-    /** @return string[] */
+    /** @return non-empty-list<non-empty-string> */
     protected static function upsertKeys(): array {
         return ['id'];
     }

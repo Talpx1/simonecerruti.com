@@ -23,14 +23,14 @@ enum BlogCategories: int implements SyncsToDatabase {
         return [
             'id' => $this->value,
 
-            'name' => collect(App::supportedLocales())
-                ->mapWithKeys(fn ($locale_conf, $locale) => [
-                    (string) $locale => $this->getLabel((string) $locale),
+            'name' => collect(array_keys(App::supportedLocales()))
+                ->mapWithKeys(fn (string $locale) => [
+                    $locale => $this->getLabel($locale),
                 ])->toJson(),
 
-            'slug' => collect(App::supportedLocales())
-                ->mapWithKeys(fn ($locale_conf, $locale) => [
-                    (string) $locale => Str::slug($this->getLabel((string) $locale), language: (string) $locale),
+            'slug' => collect(array_keys(App::supportedLocales()))
+                ->mapWithKeys(fn (string $locale) => [
+                    $locale => Str::slug($this->getLabel($locale), language: $locale),
                 ])->toJson(),
 
             'type' => TagTypes::BLOG_CATEGORY->value,

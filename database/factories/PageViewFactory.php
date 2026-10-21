@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PageViewFactory extends Factory {
     /**
-     * @return array<string, mixed>
+     * @return array<model-property<PageView>, mixed>
      */
     public function definition(): array {
         return [

@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
  */
 class CampaignFactory extends Factory {
     /**
-     * @return array<string, mixed>
+     * @return array<model-property<Campaign>, mixed>
      */
     public function definition(): array {
         $name = fake()->unique()->company();

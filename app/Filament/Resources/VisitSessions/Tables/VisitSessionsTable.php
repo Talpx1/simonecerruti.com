@@ -8,6 +8,7 @@ use App\Enums\DeviceType;
 use App\Enums\TagTypes;
 use App\Enums\VisitMediumType;
 use App\Enums\VisitSourceType;
+use App\Models\VisitSession;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
@@ -16,6 +17,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Spatie\Tags\Tag;
 
 class VisitSessionsTable {
@@ -57,7 +59,7 @@ class VisitSessionsTable {
                 TextColumn::make('landing_path')
                     ->label(__('Landing'))
                     ->limit(40)
-                    ->tooltip(fn ($record): ?string => $record?->landing_path)
+                    ->tooltip(fn (?VisitSession $record): ?string => $record?->landing_path)
                     ->toggleable(),
 
                 TextColumn::make('pageview_count')
@@ -97,20 +99,20 @@ class VisitSessionsTable {
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn (Builder $q, $date) => $q->where('started_at', '>=', $date),
+                                fn (Builder $q, mixed $date) => $q->where('visit_sessions.started_at', '>=', $date),
                             )
                             ->when(
                                 $data['until'] ?? null,
-                                fn (Builder $q, $date) => $q->where('started_at', '<=', $date),
+                                fn (Builder $q, mixed $date) => $q->where('visit_sessions.started_at', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
                         if (! empty($data['from'])) {
-                            $indicators['from'] = __('From').' '.$data['from'];
+                            $indicators['from'] = __('From').' '.Arr::string($data, 'from');
                         }
                         if (! empty($data['until'])) {
-                            $indicators['until'] = __('Until').' '.$data['until'];
+                            $indicators['until'] = __('Until').' '.Arr::string($data, 'until');
                         }
 
                         return $indicators;

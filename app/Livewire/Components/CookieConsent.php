@@ -15,9 +15,9 @@ class CookieConsent extends Component {
     | Cookie names & durations
     |--------------------------------------------------------------------------
     */
-    const COOKIE_NAME = 'cookie_consent';
+    public const string COOKIE_NAME = 'cookie_consent';
 
-    const COOKIE_DURATION = 60 * 24 * 180; // 180 days in minutes
+    public const int COOKIE_DURATION = 60 * 24 * 180; // 180 days in minutes
 
     /*
     |--------------------------------------------------------------------------

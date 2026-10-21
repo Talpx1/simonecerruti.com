@@ -12,7 +12,7 @@ class BotSignalDetector {
      * headers on navigation requests. A request whose UA claims to be one of
      * these but carries no Sec-Fetch-Site header is almost certainly forged.
      */
-    private const SEC_FETCH_CAPABLE_PATTERN = '/(chrome|chromium|crios|edg|opr|firefox|fxios)/i';
+    private const string SEC_FETCH_CAPABLE_PATTERN = '/(chrome|chromium|crios|edg|opr|firefox|fxios)/i';
 
     /**
      * Score a request's headers for signs of an automated client masquerading

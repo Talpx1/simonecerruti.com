@@ -34,7 +34,7 @@ class CampaignForm {
                             ->hiddenLabel()
                             ->copyable()
                             ->state(function (?Campaign $record): ?string {
-                                if ($record === null) {
+                                if (! $record instanceof Campaign) {
                                     return null;
                                 }
 

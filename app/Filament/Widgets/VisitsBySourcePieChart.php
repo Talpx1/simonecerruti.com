@@ -23,6 +23,7 @@ class VisitsBySourcePieChart extends ChartWidget {
             ->selectRaw('source, COUNT(*) as total')
             ->groupBy('source')
             ->orderByDesc('total')
+            ->toBase()
             ->pluck('total', 'source');
 
         $labels = $rows->keys()

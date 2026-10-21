@@ -27,6 +27,7 @@ class VisitsByDayChart extends ChartWidget {
             ->selectRaw('DATE(started_at) as day, COUNT(*) as total')
             ->groupBy('day')
             ->orderBy('day')
+            ->toBase()
             ->pluck('total', 'day');
 
         $labels = [];
@@ -36,7 +37,8 @@ class VisitsByDayChart extends ChartWidget {
             $day = $start->addDays($i);
             $key = $day->toDateString();
             $labels[] = $day->format('d/m');
-            $values[] = (int) ($rows[$key] ?? 0);
+            $total = $rows[$key] ?? 0;
+            $values[] = is_numeric($total) ? (int) $total : 0;
         }
 
         return [

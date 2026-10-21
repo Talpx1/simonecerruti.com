@@ -43,7 +43,7 @@ class SeoComposer {
      * @param  array<array-key, mixed>  $data
      */
     private function title(array $data): string {
-        $separator = $this->separator();
+        $separator = SeoSetting::current()->title_separator;
         $app_name = config()->string('app.name');
         $title = $this->stringField($data, 'title') ?? $app_name;
 
@@ -67,13 +67,6 @@ class SeoComposer {
         return isset($data[$key]) && is_string($data[$key]) && $data[$key] !== ''
             ? $data[$key]
             : null;
-    }
-
-    /**
-     * Title separator, from the cached global settings (no per-request DB hit).
-     */
-    private function separator(): string {
-        return SeoSetting::current()->title_separator;
     }
 
     /**

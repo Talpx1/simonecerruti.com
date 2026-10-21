@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\VisitSessions\RelationManagers;
 
+use App\Models\PageView;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -24,7 +25,7 @@ class PageViewsRelationManager extends RelationManager {
                     ->label(__('Path'))
                     ->searchable()
                     ->limit(60)
-                    ->tooltip(fn ($record): ?string => $record?->url_path),
+                    ->tooltip(fn (?PageView $record): ?string => $record?->url_path),
 
                 TextColumn::make('route_name')
                     ->label(__('Route'))

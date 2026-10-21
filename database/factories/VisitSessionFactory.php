@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
  */
 class VisitSessionFactory extends Factory {
     /**
-     * @return array<string, mixed>
+     * @return array<model-property<VisitSession>, mixed>
      */
     public function definition(): array {
         $started_at = fake()->dateTimeBetween('-30 days', 'now');

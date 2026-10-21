@@ -18,7 +18,7 @@ class TopCampaignsTable extends TableWidget {
                 Campaign::query()
                     ->active()
                     ->withCount([
-                        'visitSessions as recent_count' => fn (Builder $q) => $q->where('started_at', '>=', now()->subDays(30)),
+                        'visitSessions as recent_count' => fn (Builder $q) => $q->where('visit_sessions.started_at', '>=', now()->subDays(30)),
                     ])
                     ->orderByDesc('recent_count')
                     ->limit(10),
