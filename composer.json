@@ -19,7 +19,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.2",
+        "php": "^8.5.12",
         "andreiio/blade-remix-icon": "^3.9",
         "blade-ui-kit/blade-heroicons": "^2.6",
         "filament/filament": "^5.0",
@@ -27,37 +27,44 @@
         "filament/spatie-laravel-tags-plugin": "^5.0",
         "lara-zeus/spatie-translatable": "^2.0",
         "laravel-lang/common": "^6.7",
-        "laravel/framework": "^12.0",
+        "laravel/framework": "^13.35",
         "laravel/slack-notification-channel": "^3.6",
-        "laravel/tinker": "^2.10.1",
+        "laravel/tinker": "^3.0",
         "lorisleiva/laravel-actions": "^2.9",
         "matomo/device-detector": "^6.5",
-        "mcamara/laravel-localization": "^2.3",
-        "owenvoke/blade-fontawesome": "^2.9",
+        "mcamara/laravel-localization": "^2.4",
+        "owenvoke/blade-fontawesome": "^3.3",
         "panphp/pan": "^0.1.10",
         "spatie/laravel-activitylog": "^4.10",
-        "spatie/laravel-backup": "^9.3",
+        "spatie/laravel-backup": "^10.3.3",
         "spatie/laravel-sitemap": "^8.0",
-        "staudenmeir/belongs-to-through": "^2.17",
-        "staudenmeir/eloquent-has-many-deep": "^1.21",
+        "staudenmeir/belongs-to-through": "^2.18",
+        "staudenmeir/eloquent-has-many-deep": "^1.22",
         "thecodingmachine/safe": "^3.3"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.16",
+        "barryvdh/laravel-debugbar": "^4.4",
         "driftingly/rector-laravel": "^2.0",
         "fakerphp/faker": "^1.23",
         "filament/upgrade": "^5.0",
         "larastan/larastan": "^3.7",
-        "laravel/boost": "^2.4",
+        "laravel/boost": "^2.10",
         "laravel/pail": "^1.2.2",
+        "laravel/pao": "^1.1.5",
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
         "laravel/telescope": "^5.14",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "pestphp/pest": "^4.1",
-        "pestphp/pest-plugin-laravel": "^4.0",
-        "pestphp/pest-plugin-livewire": "^4.0",
+        "pestphp/pest": "^5.3",
+        "pestphp/pest-plugin-agent": "^5.0",
+        "pestphp/pest-plugin-faker": "^5.0",
+        "pestphp/pest-plugin-laravel": "^5.0",
+        "pestphp/pest-plugin-livewire": "^5.0",
+        "pestphp/pest-plugin-mutate": "^5.0.2",
+        "pestphp/pest-plugin-phpstan": "^5.2",
+        "pestphp/pest-plugin-rector": "^5.0.6",
+        "pestphp/pest-plugin-type-coverage": "^5.0.3",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "rector/rector": "^2.2",
@@ -89,8 +96,70 @@
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
         ],
         "test": [
-            "@php artisan config:clear --ansi",
-            "@php artisan test"
+            "@php artisan config:clear --ansi @no_additional_args",
+            "@php -d memory_limit=-1 ./vendor/bin/pest --compact --parallel --tia"
+        ],
+        "test:agentic": [
+            "@php artisan config:clear --ansi @no_additional_args",
+            "@php -d memory_limit=-1 ./vendor/bin/pest --compact --parallel --tia --processes=4"
+        ],
+        "coverage": [
+            "@php artisan config:clear --ansi @no_additional_args",
+            "@php -d memory_limit=-1 ./vendor/bin/pest --compact --parallel --tia --coverage --min=95"
+        ],
+        "coverage:agentic": [
+            "@php artisan config:clear --ansi @no_additional_args",
+            "@php -d memory_limit=-1 ./vendor/bin/pest --compact --parallel --tia --processes=4 --coverage --min=95"
+        ],
+        "type-coverage": [
+            "@php artisan config:clear --ansi @no_additional_args",
+            "@php -d memory_limit=-1 ./vendor/bin/pest --compact --parallel --tia --type-coverage --exactly=100.0"
+        ],
+        "type-coverage:agentic": [
+            "@php artisan config:clear --ansi @no_additional_args",
+            "@php -d memory_limit=-1 ./vendor/bin/pest --compact --parallel --tia --processes=4 --type-coverage --exactly=100.0"
+        ],
+        "mutate": [
+            "@php artisan config:clear --ansi @no_additional_args",
+            "@php -d memory_limit=-1 ./vendor/bin/pest --compact --parallel --mutate --covered-only --min=99 --ignore=app/Providers/AppServiceProvider.php,app/Providers/Filament/AdminPanelProvider.php,app/Providers/TelescopeServiceProvider.php"
+        ],
+        "mutate:agentic": [
+            "@php artisan config:clear --ansi @no_additional_args",
+            "@php -d memory_limit=-1 ./vendor/bin/pest --compact --parallel --processes=4 --mutate --covered-only --min=99 --ignore=app/Providers/AppServiceProvider.php,app/Providers/Filament/AdminPanelProvider.php,app/Providers/TelescopeServiceProvider.php"
+        ],
+        "pint": [
+            "./vendor/bin/pint --parallel"
+        ],
+        "pint:agentic": [
+            "./vendor/bin/pint --dirty --parallel --format agent"
+        ],
+        "dry-pint": [
+            "./vendor/bin/pint --parallel --test"
+        ],
+        "rector": [
+            "./vendor/bin/rector",
+            "./vendor/bin/rector --config=rector-tests.php"
+        ],
+        "rector:agentic": [
+            "./vendor/bin/rector --no-progress-bar --memory-limit=-1 --output-format=json",
+            "./vendor/bin/rector --config=rector-tests.php --no-progress-bar --memory-limit=-1 --output-format=json"
+        ],
+        "dry-rector": [
+            "./vendor/bin/rector --dry-run",
+            "./vendor/bin/rector --config=rector-tests.php --dry-run"
+        ],
+        "stan": [
+            "./vendor/bin/phpstan analyze --memory-limit=-1"
+        ],
+        "stan:agentic": [
+            "./vendor/bin/phpstan analyze --memory-limit=-1 --no-progress --error-format=json"
+        ],
+        "qa": [
+            "@dry-pint",
+            "@stan",
+            "@dry-rector",
+            "@type-coverage",
+            "@coverage"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
@@ -112,18 +181,6 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
-        ],
-        "dry-pint": [
-            "./vendor/bin/pint --test"
-        ],
-        "pint": [
-            "./vendor/bin/pint"
-        ],
-        "dry-rector": [
-            "./vendor/bin/rector --dry-run"
-        ],
-        "rector": [
-            "./vendor/bin/rector"
         ]
     },
     "extra": {
