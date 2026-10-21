@@ -12,9 +12,12 @@
     ],
     "sail": false,
     "skills": [
+        "infer-conventions",
         "laravel-best-practices",
-        "pest-testing",
+        "testing-best-practices",
+        "telescope-debugging",
         "tailwindcss-development",
+        "filament-development",
         "laravel-actions",
         "browser-smoke-testing",
         "dev-workflow-finalize",
