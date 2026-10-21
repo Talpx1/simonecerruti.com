@@ -13,7 +13,7 @@ describe('primary key', function () {
 
         expect($session->id)
             ->toBeString()
-            ->and(preg_match('/^[0-9a-f-]{36}$/i', $session->id))->toBe(1);
+            ->and($session->id)->toMatch('/^[0-9a-f-]{36}$/i');
     });
 });
 

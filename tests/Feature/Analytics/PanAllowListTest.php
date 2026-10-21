@@ -29,7 +29,7 @@ it('whitelists every static data-pan used in the views', function () {
         }
     }
 
-    expect($offenders)->toBe([]);
+    expect($offenders)->toBeEmpty();
 });
 
 it('keeps the allow-list within the tracked-names cap', function () {
