@@ -43,3 +43,14 @@ it('stores the description translatably and casts json columns', function () {
         ->and($settings->social_profiles)->toBe(['https://example.test/a', 'https://example.test/b'])
         ->and($settings->website_schema)->toBeFalse();
 });
+
+it('is restored as a model instance from a serializing cache store', function () {
+    config()->set('cache.stores.serialized', ['driver' => 'array', 'serialize' => true]);
+    config()->set('cache.default', 'serialized');
+
+    SeoSetting::factory()->create(['title_separator' => ' · ']);
+    SeoSetting::current();
+
+    expect(SeoSetting::current())->toBeInstanceOf(SeoSetting::class)
+        ->and(SeoSetting::current()->title_separator)->toBe(' · ');
+});

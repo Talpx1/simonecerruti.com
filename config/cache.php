@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\SeoSetting;
 use Illuminate\Support\Str;
 
 return [
@@ -106,5 +107,19 @@ return [
     */
 
     'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-cache-'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Serializable Classes
+    |--------------------------------------------------------------------------
+    |
+    | Classes allowed to be unserialized from the cache. Any other object is
+    | restored as an incomplete class, so every cached object must be listed.
+    |
+    */
+
+    'serializable_classes' => [
+        SeoSetting::class,
+    ],
 
 ];
