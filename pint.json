@@ -1,5 +1,8 @@
 {
     "preset": "laravel",
+    "exclude": [
+        "lang"
+    ],
     "rules": {
         "braces_position": {
             "allow_single_line_anonymous_functions": true,
