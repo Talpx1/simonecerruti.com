@@ -8,6 +8,7 @@ use App\Enums\DeviceType;
 use App\Enums\TagTypes;
 use App\Enums\VisitMediumType;
 use App\Enums\VisitSourceType;
+use App\Models\Tag;
 use App\Models\VisitSession;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
@@ -18,7 +19,6 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
-use Spatie\Tags\Tag;
 
 class VisitSessionsTable {
     public static function configure(Table $table): Table {

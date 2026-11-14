@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Actions\CalculateReadingTime;
 use App\DataTransferObjects\SeoConfig;
 use App\Enums\BlogArticleStatuses;
 use App\Enums\SchemaType;
@@ -49,6 +50,7 @@ use Spatie\Translatable\HasTranslations;
  * @property-read bool $can_be_crawled
  * @property-read string $featured_image_url
  * @property-read string $summary_or_excerpt
+ * @property-read int $reading_time
  * @property-read User $author
  * @property-read Seo|null $seo
  */
@@ -136,6 +138,11 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
                 ?: $this->getFirstMediaUrl('featured_image')
                 ?: asset('images/fallback.jpg')
         );
+    }
+
+    /** @return Attribute<int, never> */
+    protected function readingTime(): Attribute {
+        return Attribute::get(fn (): int => CalculateReadingTime::run($this->content));
     }
 
     /** @return Attribute<bool, never> */
@@ -255,6 +262,7 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
             return self::query()
                 ->wherePublished()
                 ->where('id', '!=', $this->id)
+                ->with(['tags', 'media', 'author'])
                 ->orderByDesc('published_at')
                 ->limit($limit)
                 ->get();
@@ -264,6 +272,7 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
             ->wherePublished()
             ->where('id', '!=', $this->id)
             ->withCount(['tags as shared_tags_count' => fn (Builder $query) => $query->whereIn('tags.id', $tag_ids)])
+            ->with(['tags', 'media', 'author'])
             ->orderByDesc('shared_tags_count')
             ->orderByDesc('published_at')
             ->limit($limit)

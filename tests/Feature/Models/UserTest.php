@@ -28,3 +28,8 @@ describe('canAccessPanel', function () {
         expect($user->canAccessPanel($this->panel))->toBeFalse();
     });
 });
+
+it('derives up to two uppercase initials from the name', function () {
+    expect(User::factory()->make(['name' => 'simone cerruti rossi'])->initials)->toBe('SC')
+        ->and(User::factory()->make(['name' => 'Madonna'])->initials)->toBe('M');
+});

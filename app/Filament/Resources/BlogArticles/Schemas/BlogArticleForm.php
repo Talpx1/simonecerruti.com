@@ -7,6 +7,7 @@ namespace App\Filament\Resources\BlogArticles\Schemas;
 use App\Enums\BlogArticleStatuses;
 use App\Enums\TagTypes;
 use App\Filament\Components\SeoFields;
+use App\Filament\RichContentBlocks\GalleryBlock;
 use App\Models\Project;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MorphToSelect;
@@ -96,11 +97,12 @@ class BlogArticleForm {
                     ->label(__('Content'))
                     ->required()
                     ->columnSpanFull()
+                    ->customBlocks([GalleryBlock::class])
                     ->toolbarButtons([
                         ['bold', 'italic', 'underline', 'strike', 'highlight', 'subscript', 'superscript', 'link', 'textColor'],
                         ['h2', 'h3', 'alignStart', 'alignCenter', 'alignEnd'],
                         ['blockquote', 'bulletList', 'orderedList'],
-                        ['table', 'grid', 'gridDelete'/* 'attachFiles' */],
+                        ['table', 'grid', 'gridDelete', 'customBlocks'/* 'attachFiles' */],
                         ['clearFormatting', 'undo', 'redo'],
                     ]),
 

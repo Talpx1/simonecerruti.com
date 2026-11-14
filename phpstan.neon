@@ -24,11 +24,6 @@ parameters:
         -
             identifier: theCodingMachineSafe.function
             path: config/mail.php
-        # Spatie\Tags\Tag name/slug are translatable JSON columns; checkModelProperties cannot
-        # validate "slug->{locale}" JSON-path where clauses against the vendor model.
-        -
-            message: '#expects .*model property of Spatie\\Tags\\Tag#'
-            path: app/Livewire
         # Defensive method_exists() checks in shared traits are analysed per-using-class, where
         # PHPStan sees a branch as always true/false even though other users rely on it.
         -

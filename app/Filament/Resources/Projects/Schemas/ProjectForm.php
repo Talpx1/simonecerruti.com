@@ -6,8 +6,10 @@ namespace App\Filament\Resources\Projects\Schemas;
 
 use App\Enums\TagTypes;
 use App\Filament\Components\SeoFields;
+use App\Filament\Resources\Clients\Schemas\ClientForm;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
@@ -37,9 +39,12 @@ class ProjectForm {
                             })
                             ->columnSpanFull(),
 
-                        TextInput::make('client')
+                        Select::make('client_id')
                             ->label('Cliente')
-                            ->maxLength(255),
+                            ->relationship('client', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->createOptionForm(ClientForm::getFields()),
 
                         TextInput::make('slug')
                             ->label('Slug')
@@ -61,6 +66,50 @@ class ProjectForm {
                             ->label('Descrizione Completa')
                             ->fileAttachmentsDisk('public')
                             ->fileAttachmentsDirectory('projects/attachments'),
+                    ]),
+
+                Section::make('Storia del Progetto')
+                    ->schema([
+                        Textarea::make('starting_point')
+                            ->label('Punto di Partenza')
+                            ->rows(3),
+
+                        Textarea::make('goal')
+                            ->label('Obiettivo')
+                            ->rows(3),
+
+                        TextInput::make('outcome')
+                            ->label('Risultato')
+                            ->helperText('Risultato in una frase breve, mostrato come affermazione durante lo scroll.')
+                            ->maxLength(255),
+
+                        TextInput::make('kind')
+                            ->label('Tipologia')
+                            ->helperText('Etichetta breve, ad esempio "Piattaforma web". Se vuota, vengono usati i nomi dei tag uniti da " + ".')
+                            ->maxLength(255),
+
+                        Repeater::make('features')
+                            ->label('Funzionalità')
+                            ->schema([
+                                TextInput::make('title')
+                                    ->label('Titolo')
+                                    ->required()
+                                    ->maxLength(255),
+
+                                Textarea::make('description')
+                                    ->label('Descrizione')
+                                    ->rows(2),
+                            ])
+                            ->defaultItems(0)
+                            ->addActionLabel('Aggiungi funzionalità')
+                            ->reorderable()
+                            ->collapsible()
+                            ->columnSpanFull(),
+
+                        RichEditor::make('home_summary')
+                            ->label('Sintesi per la Home')
+                            ->toolbarButtons(['bold'])
+                            ->columnSpanFull(),
                     ]),
 
                 Section::make('Link')

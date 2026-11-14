@@ -178,3 +178,9 @@ describe('relatedBlogArticles', function () {
             ->and($related->pluck('id')->all())->not->toContain($article->id);
     });
 });
+
+it('exposes the reading time in minutes', function () {
+    $article = BlogArticle::factory()->make(['content' => str_repeat('word ', 500)]);
+
+    expect($article->reading_time)->toBe(3);
+});
