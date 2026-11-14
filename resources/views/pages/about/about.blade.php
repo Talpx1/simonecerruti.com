@@ -1,173 +1,150 @@
-<div class="min-h-full h-full max-h-full px-4 md:px-16 py-4" id="about">
-    <h1 data-reveal class="text-7xl lg:text-8xl text-center font-black">{{ __('ABOUT') }}</h1>
-    <div class="grid grid-cols-1 lg:grid-cols-[3fr_1fr] mt-16 gap-y-16 lg:gap-y-0">
-        <div
-            class="space-y-16 lg:border-r lg:border-light pr-8 [&_h2]:text-4xl [&_h2]:mb-4 [&_h2]:uppercase [&_h2]:font-bold [&_p]:text-sm [&_p]:max-w-xl [&_p]:text-light/70 [&_p]:leading-loose">
-            <div data-reveal>
-                <h2>{{ __('BIO') }}</h2>
-                <div class="space-y-4">
-                    <p>{{ __("I'm Simone, an independent software developer based in Biella, Italy.") }} </p>
-                    <blockquote class="border-l-2 border-light pl-5 text-[15px] italic leading-relaxed font-light">
-                        {{ __('I build software that quietly changes how businesses work.') }}
-                    </blockquote>
-                    <p>
-                        {{ __('Not just websites, but above all complex management systems, ERPs, platforms, automation, AI-powered tools, and CRMs — software that sits at the core of a business and keeps everything running.') }}
-                    </p>
-                    <p>
-                        {{ __("Over time, I've worked on large-scale, structured projects where performance, reliability, and scalability aren't optional — they're the foundation.") }}
-                    </p>
-                    <p>
-                        {{ __("I'm not just a developer. I'm a technical partner. I step into your domain, truly understand how your business works, and guide you toward solutions that are often better than what you initially imagined.") }}
-                    </p>
-                </div>
-                <x-chip-list class="mt-5" :entries="[
-                    __('AI'),
-                    __('ERP'),
-                    __('CRM'),
-                    __('WEB PLATFORMS'),
-                    __('Automation'),
-                    __('PWA'),
-                    __('Laravel'),
-                    __('Livewire'),
-                    __('Filament'),
-                    __('PHP'),
-                    __('Vue'),
-                    __('Docker'),
-                    __('TypeScript'),
-                    __('Tailwind'),
-                ]" />
-                <a wire:navigate href="{{ route('how_i_work') }}" data-pan="cta-about-method"
-                    class="mt-4 font-semibold text-sm uppercase underline underline-offset-4 flex items-center gap-1">
-                    {{ __('Discover how I work') }} <x-ri-arrow-right-long-line class="w-4" />
-                </a>
-            </div>
+@php
+    $timeline = [
+        ['As a kid', 'Paint and the first question', 'A doodle becomes an image on a screen. How? I never stopped asking myself that.'],
+        ['School', 'Computer science, no other way', 'There was no plan B. The computer science track was the only path that made sense.'],
+        ['Web agency', 'Learning the trade in the field', 'Websites, deadlines, real clients. The best school to learn what the people who pay actually need.'],
+        ['Business software', 'The step up', 'From websites to management systems: processes, data, people who work with them eight hours a day.'],
+        ['Lead Developer', 'Leading a custom ERP', 'Architecture, technical choices, responsibility for the result. No longer just code.'],
+        ['Today', 'Independent, by choice', 'I work with companies that entrust me with their projects, follow clients directly on commission and teach programming at a web academy. Only bespoke projects, with my own method.'],
+    ];
 
-            <div id="about-how-i-started" data-reveal>
-                <h2>{{ __('HOW I STARTED') }}</h2>
-                <div class="space-y-4">
-                    <p>{{ __("Here's the story: I was around 4 to 6 years old when my mom, while ironing, would let me mess around in Paint — yes, the doodling program that came on every Windows computer — on one of those old CRT monitors with a trackball mouse.") }}
-                    </p>
-                    <p>{{ __('I asked myself: "how does it know what I want to do? How does it make my drawing appear?"') }}
-                    </p>
-                    <p>{{ __("From that moment, I found myself choosing a technical high school focused on computer science. A choice I've never regretted — quite the opposite, one I've always loved and still do.") }}
-                    </p>
-                    <p>{{ __('What followed were various jobs: first at web agencies, then as a software developer for management systems, eventually becoming a Lead Developer.') }}
-                    </p>
-                    <p>{{ __("Now I'm following my dream: developing software as a freelancer, focusing on quality, on bespoke solutions, and on truly caring for the needs of each of my partners.") }}
-                    </p>
-                </div>
-            </div>
+    $hobbies = [
+        ['Friends', 'The thing that gives me the most joy, which is why it comes before everything else. A pizza, a board game or an evening out dancing is enough: what matters is being myself and recharging with the right people.'],
+        ['Motorbikes', 'My friends are to blame, and they did not have to insist much. In May 2025 my first bike arrived, a red and silver Kawasaki Z650. A passion that was just waiting to be discovered.'],
+        ['Graphic design', 'It was born together with my passion for code. As a teenager I spent hours on photo manipulation in Photoshop and motion design in After Effects, and in high school I seriously considered it as a career. In the end software won, but I carry that eye into every interface I design.'],
+        ['Ethical hacking', 'I am far from an expert level, and I say it without any problem. But the curiosity is real and comes from far away: reverse engineering fascinates me because it takes something apart to understand how it was built. Challenges on dedicated platforms taught me to think about security from another angle. If tech asked me for another path, this would be it.'],
+        ['Video games', 'They have been with me forever: from a NES-like console with Super Mario to the PC of today. Among the ones I love are Ratchet & Clank, Spyro, Horizon, The Division, Rocket League and Trackmania. And the list would be much longer.'],
+        ['Gym and running', 'More a conscious choice than a declared passion. With a job that is all head and chair, the physical counterweight is not optional: it is maintenance, just like for software.'],
+    ];
+@endphp
 
-            <div data-reveal>
-                <h2>{{ __('WHY I DO IT') }}</h2>
-                <div class="space-y-4">
-                    <p>{{ __('Out of passion.') }}</p>
-                    <p>{{ __('Before being my job, software design and development are, first and foremost, my passion, my hobby, my genuine interest.') }}
-                    </p>
-                    <p>{{ __("The more skills I acquire, the more my passion grows. New technologies don't tire me — they excite me. What many call work, for me becomes more deeply rooted every day as a genuine interest, almost an instinct.") }}
-                    </p>
-                    <p>{{ __("That's why I'm a freelancer. Not by chance, but by deliberate choice: to work according to my own philosophies, to truly bring my vision to every project, to give the right attention to my partners and to the details of their software. The quality I pursue can't be improvised in an environment that doesn't allow for it.") }}
-                    </p>
-                </div>
-            </div>
+<div>
+    <x-page-hero fx="pix" :label="__('Simone Cerruti, independent software developer. I am not an agency.')"
+        :rows="[__('I am not'), __('an agency.')]">
+        <p>{!! __('I am <b>Simone Cerruti</b>, an independent software developer. I build management systems, ERPs, CRMs, platforms and automations for companies that stopped <em>adapting</em> to other people\'s tools.') !!}</p>
 
-            <div data-reveal>
-                <h2>{{ __('ALWAYS LEARNING') }}</h2>
-                <div class="space-y-4">
-                    <p>{{ __("In software, evolution isn't linear — it's exponential. Keeping up isn't optional, it's part of the craft. And for me, it's also one of the most stimulating parts.") }}
-                    </p>
-                    <p>{{ __("Over the past few years I've integrated technologies that have profoundly changed the way I work — not to follow trends, but because the results I deliver to my partners must always match the moment we're living in.") }}
-                    </p>
-                    <p>{{ __("AI is the most significant phenomenon of this period, and it would be dishonest to ignore it. It's now an essential part not only of the industry, but of the developer's role itself. What once required a team of specialists can today be achieved by a single person — as long as they know how to use AI as a tool, not a shortcut. Someone who understands what it produces, evaluates its output, and maintains control.") }}
-                    </p>
-                    <p>{{ __("Over the past period, AI-assisted development has become one of my strengths. I've integrated these tools into my workflows deliberately, with concrete results: I work better, I work faster, and the final output is qualitatively superior.") }}
-                    </p>
-                </div>
-            </div>
+        <x-slot:actions>
+            <a class="cta xl mag hero-cta" href="{{ route('contacts') }}" wire:navigate data-cursor="{{ __('Write to me') }}"
+                data-pan="cta-about-contacts"><span>{{ __('Let\'s talk') }}</span><span class="ar">→</span></a>
+        </x-slot:actions>
+    </x-page-hero>
 
-            <div data-reveal>
-                <h2>{{ __('PERSONAL INTERESTS') }}</h2>
-                <div class="space-y-4">
-                    <p>{{ __("I've talked at length about the professional side, and I'm proud of it. But I also want to dedicate a few lines to the person behind it all — because when you choose a partner to work with, you're ultimately choosing a person too.") }}
-                    </p>
-                    <p><b>{{ __('Friends.') }}</b>
-                        {{ __("It's the first item because it's the one that brings me the most joy, and it's worth saying that clearly. A pizza, a board game night, an evening out dancing — the context doesn't matter much. What matters is being able to be myself, in the company of people with whom I can let my guard down and genuinely recharge.") }}
-                    </p>
-                    <p><b>{{ __('Motorcycle.') }}</b>
-                        {{ __("Technically it's my friends' fault, but they didn't have to try very hard. In May 2025 I got my first motorcycle: a Kawasaki Z650, red and silver. I didn't know it yet, but it was already a passion just waiting to be discovered.") }}
-                    </p>
-                    <p><b>{{ __('Graphic design.') }}</b>
-                        {{ __('A passion born alongside my love for code. As I was taking my first steps in tech, I was also experimenting with photo manipulation in Photoshop and motion design in After Effects. During high school I even seriously considered making it my career. In the end, software won — but the skills I built along the way have helped me enormously throughout my professional journey.') }}
-                    </p>
-                    <p><b>{{ __('Ethical hacking.') }}</b>
-                        {{ __("To be honest, I'm far from an expert — and far from an intermediate level too. In ethical hacking, the distance between \"a few notions\" and \"expert\" is enormous. But the interest is genuine and goes back a long way: reverse engineering has always fascinated me, that backwards approach of taking something apart to understand how it was built. I've explored the subject through challenges on dedicated platforms, learned to think differently about software security, and those skills have proven genuinely useful in my work. If one day I were to change direction in tech, this would be a strong contender.") }}
-                    </p>
-                    <p><b>{{ __('Video games.') }}</b>
-                        {{ __('From a NES-like console and Super Mario all the way to PC today — video games have been with me my whole life. Among the titles closest to my heart: Ratchet & Clank, Spyro, Horizon, The Division, Rocket League, Trackmania. And many others that would make this list far too long.') }}
-                    </p>
-                    <p><b>{{ __('Fitness.') }}</b>
-                        {{ __("Gym and running — not out of declared passion, but out of conscious choice. When your work is entirely mental and sedentary, the physical counterbalance isn't optional.") }}
-                    </p>
+    <section class="sec">
+        <div class="ab-intro">
+            <div class="portrait" data-cursor="{{ __('Hi') }}">
+                <img src="{{ asset('images/about_protrait.webp') }}" alt="{{ __('Portrait of Simone Cerruti') }}"
+                    loading="lazy">
+                <span class="ghost" aria-hidden="true">SC</span>
+            </div>
+            <div>
+                <h2 class="h2 rv">{!! __('I do not<br><em>just build websites.</em>') !!}</h2>
+                <p class="lead rv" style="margin-top: 28px">{{ __('I develop complex, bespoke software: management systems, ERPs, CRMs, web platforms, automations and AI-based tools. Performance, reliability and scalability are not optional.') }}</p>
+                <p class="lead rv" style="margin-top: 18px">{{ __('I am not a supplier. I am the technical partner who learns how your business works before touching a line of code.') }}</p>
+                <div class="tags rv" style="margin-top: 28px">
+                    @foreach (['ERP', 'CRM', __('Web platforms'), __('Automations'), 'PWA', 'AI'] as $tag)
+                        <span>{{ $tag }}</span>
+                    @endforeach
                 </div>
+                <div style="margin-top: 30px"><a class="more" href="{{ route('how_i_work') }}" wire:navigate
+                        data-pan="cta-about-method">{{ __('How I work') }} <span>→</span></a></div>
             </div>
         </div>
+    </section>
 
-        <div
-            class="lg:sticky lg:top-8 lg:h-screen flex flex-col lg:overflow-hidden items-center gap-8 xl:gap-16 lg:pl-8">
-
-            <x-app-logo class="max-w-72 2xl:max-w-96" />
-
-            <x-ping-dot>
-                {{ __('Available for new projects') }}
-            </x-ping-dot>
-
-            <div class="space-y-4">
-                <a wire:navigate href="{{ route('how_i_work') }}" data-pan="cta-about-card-method" class="border border-light/[.15] p-5 block">
-                    <p class="text-[9px] tracking-[.2em] uppercase text-light/35 mb-2">
-                        {{ __('Process & Method') }}
-                    </p>
-                    <p
-                        class="text-xl xl:text-2xl -tracking-tighter leading-none text-light uppercase flex items-center gap-1">
-                        {{ __('How I work') }} <x-ri-arrow-right-long-line class="w-6" />
-                    </p>
-                    <p class="mt-1.5 text-xs text-light/40 leading-relaxed">
-                        {{ __('Discover how I turn an idea into a product that truly works.') }}
-                    </p>
-                </a>
-
-                <a wire:navigate href="{{ route('projects') }}" data-pan="cta-about-card-projects" class="border border-light/[.15] p-5 block">
-                    <p class="text-[9px] tracking-[.2em] uppercase text-light/35 mb-2">{{ __('Portfolio') }}</p>
-                    <p
-                        class="text-xl xl:text-2xl -tracking-tighter leading-none text-light uppercase flex items-center gap-1">
-                        {{ __('Projects') }} <x-ri-arrow-right-long-line class="w-6" /></p>
-                    <p class="mt-1.5 text-xs text-light/40 leading-relaxed">
-                        {{ __('What I\'ve built, for whom, and with which technologies.') }}
-                    </p>
-                </a>
-
-                <div class="border border-light/[.15] p-5">
-                    <p class="text-[9px] -tracking-tight uppercase text-light/35 mb-3">{{ __('Direct contact') }}</p>
-                    <a href="mailto:{{ config('company.contacts.email') }}" data-pan="cta-about-email"
-                        class="block text-[16px] xl:text-lg tracking-wider text-light underline underline-offset-2 decoration-2 break-all hover:opacity-60 transition-opacity duration-200">
-                        {{ config('company.contacts.email') }}
-                    </a>
+    <section class="sec" id="about-how-i-started" data-fx="about">
+        <div class="paint-wrap">
+            <div>
+                <h2 class="h2 rv">{!! __('It all started<br>with <span class="acc">Paint.</span>') !!}</h2>
+                <p class="lead rv" style="margin-top: 28px">{{ __('I was between 4 and 6 years old. My mom was ironing and let me draw in Paint, on an old computer with a CRT monitor and a trackball mouse. And I kept wondering: how does this box understand what I want to draw, and make it appear on the screen?') }}</p>
+                <p class="lead rv" style="margin-top: 18px">{{ __('That question never left. In high school I chose computer science without a second thought, and I never regretted it.') }}</p>
+            </div>
+            <div class="crt rv">
+                <div class="crt-bar"><span>{{ __('Draw. Like I used to.') }}</span>
+                    <div class="crt-tools" role="group" aria-label="{{ __('Colors') }}">
+                        <button type="button" class="on" data-col="#0A0A0A" style="background: #0A0A0A"
+                            aria-label="{{ __('Black') }}"></button>
+                        <button type="button" data-col="#FF4A1C" style="background: #FF4A1C"
+                            aria-label="{{ __('Orange') }}"></button>
+                        <button type="button" data-col="#2F6BFF" style="background: #2F6BFF"
+                            aria-label="{{ __('Blue') }}"></button>
+                        <button type="button" class="clr" id="clear">{{ __('Clear') }}</button>
+                    </div>
                 </div>
-
-                <a wire:navigate href="{{ route('contacts') }}" data-pan="cta-about-contacts"
-                    class="flex items-center justify-between bg-light text-dark px-5 py-4">
-                    <span
-                        class="font-display text-sm xl:text-lg tracking-wider uppercase">{{ __('Don\'t wait, let\'s talk') }}</span>
-                    <x-ri-arrow-right-long-line class="w-4" />
-                </a>
-
-                <div class="pt-4 border-t border-light/[.07]">
-                    <x-social-links variant="icons" placement="about" />
-                </div>
-
+                <canvas id="paint" width="320" height="240" aria-label="{{ __('Paint-style drawing area') }}"
+                    data-cursor="{{ __('Draw') }}" data-hello="{{ __('hello') }}"></canvas>
             </div>
         </div>
-    </div>
+    </section>
+
+    <section class="sec tight">
+        <div class="sec-head"><h2 class="h2 rv">{!! __('The road<span class="acc">.</span>') !!}</h2>
+            <p class="lead mute rv">{{ __('From the first question to today.') }}</p>
+        </div>
+        <div class="timeline">
+            @foreach ($timeline as [$when, $title, $text])
+                <div class="tl-row rv"><span class="when">{{ __($when) }}</span>
+                    <div>
+                        <h3>{{ __($title) }}</h3>
+                        <p>{{ __($text) }}</p>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </section>
+
+    <section class="sec">
+        <div class="sec-head"><h2 class="h2 rv">{!! __('Independent.<br><em>Not isolated.</em>') !!}</h2>
+            <p class="lead rv">{{ __('Working on my own is a choice, not a fallback. There are already people who entrust me with their work, every day.') }}</p>
+        </div>
+        <div class="trust">
+            <div class="tr-item rv">
+                <h3>{{ __('They entrust me with their projects.') }}</h3>
+                <p>{{ __('I work with companies that put the development of their software in my hands. Not for a lower quote, but for how I work.') }}</p>
+            </div>
+            <div class="tr-item rv">
+                <h3>{{ __('Commissions without middlemen.') }}</h3>
+                <p>{{ __('Clients who choose me directly and with whom I work side by side, from the first call to after delivery.') }}</p>
+            </div>
+            <div class="tr-item rv hl">
+                <h3>{{ __('I teach those who will do my job.') }}</h3>
+                <p>{{ __('I am a teacher at a web academy for programmers. They valued me enough to entrust me with the training of those who will work in software tomorrow.') }}</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="sec scrub">
+        <p data-acc="{{ __('passion|way') }}">{{ __('I do it out of passion. Code is my job and my hobby. I chose to work on my own to do it my way, with real attention to every project.') }}</p>
+        <div class="lead rv" style="margin-top: 40px">{{ __('The more skills I add, the more my passion grows: new technologies energize me, they do not tire me. And I learned one thing: quality cannot be improvised in contexts that do not allow it. That is why I built the context myself.') }}</div>
+    </section>
+
+    <section class="sec tight">
+        <div class="sec-head"><h2 class="h2 rv">{!! __('I never stop<br>learning<span class="acc">.</span>') !!}</h2>
+            <p class="lead rv">{{ __('In software, evolution is exponential: keeping up is part of the craft, and it is the part I enjoy most. AI is the biggest change of these years and ignoring it would be dishonest. For me it became a strength: I use it as a tool, not a shortcut, I evaluate every result and the control stays mine.') }}</p>
+        </div>
+        <div class="stack-cloud" id="stack" data-fx="stack">
+            @foreach (['Laravel', 'Livewire', 'Filament', 'PHP', 'Vue', 'TypeScript', 'Tailwind', 'Docker', 'AI'] as $tech)
+                <span>{{ $tech }}</span>
+            @endforeach
+        </div>
+    </section>
+
+    <section class="sec">
+        <div class="sec-head"><h2 class="h2 rv">{!! __('Outside<br>the code<span class="acc">.</span>') !!}</h2>
+            <p class="lead mute rv">{{ __('What I am when I close the laptop. Hover over them, or tap on a phone.') }}</p>
+        </div>
+        <div class="xrows">
+            @foreach ($hobbies as [$name, $text])
+                <button class="xrow" type="button">
+                    <div class="xrow-h"><span>{{ __($name) }}</span><em>+</em></div>
+                    <div class="xrow-d">
+                        <div>
+                            <p>{{ __($text) }}</p>
+                        </div>
+                    </div>
+                </button>
+            @endforeach
+        </div>
+    </section>
+
+    <x-contact-band />
 </div>
-
-@push('scripts')
-@endpush

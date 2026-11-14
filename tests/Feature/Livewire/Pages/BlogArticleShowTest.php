@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Livewire\Pages\BlogArticle\BlogArticleShow;
 use App\Models\BlogArticle;
+use App\Settings\BlogSettings;
 use Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter;
 use Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect;
 
@@ -51,4 +52,52 @@ it('exposes previous and next published articles', function () {
 
     expect($component->instance()->previous->id)->toBe($older->id)
         ->and($component->instance()->next->id)->toBe($newer->id);
+});
+
+it('renders reading time, table of contents with heading ids and author bio', function () {
+    $settings = resolve(BlogSettings::class);
+    $settings->author_bio = [app()->getLocale() => 'Author bio text'];
+    $settings->save();
+
+    $article = BlogArticle::factory()->published()->create([
+        'content' => '<p>Intro text.</p><h2>First Section</h2><p>Body.</p><h3>Nested Part</h3><p>More.</p>',
+    ]);
+
+    livewire(BlogArticleShow::class, ['blog_article' => $article])
+        ->assertSeeHtml('<h2 id="first-section">First Section</h2>')
+        ->assertSeeHtml('href="#first-section"')
+        ->assertSeeHtml('href="#nested-part"')
+        ->assertSee(__(':minutes min read', ['minutes' => 1]))
+        ->assertSeeHtml('data-fx="lightbox"')
+        ->assertSee('Author bio text');
+});
+
+it('hides the author box when the bio is empty', function () {
+    $settings = resolve(BlogSettings::class);
+    $settings->author_bio = [];
+    $settings->save();
+    $article = BlogArticle::factory()->published()->create();
+
+    livewire(BlogArticleShow::class, ['blog_article' => $article])->assertDontSeeHtml('class="author');
+});
+
+it('renders the gallery block with the gallery wrapper', function () {
+    $html = view('rich-content.blocks.gallery', ['images' => [
+        ['url' => '/a.jpg', 'caption' => 'First'],
+        ['url' => '/b.jpg', 'caption' => null],
+    ]])->render();
+
+    expect($html)->toContain('class="gallery"')
+        ->toContain('<figcaption>First</figcaption>')
+        ->and(substr_count($html, '<figure>'))->toBe(2);
+});
+
+it('renders related articles and the previous and next navigation', function () {
+    $article = BlogArticle::factory()->published()->create(['published_at' => now()->subDays(5)]);
+    BlogArticle::factory()->published()->count(4)->create();
+
+    livewire(BlogArticleShow::class, ['blog_article' => $article])
+        ->assertSeeHtml('class="rels"')
+        ->assertSeeHtml('class="pn"')
+        ->assertSeeHtml('pn-next');
 });

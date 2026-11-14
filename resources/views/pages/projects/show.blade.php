@@ -1,146 +1,162 @@
+@php
+    $type_tags = $project->tags->where('type', \App\Enums\TagTypes::TAG->value);
+    $stack_tags = $project->tags->where('type', \App\Enums\TagTypes::TECHNOLOGY->value);
+    $title_rows = \mb_strlen($project->title) > 16 && \str_contains($project->title, ' ')
+        ? [
+            \Illuminate\Support\Str::beforeLast($project->title, ' '),
+            \Illuminate\Support\Str::afterLast($project->title, ' '),
+        ]
+        : [$project->title];
+    $external_host = $project->external_link ? \Illuminate\Support\Uri::of($project->external_link)->host() : null;
+    $gallery = $project->getMedia('gallery');
+    $has_story = filled($project->starting_point) || filled($project->goal);
+    $features = collect($project->features ?? [])->filter(fn ($feature) => filled($feature['title'] ?? null));
+@endphp
+
 <div>
-    <section class="grid grid-cols-1 lg:grid-cols-[1fr_auto] min-h-[80vh] border-b border-light/10">
+    <x-page-hero fx="bp" :label="$project->title" :rows="$title_rows">
+        <p>{{ $project->short_description }}</p>
 
-        <div class="flex flex-col justify-between px-8 lg:px-14 pt-16 pb-12 lg:border-r border-light/10">
+        <x-slot:actions>
+            @if ($project->external_link)
+                <a class="more" href="{{ $project->external_link }}" target="_blank" rel="noopener"
+                    data-pan="cta-project-visit-site">{{ $external_host }} <span>↗</span></a>
+            @endif
+            <a class="cta xl mag hero-cta" wire:navigate href="{{ route('contacts') }}" data-cursor="{{ __('Write to me') }}"
+                data-pan="cta-project-contacts"><span>{{ __('I want something like this') }}</span><span class="ar">→</span></a>
+        </x-slot:actions>
+    </x-page-hero>
 
-            <div class="flex items-center justify-between mb-12 lg:mb-20">
-                <a wire:navigate href="{{ route('projects') }}"
-                    class="group flex items-center gap-3 text-light/40 hover:text-light transition-colors duration-200 text-sm uppercase tracking-widest font-semibold">
-                    <x-ri-arrow-left-long-line
-                        class="w-4 transition-transform duration-200 group-hover:-translate-x-1" />
-                    {{ __('Projects') }}
-                </a>
-            </div>
-
-            <div data-reveal class="space-y-6">
-                <h1
-                    class="font-black uppercase leading-none tracking-tighter text-5xl lg:text-8xl xl:text-9xl text-light">
-                    {{ $project->title }}
-                </h1>
-
-                <p class="text-light/55 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
-                    {{ $project->short_description }}
-                </p>
-            </div>
-
-            <div class="mt-12 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-                <x-post-tag-list :tags="$project->tags->where('type', \App\Enums\TagTypes::TAG->value)" />
-
-                <div class="flex gap-4">
-                    @if ($project->external_link)
-                        <a href="{{ $project->external_link }}" target="_blank" rel="noopener" data-pan="cta-project-visit-site"
-                            class="group relative overflow-hidden border border-light text-light flex items-center gap-3 px-6 py-3 hover:text-dark transition-colors duration-300 text-sm font-semibold uppercase tracking-widest">
-                            <span
-                                class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
-                            <span class="relative z-10">{{ __('Visit site') }}</span>
-                            <x-ri-arrow-right-long-line class="relative z-10 w-4" />
-                        </a>
+    <section class="sec tight">
+        <div class="pd-top">
+            <div class="screen">
+                <div class="after">
+                    @if ($project->hasMedia('featured_image'))
+                        <img src="{{ $project->featured_image_url }}" alt="{{ $project->title }}">
+                    @else
+                        <span class="ghost" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($project->title, 0, 1)) }}</span>
                     @endif
                 </div>
             </div>
-        </div>
-        @if ($project->featured_image_url)
-            <div class="hidden lg:block w-[38vw] max-w-2xl relative overflow-hidden">
-                <img src="{{ $project->featured_image_url }}" alt="{{ $project->title }}"
-                    class="absolute inset-0 w-full h-full object-cover object-center saturate-50 brightness-75 mask-b-from-80%">
+
+            <div class="facts">
+                @if ($project->client)
+                    <div><span class="label">{{ __('Client') }}</span>
+                        <p>
+                            @if ($project->client->description)
+                                {{ $project->client->description }}
+                            @else
+                                {{ $project->client->name }}
+                            @endif
+                        </p>
+                    </div>
+                @endif
+
+                @if ($type_tags->isNotEmpty())
+                    <div><span class="label">{{ __('Type') }}</span>
+                        <div class="tags taglinks">
+                            @foreach ($type_tags as $tag)
+                                <a wire:navigate href="{{ route('tag_archive', ['slug' => $tag->slug]) }}">{{ $tag->name }}</a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                @if ($stack_tags->isNotEmpty())
+                    <div><span class="label">{{ __('Stack') }}</span>
+                        <div class="tags">
+                            @foreach ($stack_tags as $tag)
+                                <span>{{ $tag->name }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                @if ($project->links->isNotEmpty())
+                    <div><span class="label">{{ __('Links') }}</span>
+                        @foreach ($project->links->pluck('url') as $link)
+                            <p><a href="{{ $link }}" target="_blank" rel="noopener">{{ \Illuminate\Support\Uri::of($link)->host() }} ↗</a></p>
+                        @endforeach
+                    </div>
+                @endif
             </div>
-        @endif
+        </div>
     </section>
 
-    @if ($project->featured_image_url)
-        <div class="lg:hidden h-64 overflow-hidden border-b border-light/10 relative">
-            <img src="{{ $project->featured_image_url }}" alt="{{ $project->title }}"
-                class="w-full h-full object-cover object-center saturate-50 brightness-75">
-        </div>
+    @if ($has_story)
+        <section class="sec story">
+            <div class="sec-head"><h2 class="h2 rv">{{ __('The work') }}<span class="acc">.</span></h2></div>
+            <div class="prose rv">
+                @if (filled($project->starting_point))
+                    <p><b>{{ __('The starting point.') }}</b> {{ $project->starting_point }}</p>
+                @endif
+                @if (filled($project->goal))
+                    <p><b>{{ __('The goal.') }}</b> {{ $project->goal }}</p>
+                @endif
+            </div>
+        </section>
     @endif
 
-    <section class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] divide-y lg:divide-y-0 lg:divide-x divide-light/10">
-        <div
-            class="px-8 lg:px-14 py-20 lg:py-28
-                prose max-w-full prose-invert prose-lg
-                prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-headings:text-light
-                prose-p:text-light/65 prose-p:font-light prose-p:leading-relaxed
-                prose-a:text-light prose-a:underline prose-a:underline-offset-4 prose-a:decoration-light/30 hover:prose-a:decoration-light
-                prose-strong:text-light prose-strong:font-semibold
-                prose-code:text-light/80 prose-code:bg-light/5 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-mono prose-code:text-sm
-                prose-pre:bg-light/5 prose-pre:border prose-pre:border-light/10
-                prose-blockquote:border-l-light/20 prose-blockquote:text-light/50
-                prose-hr:border-light/10
-                prose-img:border prose-img:border-light/10
-            ">
-            {{ \Filament\Forms\Components\RichEditor\RichContentRenderer::make($project->description) }}
-        </div>
+    @if (filled($project->outcome))
+        <section class="sec scrub"><p>{{ $project->outcome }}</p></section>
+    @endif
 
-        <aside class="px-8 lg:px-12 py-20 lg:py-28 flex flex-col gap-12">
+    @if ($features->isNotEmpty())
+        <section class="sec">
+            <div class="sec-head">
+                <h2 class="h2 rv">{!! __('Features<br>and challenges') !!}<span class="acc">.</span></h2>
+                <p class="lead mute rv">{{ __('Hover over. Or tap, on a phone.') }}</p>
+            </div>
+            <div class="xrows">
+                @foreach ($features as $feature)
+                    <button class="xrow" type="button" x-data x-on:click="$el.classList.toggle('open')">
+                        <div class="xrow-h"><span>{{ $feature['title'] }}</span><em>+</em></div>
+                        <div class="xrow-d">
+                            <div>
+                                <p>{{ $feature['description'] ?? '' }}</p>
+                            </div>
+                        </div>
+                    </button>
+                @endforeach
+            </div>
+        </section>
+    @endif
 
-            @if ($project->client)
-                <div class="space-y-2">
-                    <p class="text-light/25 text-xs uppercase tracking-widest font-semibold">{{ __('Client') }}</p>
-                    <p class="text-light font-semibold text-lg">{{ $project->client }}</p>
-                </div>
-            @endif
+    @if (! $has_story && ! $features->count() && filled($project->description))
+        <section class="sec story">
+            <div class="sec-head"><h2 class="h2 rv">{{ __('The work') }}<span class="acc">.</span></h2></div>
+            <div class="prose rv">
+                {{ \Filament\Forms\Components\RichEditor\RichContentRenderer::make($project->description) }}
+            </div>
+        </section>
+    @endif
 
-            @if ($project->tags->isNotEmpty())
-                <div class="space-y-3">
-                    <p class="text-light/25 text-xs uppercase tracking-widest font-semibold">{{ __('Stack') }}</p>
-                    <x-chip-list size="xs" :entries="$project->tags
-                        ->where('type', \App\Enums\TagTypes::TECHNOLOGY->value)
-                        ->pluck('name')
-                        ->toArray()" />
-                </div>
-            @endif
-
-            @if ($project->links->isNotEmpty() || $project->external_link)
-                <div class="space-y-3">
-                    <p class="text-light/25 text-xs uppercase tracking-widest font-semibold">{{ __('Links') }}</p>
-                    <div class="flex flex-col gap-2">
-                        @if ($project->links->isNotEmpty())
-                            @foreach ($project->links->pluck('url') as $link)
-                                <a href="{{ $link }}" target="_blank" rel="noopener" data-pan="cta-project-related-link"
-                                    class="flex items-center gap-2 text-light/50 hover:text-light transition-colors duration-200 text-sm underline underline-offset-4">
-                                    {{ ucfirst(Uri::of($link)->host()) }}
-                                    <x-ri-external-link-line class="w-3" />
-                                </a>
-                            @endforeach
-                        @endif
-
-                        @if ($project->external_link)
-                            <a href="{{ $project->external_link }}" target="_blank" rel="noopener" data-pan="cta-project-website"
-                                class="flex items-center gap-2 text-light/50 hover:text-light transition-colors duration-200 text-sm underline underline-offset-4">
-                                {{ __('Website') }}
-                                <x-ri-external-link-line class="w-3" />
-                            </a>
-                        @endif
-                    </div>
-                </div>
-            @endif
-        </aside>
-    </section>
-
-    @if ($project->getMedia('gallery')->isNotEmpty())
-        <section class="border-t border-light/10 px-8 lg:px-14 py-20 lg:py-28">
-            <p class="text-light/25 text-xs uppercase tracking-widest font-semibold mb-10">{{ __('Gallery') }}</p>
-
-            <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-                @foreach ($project->getMedia('gallery') as $media)
+    @if ($gallery->isNotEmpty())
+        <section class="sec">
+            <div class="sec-head"><h2 class="h2 rv">{{ __('Gallery') }}<span class="acc">.</span></h2></div>
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($gallery as $media)
                     <picture>
                         @if ($media->hasGeneratedConversion('gallery_webp'))
                             <source srcset="{{ $media->getUrl('gallery_webp') }}" type="image/webp">
                         @endif
-                        <img src="{{ $media->getUrl() }}" alt="{{ $media->name }}" loading="lazy"
-                            class="w-full object-cover saturate-75 hover:saturate-100 transition-all duration-500 break-inside-avoid">
+                        <img src="{{ $media->getUrl() }}" alt="{{ $media->name }}" loading="lazy" class="w-full object-cover">
                     </picture>
                 @endforeach
             </div>
         </section>
     @endif
 
-    <x-cta-section>
-        <x-slot:title>{{ __('Liked what you saw?') }}</x-slot:title>
-        <x-slot:subtitle>{{ __("Let's build something together.") }}</x-slot:subtitle>
+    @if (! $adjacent_projects['previous']->is($project))
+        <nav class="pn" aria-label="{{ __('Other work') }}">
+            <a class="pn-prev" wire:navigate href="{{ route('project.show', $adjacent_projects['previous']->slug) }}"
+                data-cursor="{{ __('Back') }}" data-pan="cta-project-previous"><span class="label">← {{ __('Previous work') }}</span>
+                <h3>{{ $adjacent_projects['previous']->title }}</h3></a>
+            <a class="pn-next" wire:navigate href="{{ route('project.show', $adjacent_projects['next']->slug) }}"
+                data-cursor="{{ __('Forward') }}" data-pan="cta-project-next"><span class="label">{{ __('Next work') }} →</span>
+                <h3>{{ $adjacent_projects['next']->title }}</h3></a>
+        </nav>
+    @endif
 
-        <x-button :href="route('contacts')" data-pan="cta-project-contacts">{{ __("Let's talk") }}</x-button>
-        <x-button :href="route('services')" variant="secondary" data-pan="cta-project-services">{{ __('Explore services') }}</x-button>
-        <x-button :href="route('projects')" variant="secondary" data-pan="cta-project-projects">{{ __('All projects') }}</x-button>
-    </x-cta-section>
+    <x-contact-band />
 </div>

@@ -4,74 +4,52 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages;
 
-use App\Enums\TagTypes;
-use App\Models\BlogArticle;
+use App\Enums\ServiceAreas;
 use App\Models\Project;
+use Filament\Forms\Components\RichEditor\RichContentRenderer;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Livewire\Component;
-use Spatie\Tags\Tag;
 
 class Home extends Component {
+    private const int WORKS_LIMIT = 3;
+
     /**
      * @return Collection<int, Project>
      */
     private function getProjects(): Collection {
         return Project::query()
-            ->whereHasCurrentLocaleTranslation()
-            ->where('published', true)
-            ->orderByDesc('featured')
-            ->orderByDesc('created_at')
-            ->limit(5)
+            ->featuredRanked()
+            ->with(['client', 'tags', 'media'])
+            ->limit(self::WORKS_LIMIT)
             ->get();
     }
 
     /**
-     * @return Collection<int, Tag>
+     * @param  Collection<int, Project>  $projects
+     * @return array<int, array{title: string, kind: string, image_url: string|null, summary_html: string|null, url: string}>
      */
-    private function getProjectTags(): Collection {
-        return Tag::query()
-            ->orderByDesc(
-                DB::table('taggables')
-                    ->selectRaw('count(*)')
-                    ->whereColumn('taggables.tag_id', 'tags.id')
-            )
-            ->withType('tag')
-            ->limit(10)
-            ->get();
-    }
-
-    /**
-     * @return Collection<int, BlogArticle>
-     */
-    private function getBlogArticles(string $category): Collection {
-        $category_tag = Tag::query()
-            ->where('type', 'blog_category')
-            ->where('slug->en', $category)
-            ->first();
-
-        if (! $category_tag) {
-            return new Collection([]);
-        }
-
-        return BlogArticle::query()
-            ->whereHasCurrentLocaleTranslation()
-            ->withAllTags($category_tag, TagTypes::BLOG_CATEGORY->value)
-            ->wherePublished()
-            ->orderByDesc('featured')
-            ->orderByDesc('published_at')
-            ->limit(2)
-            ->get();
+    private function getWorks(Collection $projects): array {
+        return $projects
+            ->map(fn (Project $project): array => [
+                'title' => $project->title,
+                'kind' => $project->kind_or_tag_names,
+                'image_url' => $project->hasMedia('featured_image') ? $project->featured_image_url : null,
+                'summary_html' => \filled($project->home_summary) ? RichContentRenderer::make($project->home_summary)->toHtml() : null,
+                'url' => route('project.show', $project->slug),
+            ])
+            ->values()
+            ->all();
     }
 
     public function render(): View {
         $view = view('pages.home.home')
             ->with([
-                'projects' => $this->getProjects(),
-                'project_tags' => $this->getProjectTags(),
-                'practical_blog_articles' => $this->getBlogArticles('practical'),
-                'technical_blog_articles' => $this->getBlogArticles('technical'),
+                'works' => $this->getWorks($this->getProjects()),
+                'service_routes' => [
+                    'erp' => ServiceAreas::MANAGEMENT_ERP_CRM->getRouteName(),
+                    'web' => ServiceAreas::WEB_ECOMMERCE_PLATFORMS->getRouteName(),
+                ],
             ]);
 
         $view->layout('layouts.public.index', [

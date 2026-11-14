@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Enums\ServiceAreas;
+use App\Enums\TagTypes;
 use App\Livewire\Pages\ServicesManagementErpCrm;
 use App\Models\Project;
+use App\Models\Tag;
 use Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter;
 use Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect;
 
@@ -11,76 +14,62 @@ use function Pest\Livewire\livewire;
 
 beforeEach(fn () => $this->withoutVite());
 
-it('renders the hero with the area eyebrow and sub-service pills', function () {
+it('lays out the hero, pains, offers and FAQ sections', function () {
     livewire(ServicesManagementErpCrm::class)
         ->assertOk()
         ->assertSeeHtml('data-pan="section-impression-services-custom-software-development"')
-        ->assertSee(__('Area 01 — Management software · ERP · CRM'))
+        ->assertSeeHtml('data-pan="cta-services-custom-software-development-consultation"')
+        ->assertSeeHtml('data-pan="cta-services-custom-software-development-back"')
+        ->assertSee(__('Excel files everywhere, each with its own version of the truth.'))
         ->assertSee(__('Tailor-made management software'))
-        ->assertSee(__('ERP systems'))
-        ->assertSee(__('CRM & customer management'))
-        ->assertSeeHtml('data-pan="cta-services-custom-software-development-consultation"');
+        ->assertSee(__('Who owns the software in the end?'))
+        ->assertSeeHtml('application/ld+json');
 });
 
-it('lays out the pains, sub-services, process and FAQ sections', function () {
+it('marks the current service in the services navigation', function () {
     livewire(ServicesManagementErpCrm::class)
         ->assertOk()
-        ->assertSee(__('This is for you if…'))
-        ->assertSee(__('You live inside scattered spreadsheets.'))
-        ->assertSee(__('What I build<br>in this area'), escape: false)
-        ->assertSee(__('Roles and permissions for each team'))
-        ->assertSee(__('From your process<br>to the software, in 5 steps'), escape: false)
-        ->assertSee(__('Analysis'))
-        ->assertSee(__('Frequently asked questions'))
-        ->assertSee(__('Who owns the software code?'));
+        ->assertSeeHtml('href="'.route('services.web_ecommerce_platforms').'"')
+        ->assertSeeHtml('href="'.route('services.consulting_and_seo').'"')
+        ->assertSeeHtml('class="here" aria-current="page"');
 });
 
 it('lists a commercial stack: PostgreSQL only, no React or MySQL', function () {
-    // Guards the chat-4 decision: PostgreSQL only, React removed.
     livewire(ServicesManagementErpCrm::class)
         ->assertOk()
         ->assertSee('PostgreSQL')
-        ->assertSee('Vue.js')
+        ->assertSee('Vue')
         ->assertDontSee('React')
         ->assertDontSee('MySQL');
 });
 
-it('frames the AI band around capability, never speed', function () {
-    // The AI copy must never promise "faster" delivery (chat-4 hard rule).
+it('hides the projects showcase when no project is tagged with this service', function () {
+    $other_area_project = Project::factory()->published()->create();
+    $tag = Tag::findOrCreate('Website', TagTypes::TAG->value);
+    $tag->update(['service' => ServiceAreas::WEB_ECOMMERCE_PLATFORMS]);
+    $other_area_project->attachTag($tag);
+
     livewire(ServicesManagementErpCrm::class)
         ->assertOk()
-        ->assertSee(__('AI built into your processes.'))
-        ->assertSee(__('I build more ambitious, more polished systems, without ballooning cost and complexity.'));
+        ->assertDontSee(__('Already<br>in use'), escape: false)
+        ->assertDontSee($other_area_project->title);
 });
 
-it('hides the case study when there is no published project', function () {
-    livewire(ServicesManagementErpCrm::class)
-        ->assertOk()
-        ->assertDontSeeHtml('id="case"')
-        ->assertDontSeeHtml('data-pan="cta-services-custom-software-development-case"');
-});
-
-it('surfaces a featured project as the case study and the hero project link', function () {
-    $project = Project::factory()->published()->featured()->create();
+it('showcases published projects tagged with this service', function () {
+    $tag = Tag::findOrCreate('CRM', TagTypes::TAG->value);
+    $tag->update(['service' => ServiceAreas::MANAGEMENT_ERP_CRM]);
+    $project = Project::factory()->published()->create();
+    $project->attachTag($tag);
+    $unpublished = Project::factory()->unpublished()->create();
+    $unpublished->attachTag($tag);
 
     livewire(ServicesManagementErpCrm::class)
         ->assertOk()
-        ->assertSeeHtml('id="case"')
+        ->assertSee(__('Already<br>in use'), escape: false)
         ->assertSee($project->title)
-        ->assertSee(__('Real case — Management software & CRM'))
+        ->assertDontSee($unpublished->title)
         ->assertSeeHtml(route('project.show', $project->slug))
-        ->assertSeeHtml('data-pan="cta-services-custom-software-development-case"')
         ->assertSeeHtml('data-pan="cta-services-custom-software-development-project"');
-});
-
-it('closes with the final call to action', function () {
-    livewire(ServicesManagementErpCrm::class)
-        ->assertOk()
-        ->assertSee(__('Shall we bring order<br>to your processes?'), escape: false)
-        ->assertSee(__('Book a call'))
-        ->assertSee(__('Back to services'))
-        ->assertSeeHtml('data-pan="cta-services-custom-software-development-contacts"')
-        ->assertSeeHtml('data-pan="cta-services-custom-software-development-back"');
 });
 
 it('is reachable at its localized route and emits a meta description', function () {

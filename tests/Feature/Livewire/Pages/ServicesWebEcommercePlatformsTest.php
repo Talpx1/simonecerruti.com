@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Enums\ServiceAreas;
+use App\Enums\TagTypes;
 use App\Livewire\Pages\ServicesWebEcommercePlatforms;
 use App\Models\Project;
+use App\Models\Tag;
 use Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter;
 use Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect;
 
@@ -11,76 +14,48 @@ use function Pest\Livewire\livewire;
 
 beforeEach(fn () => $this->withoutVite());
 
-it('renders the hero with the area eyebrow and sub-service pills', function () {
+it('lays out the hero, pains, offers and FAQ sections', function () {
     livewire(ServicesWebEcommercePlatforms::class)
         ->assertOk()
         ->assertSeeHtml('data-pan="section-impression-services-web-development"')
-        ->assertSee(__('Area 02 — Websites · E-commerce · Platforms · Web apps'))
-        ->assertSee(__('Websites & landing'))
+        ->assertSeeHtml('data-pan="cta-services-web-development-consultation"')
+        ->assertSeeHtml('data-pan="cta-services-web-development-back"')
+        ->assertSee(__('You have a website, but nobody contacts you through it.'))
         ->assertSee(__('E-commerce'))
-        ->assertSee(__('Platforms & web apps'))
-        ->assertSeeHtml('data-pan="cta-services-web-development-consultation"');
+        ->assertSee(__('Platforms and web apps'))
+        ->assertSee(__('Who owns the website in the end?'))
+        ->assertSeeHtml('application/ld+json');
 });
 
-it('lays out the pains, sub-services, process and FAQ sections', function () {
+it('uses the flow animation for the hero', function () {
     livewire(ServicesWebEcommercePlatforms::class)
         ->assertOk()
-        ->assertSee(__('This is for you if…'))
-        ->assertSee(__('You have a website that brings in no customers.'))
-        ->assertSee(__('What I build<br>in this area'), escape: false)
-        ->assertSee(__('Reserved areas and roles for each user'))
-        ->assertSee(__('From your goal<br>to the website online, in 5 steps'), escape: false)
-        ->assertSee(__('Analysis'))
-        ->assertSee(__('Frequently asked questions'))
-        ->assertSee(__('Who owns the site once it\'s delivered?'));
+        ->assertSeeHtml('data-fx="svc" data-mode="flow"');
 });
 
-it('lists a commercial stack: PostgreSQL only, no React or MySQL', function () {
-    // Guards the persistent project rule: PostgreSQL only, React removed.
-    livewire(ServicesWebEcommercePlatforms::class)
-        ->assertOk()
-        ->assertSee('PostgreSQL')
-        ->assertSee('Vue.js')
-        ->assertDontSee('React')
-        ->assertDontSee('MySQL');
-});
-
-it('frames the AI band around quality, never speed', function () {
-    // The AI copy must never promise "faster" delivery (persistent project rule).
-    livewire(ServicesWebEcommercePlatforms::class)
-        ->assertOk()
-        ->assertSee(__('AI built into your products.'))
-        ->assertSee(__('I deliver more ambitious, more polished projects, with the utmost attention to the quality of what I hand over.'));
-});
-
-it('hides the case study when there is no published project', function () {
-    livewire(ServicesWebEcommercePlatforms::class)
-        ->assertOk()
-        ->assertDontSeeHtml('id="case"')
-        ->assertDontSeeHtml('data-pan="cta-services-web-development-case"');
-});
-
-it('surfaces a featured project as the case study and the hero project link', function () {
-    $project = Project::factory()->published()->featured()->create();
+it('hides the projects showcase when no project is tagged with this service', function () {
+    $other_area_project = Project::factory()->published()->create();
+    $tag = Tag::findOrCreate('CRM', TagTypes::TAG->value);
+    $tag->update(['service' => ServiceAreas::MANAGEMENT_ERP_CRM]);
+    $other_area_project->attachTag($tag);
 
     livewire(ServicesWebEcommercePlatforms::class)
         ->assertOk()
-        ->assertSeeHtml('id="case"')
+        ->assertDontSee(__('Already<br>in use'), escape: false)
+        ->assertDontSee($other_area_project->title);
+});
+
+it('showcases published projects tagged with this service', function () {
+    $tag = Tag::findOrCreate('Website', TagTypes::TAG->value);
+    $tag->update(['service' => ServiceAreas::WEB_ECOMMERCE_PLATFORMS]);
+    $project = Project::factory()->published()->create();
+    $project->attachTag($tag);
+
+    livewire(ServicesWebEcommercePlatforms::class)
+        ->assertOk()
         ->assertSee($project->title)
-        ->assertSee(__('Real case — Website & portal'))
         ->assertSeeHtml(route('project.show', $project->slug))
-        ->assertSeeHtml('data-pan="cta-services-web-development-case"')
-        ->assertSeeHtml('data-pan="cta-services-web-development-project"');
-});
-
-it('closes with the final call to action', function () {
-    livewire(ServicesWebEcommercePlatforms::class)
-        ->assertOk()
-        ->assertSee(__('Shall we bring your<br>business online?'), escape: false)
-        ->assertSee(__('Book a call'))
-        ->assertSee(__('Back to services'))
-        ->assertSeeHtml('data-pan="cta-services-web-development-contacts"')
-        ->assertSeeHtml('data-pan="cta-services-web-development-back"');
+        ->assertSeeHtml(route('tag_archive', ['slug' => $tag->slug]));
 });
 
 it('is reachable at its localized route and emits a meta description', function () {

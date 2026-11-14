@@ -1,173 +1,123 @@
-<div class="-mt-[100px]">
-    <section class="border-b border-light/10">
-        @if ($blog_article->featured_image_url)
-            <div class="h-64 lg:h-96 overflow-hidden relative">
-                <picture>
-                    @if ($blog_article->getFirstMedia('featured_image')?->hasGeneratedConversion('featured_image_webp'))
-                        <source srcset="{{ $blog_article->getFirstMediaUrl('featured_image', 'featured_image_webp') }}"
-                            type="image/webp">
-                    @endif
-                    <img src="{{ $blog_article->featured_image_url }}" alt="{{ $blog_article->title }}" loading="eager"
-                        class="w-full h-full object-cover object-center saturate-0 brightness-50">
-                </picture>
-                <div class="absolute inset-0 bg-gradient-to-t from-dark/80 to-transparent"></div>
+@php
+    $share_url = route('blog_article.show', $blog_article->slug);
+    $categories = $blog_article->tags->where('type', \App\Enums\TagTypes::BLOG_CATEGORY->value);
+    $tags = $blog_article->tags->where('type', \App\Enums\TagTypes::TAG->value);
+    $lightbox_labels = [
+        'close' => __('Close'),
+        'previous' => __('Previous image'),
+        'next' => __('Next image'),
+        'gallery' => __('Gallery'),
+        'open' => __('Open image'),
+    ];
+@endphp
+
+<div>
+    <section class="page-hero art-hero" wire:ignore>
+        <canvas id="field" class="hero-bg" data-fx="field" aria-hidden="true"></canvas>
+        <h1 class="art-h1">{{ $blog_article->title }}</h1>
+        <div class="ph-sub"><p>{{ $blog_article->summary }}</p></div>
+        <x-article-meta :article="$blog_article" with-author />
+    </section>
+
+    @if ($blog_article->hasMedia('featured_image'))
+        <figure class="art-cover rv" wire:ignore>
+            <img src="{{ $blog_article->featured_image_url }}" alt="{{ $blog_article->title }}" loading="eager">
+        </figure>
+    @endif
+
+    <div class="art-grid" data-fx="article-reader" wire:ignore.self>
+        <aside class="art-side" aria-label="{{ __('In this article') }}">
+            <div class="art-prog" aria-hidden="true"><i></i></div>
+
+            @if (count($table_of_contents) > 0)
+                <nav class="toc" aria-label="{{ __('Contents') }}">
+                    @foreach ($table_of_contents as $entry)
+                        <a @class(['l3' => $entry['level'] === 3]) href="#{{ $entry['id'] }}">{{ $entry['title'] }}</a>
+                    @endforeach
+                </nav>
+            @else
+                <div></div>
+            @endif
+
+            <div class="share">
+                <span class="label">{{ __('Share') }}</span>
+                <button type="button" class="ico" data-copy-link="{{ $share_url }}" aria-label="{{ __('Copy link') }}" data-cursor="{{ __('Copy') }}" data-pan="cta-blog-article-share-copy"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+                <a class="ico" href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode($share_url) }}" target="_blank" rel="noopener" aria-label="{{ __('Share on LinkedIn') }}" data-pan="cta-blog-article-share-linkedin"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><path d="M8 10v7M8 7v.01M12 17v-7M12 13c0-2 1.5-3 3-3s2 1 2 3v4"/></svg></a>
+                <a class="ico" href="https://x.com/intent/post?url={{ urlencode($share_url) }}&text={{ rawurlencode($blog_article->title) }}" target="_blank" rel="noopener" aria-label="{{ __('Share on X') }}" data-pan="cta-blog-article-share-x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20" transform="scale(.82) translate(2.6 2.6)"/></svg></a>
+                <a class="ico" href="https://wa.me/?text={{ rawurlencode($blog_article->title.' '.$share_url) }}" target="_blank" rel="noopener" aria-label="{{ __('Share on WhatsApp') }}" data-pan="cta-blog-article-share-whatsapp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.2-4A8 8 0 1 1 8 18.8z"/></svg></a>
+            </div>
+        </aside>
+
+        <article class="art-body" data-fx="lightbox" data-labels="{{ json_encode($lightbox_labels, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT) }}">{!! $content_html !!}</article>
+    </div>
+
+    <section class="sec tight">
+        @if ($author_bio)
+            <div class="author rv">
+                <span class="au-ph" aria-hidden="true">{{ $blog_article->author->initials }}</span>
+                <div>
+                    <h3>{{ $blog_article->author->name }}</h3>
+                    <p>{{ $author_bio }}</p>
+                    <a class="more" wire:navigate href="{{ route('about') }}" data-pan="cta-blog-article-about">{{ __('About me') }} <span>→</span></a>
+                </div>
             </div>
         @endif
 
-        <div data-reveal class="px-8 lg:px-14 py-16 lg:py-24 space-y-8">
-
-            <a wire:navigate href="{{ route('blog') }}"
-                class="group inline-flex items-center gap-3 text-light/40 hover:text-light transition-colors duration-200 text-sm uppercase tracking-widest font-semibold">
-                <x-ri-arrow-left-long-line class="w-4 transition-transform duration-200 group-hover:-translate-x-1" />
-                {{ __('Blog') }}
-            </a>
-
-            <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-light/25 text-xs font-mono tracking-widest">
-                @if ($blog_article->published_at)
-                    <time datetime="{{ $blog_article->published_at->toDateString() }}">
-                        {{ $blog_article->published_at->format('d.m.Y') }}
-                    </time>
-                @endif
-
-                @php
-                    $categories = $blog_article->tags->where('type', \App\Enums\TagTypes::BLOG_CATEGORY->value);
-                @endphp
-                @if ($categories->isNotEmpty())
-                    <span>—</span>
-                    <span class="uppercase">{{ $categories->pluck('name')->implode(', ') }}</span>
-                @endif
-
-
-                @if ($blog_article->featured)
-                    <x-chip>{{ __('Featured') }}</x-chip>
-                @endif
+        @if ($categories->isNotEmpty() || $tags->isNotEmpty())
+            <div class="art-tags">
+                @foreach ($categories as $category)
+                    <a wire:navigate href="{{ route('blog', ['category' => $category->slug]) }}">{{ $category->name }}</a>
+                @endforeach
+                @foreach ($tags as $tag)
+                    <a wire:navigate href="{{ route('tag_archive', ['slug' => $tag->slug]) }}">{{ $tag->name }}</a>
+                @endforeach
             </div>
+        @endif
 
-            <h1
-                class="font-black uppercase leading-none tracking-tighter text-light text-5xl lg:text-7xl xl:text-8xl max-w-5xl">
-                {{ $blog_article->title }}
-            </h1>
-
-            <p class="text-light/55 text-lg lg:text-xl font-light leading-relaxed max-w-3xl">
-                {{ $blog_article->summary }}
-            </p>
-
-            @php
-                $tags = $blog_article->tags->where('type', \App\Enums\TagTypes::TAG->value);
-            @endphp
-            @if ($tags->isNotEmpty())
-                <x-post-tag-list tagClasses="text-xs" :tags="$tags" />
-            @endif
-        </div>
-    </section>
-
-    <section class="px-8 lg:px-14 py-16 lg:py-24">
-        <div
-            class="prose prose-invert prose-lg max-w-3xl
-                prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-headings:text-light
-                prose-p:text-light/65 prose-p:font-light prose-p:leading-relaxed
-                prose-a:text-light prose-a:underline prose-a:underline-offset-4 prose-a:decoration-light/30 hover:prose-a:decoration-light
-                prose-strong:text-light prose-strong:font-semibold
-                prose-code:text-light/80 prose-code:bg-light/5 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-mono prose-code:text-sm
-                prose-pre:bg-light/5 prose-pre:border prose-pre:border-light/10
-                prose-blockquote:border-l-light/20 prose-blockquote:text-light/50
-                prose-hr:border-light/10
-                prose-img:border prose-img:border-light/10">
-            {{ \Filament\Forms\Components\RichEditor\RichContentRenderer::make($blog_article->content) }}
-        </div>
-    </section>
-
-    @if ($blog_article->relatables->isNotEmpty())
-        <section class="border-t border-light/10 px-8 lg:px-14 py-12">
-            <p class="text-light/25 text-xs uppercase tracking-widest font-semibold mb-10">{{ __('Related contents') }}
-            </p>
-            <div class="flex flex-col gap-2">
+        @if ($blog_article->relatables->isNotEmpty())
+            <p class="label" style="margin-top: 36px">{{ __('Related contents') }}</p>
+            <div class="art-tags">
                 @foreach ($blog_article->relatables as $relatable)
-                    <a wire:navigate href="{{ $relatable->show_route }}" data-pan="cta-blog-article-related"
-                        class="w-fit group flex flex-col text-light/50 hover:text-light transition-colors duration-200 text-sm">
-                        <span class="text-light/25 text-[10px] tracking-widest uppercase">
-                            {{ $relatable->post_type }}
-                        </span>
-                        <div class="flex items-center gap-3">
+                    <a wire:navigate href="{{ $relatable->show_route }}" data-pan="cta-blog-article-related">{{ $relatable->title }}</a>
+                @endforeach
+            </div>
+        @endif
+    </section>
 
-                            <span
-                                class="underline underline-offset-4 decoration-light/20 group-hover:decoration-light transition-colors duration-200">
-                                {{ $relatable->title }}
-                            </span>
-                            <x-ri-arrow-right-long-line class="w-3.5 shrink-0" />
-                        </div>
+    @if ($previous || $next)
+        <nav class="pn" aria-label="{{ __('More articles') }}">
+            @if ($previous)
+                <a class="pn-prev" wire:navigate href="{{ route('blog_article.show', $previous->slug) }}" data-cursor="{{ __('Back') }}">
+                    <span class="label">← {{ __('Previous article') }}</span>
+                    <h3>{{ $previous->title }}</h3>
+                </a>
+            @endif
+            @if ($next)
+                <a class="pn-next" wire:navigate href="{{ route('blog_article.show', $next->slug) }}" data-cursor="{{ __('Next') }}">
+                    <span class="label">{{ __('Next article') }} →</span>
+                    <h3>{{ $next->title }}</h3>
+                </a>
+            @endif
+        </nav>
+    @endif
+
+    @if ($related_blog_articles->isNotEmpty())
+        <section class="sec">
+            <div class="sec-head">
+                <h2 class="h2 rv">{!! __('Read<br>next') !!}<span class="acc">.</span></h2>
+                <a class="more rv" wire:navigate href="{{ route('blog') }}">{{ __('All articles') }} <span>→</span></a>
+            </div>
+            <div class="rels">
+                @foreach ($related_blog_articles as $related_article)
+                    <a class="rel rv" wire:navigate href="{{ route('blog_article.show', $related_article->slug) }}" data-cursor="{{ __('Read') }}" data-pan="card-blog-click">
+                        <x-blog-cover :article="$related_article" />
+                        <h3>{{ $related_article->title }}</h3>
+                        <x-article-meta :article="$related_article" />
                     </a>
                 @endforeach
             </div>
         </section>
     @endif
 
-    @if ($previous || $next)
-        <div
-            class="grid grid-cols-1 lg:grid-cols-2 border-t border-light/10 divide-y lg:divide-y-0 lg:divide-x divide-light/10">
-
-            @if ($previous)
-                <a wire:navigate href="{{ route('blog_article.show', $previous->slug) }}"
-                    class="group flex flex-col gap-4 px-8 lg:px-14 py-12 hover:bg-light/3 transition-colors duration-300">
-                    <span class="text-light/25 text-xs uppercase tracking-widest font-semibold flex items-center gap-2">
-                        <x-ri-arrow-left-long-line
-                            class="w-3.5 transition-transform duration-200 group-hover:-translate-x-1" />
-                        {{ __('Previous') }}
-                    </span>
-                    <span
-                        class="font-black uppercase leading-none tracking-tighter text-light text-xl lg:text-2xl group-hover:text-light/70 transition-colors duration-200">
-                        {{ $previous->title }}
-                    </span>
-                    @if ($previous->published_at)
-                        <span class="text-light/25 text-xs font-mono tracking-widest">
-                            {{ $previous->published_at->format('d.m.Y') }}
-                        </span>
-                    @endif
-                </a>
-            @else
-                <div></div>
-            @endif
-
-            @if ($next)
-                <a wire:navigate href="{{ route('blog_article.show', $next->slug) }}"
-                    class="group flex flex-col gap-4 px-8 lg:px-14 py-12 hover:bg-light/3 transition-colors duration-300 lg:items-end lg:text-right">
-                    <span
-                        class="text-light/25 text-xs uppercase tracking-widest font-semibold flex items-center gap-2 lg:flex-row-reverse">
-                        {{ __('Next') }}
-                        <x-ri-arrow-right-long-line
-                            class="w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
-                    </span>
-                    <span
-                        class="font-black uppercase leading-none tracking-tighter text-light text-xl lg:text-2xl group-hover:text-light/70 transition-colors duration-200">
-                        {{ $next->title }}
-                    </span>
-                    @if ($next->published_at)
-                        <span class="text-light/25 text-xs font-mono tracking-widest">
-                            {{ $next->published_at->format('d.m.Y') }}
-                        </span>
-                    @endif
-                </a>
-            @endif
-        </div>
-    @endif
-
-    @if ($related_blog_articles->isNotEmpty())
-        <section class="border-t border-light/10 px-8 lg:px-14 py-16 lg:py-24">
-            <p class="text-light/25 text-xs uppercase tracking-widest font-semibold mb-10">{{ __('Related articles') }}
-            </p>
-            <div class="grid grid-cols-1 lg:grid-cols-3 [&>*]:-mt-px [&>*]:-ml-px pl-px pt-px">
-                @foreach ($related_blog_articles as $related_article)
-                    <x-blog-article-card :article="$related_article" />
-                @endforeach
-            </div>
-        </section>
-    @endif
-
-    <x-cta-section>
-        <x-slot:title>{{ __('Want to work together?') }}</x-slot:title>
-        <x-slot:subtitle>{{ __("Let's build something great.") }}</x-slot:subtitle>
-
-        <x-button :href="route('contacts')" data-pan="cta-blog-article-contacts">{{ __("Let's talk") }}</x-button>
-        <x-button :href="route('services')" variant="secondary" data-pan="cta-blog-article-services">{{ __('Explore services') }}</x-button>
-    </x-cta-section>
+    <x-contact-band />
 </div>

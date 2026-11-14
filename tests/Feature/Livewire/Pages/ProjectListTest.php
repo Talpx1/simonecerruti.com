@@ -2,12 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Enums\TagTypes;
 use App\Livewire\Pages\Project\ProjectList;
 use App\Models\Project;
+use App\Models\Tag;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(fn () => $this->withoutVite());
+beforeEach(function () {
+    $this->withoutVite();
+    app()->setLocale('en');
+});
 
 it('paginates published projects with load-more', function () {
     Project::factory()->published()->count(8)->create();
@@ -29,4 +34,23 @@ it('reports an empty state when there are no published projects', function () {
     $component = livewire(ProjectList::class);
 
     expect($component->instance()->isLoadMoreEmpty('projects'))->toBeTrue();
+});
+
+it('renders featured projects as features and every project in the rail with its type tags', function () {
+    $featured = Project::factory()->published()->featured()->create(['title' => ['en' => 'Featured Work', 'it' => 'Lavoro']]);
+    $plain = Project::factory()->published()->create(['title' => ['en' => 'Plain Work', 'it' => 'Semplice']]);
+    $tag = Tag::findOrCreate('CRM', TagTypes::TAG->value);
+    $featured->attachTag($tag);
+    $plain->attachTag($tag);
+
+    livewire(ProjectList::class)
+        ->assertSeeHtml('class="feat"')
+        ->assertSee('Featured Work')
+        ->assertSee('Plain Work')
+        ->assertSeeHtml('data-types="CRM"')
+        ->assertSeeHtml('data-f="CRM"');
+});
+
+it('shows the empty message when there are no projects', function () {
+    livewire(ProjectList::class)->assertSee('No projects yet.')->assertDontSeeHtml('id="rail"');
 });

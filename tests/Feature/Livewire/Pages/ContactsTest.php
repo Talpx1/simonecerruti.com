@@ -10,32 +10,33 @@ use function Pest\Livewire\livewire;
 
 beforeEach(fn () => $this->withoutVite());
 
-it('renders the hero and the embedded contact form', function () {
+it('renders the hero with the ping effect and the embedded contact form', function () {
     livewire(Contacts::class)
         ->assertOk()
         ->assertSeeHtml('data-pan="section-impression-contacts"')
-        ->assertSee(__('Let\'s talk about your project'))
-        ->assertSee(__('Contacts'))
-        ->assertSee(__('It starts here. The rest, we build together.'))
+        ->assertSeeHtml('data-fx="ping"')
+        ->assertSeeHtml('class="ct-grid"')
+        ->assertSee(__('Let\'s talk.'))
         ->assertSeeHtml('data-pan="cta-contacts-submit"');
 });
 
-it('shows the availability aside with the next-steps list', function () {
+it('shows the next-steps list', function () {
     livewire(Contacts::class)
         ->assertOk()
-        ->assertSee(__('Available'))
-        ->assertSee(__('What happens next'))
+        ->assertSee(__('I reply within 24 hours.'))
         ->assertSee(__('Free introductory call.'))
         ->assertSee(__('Tailor-made proposal.'));
 });
 
-it('lists the three direct channels with their tracking attributes', function () {
+it('lists the three direct channels built from the company config', function () {
     livewire(Contacts::class)
         ->assertOk()
-        ->assertSee(__('Prefer another channel?'))
         ->assertSee(__('Book a call'))
         ->assertSee(__('Email me'))
         ->assertSee(__('Text me on WhatsApp'))
+        ->assertSeeHtml('href="'.config()->string('company.contacts.koalenda_url').'"')
+        ->assertSeeHtml('href="mailto:'.config()->string('company.contacts.email').'"')
+        ->assertSeeHtml('https://wa.me/'.config()->string('company.contacts.whatsapp.number'))
         ->assertSeeHtml('data-pan="cta-contacts-call"')
         ->assertSeeHtml('data-pan="cta-contacts-email"')
         ->assertSeeHtml('data-pan="cta-contacts-whatsapp"');
@@ -44,8 +45,7 @@ it('lists the three direct channels with their tracking attributes', function ()
 it('renders the social grid scoped to the contacts placement', function () {
     $component = livewire(Contacts::class)
         ->assertOk()
-        ->assertSee(__('Follow me'))
-        ->assertSee(__('Where to find me'));
+        ->assertSee(__('Follow me'));
 
     foreach (['linkedin', 'instagram', 'github', 'bluesky', 'x'] as $social) {
         $component->assertSeeHtml('data-pan="cta-social-'.$social.'-contacts"');

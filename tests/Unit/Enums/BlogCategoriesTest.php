@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use App\Enums\BlogCategories;
 use App\Enums\TagTypes;
+use App\Models\Tag;
 use Illuminate\Support\Facades\DB;
-use Spatie\Tags\Tag;
 
 it('exposes the configured tag model', function () {
     expect(BlogCategories::getModelClass())->toBe(config()->string('tags.tag_model'));
