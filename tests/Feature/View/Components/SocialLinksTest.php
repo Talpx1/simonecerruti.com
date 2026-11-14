@@ -18,7 +18,8 @@ it('suffixes each social data-pan name with its placement', function (string $va
     expect(\str_contains($html, 'data-pan="cta-social-linkedin"'))->toBeFalse();
 })->with([
     'menu placement' => ['menu', 'menu'],
-    'footer placement' => ['icons', 'footer'],
+    'footer placement' => ['foot', 'footer'],
+    'icons placement' => ['icons', 'footer'],
     'contacts placement' => ['grid', 'contacts'],
 ]);
 

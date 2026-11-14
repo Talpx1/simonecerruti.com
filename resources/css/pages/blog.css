@@ -1,0 +1,33 @@
+.pcover img, .pthumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(.7) brightness(.8); transition: filter .5s; }
+.pcover i, .pthumb i { z-index: 1; }
+.bfeat-c:hover .pcover img, .rel:hover .pcover img, .prow:hover .pthumb img { filter: saturate(1) brightness(.95); }
+.art-cover { position: relative; }
+.art-cover img { display: block; width: 100%; aspect-ratio: 21 / 9; object-fit: cover; border: 1px solid var(--line); }
+
+.pager a[aria-disabled="true"]:not(.pg-prev):not(.pg-next) { opacity: 1; border-color: transparent; }
+
+.toc a.l3 { padding-left: 14px; font-size: 14px; }
+.share .ico.on { color: var(--acc); }
+.art-body > p:first-child { font-size: 1.22em; line-height: 1.5; color: var(--ink); }
+.art-body img { max-width: 100%; height: auto; border: 1px solid var(--line); }
+.art-body img.lb-zoom { cursor: zoom-in; }
+.art-body figure { margin: 1.8em 0; }
+.art-body figcaption { margin-top: 10px; font-size: 13px; color: var(--mute); }
+.art-body table { width: 100%; border-collapse: collapse; font-size: .9em; }
+.art-body th, .art-body td { padding: 10px 12px; border: 1px solid var(--line); text-align: left; }
+
+.gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 1.4em 0 2em; }
+.gallery figure { margin: 0; position: relative; cursor: zoom-in; }
+.gallery img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border: 1px solid var(--line); transition: border-color .3s; }
+.gallery figure:hover img, .gallery figure:focus-visible img { border-color: var(--acc); }
+.gallery figure:first-child { grid-column: span 2; grid-row: span 2; }
+.gallery figure:first-child img { aspect-ratio: auto; height: 100%; }
+.gallery figcaption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+@media (max-width: 600px) { .gallery { grid-template-columns: 1fr 1fr; } }
+
+.pn .pn-next:first-child { grid-column: 2; }
+.pn .pn-next { text-align: right; }
+@media (max-width: 700px) { .pn .pn-next:first-child { grid-column: 1; } }
+
+.lb img { display: block; max-width: 100%; max-height: 74svh; margin: 0 auto; object-fit: contain; border: 1px solid var(--line); }
+.lb.single .lb-n { visibility: hidden; }

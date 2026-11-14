@@ -1,21 +1,35 @@
-<footer id="main-footer"
-    class="mt-2 px-4 flex flex-col lg:flex-row gap-8 lg:gap-0 items-center justify-between py-4 border-t border-light/[.07]">
-    <x-social-links variant="icons" placement="footer" />
+@php
+    $foot_links = [
+        ['about', __('About'), route('about')],
+        ['services', __('Services'), route('services')],
+        ['projects', __('Works'), route('projects')],
+        ['how_i_work', __('How I work'), route('how_i_work')],
+        ['blog', __('Blog'), route('blog')],
+        ['contacts', __('Contacts'), route('contacts')],
+    ];
+@endphp
 
-    <div
-        class="flex items-center gap-4 text-[10px] text-light/20 uppercase [&>a]:hover:text-light/70 [&>a]:transition-colors [&>a]:duration-500">
-        <a target="_blank" rel="noopener" href="{{ route('privacy_policy') }}">{{ __('Privacy Policy') }}</a>
-        <a target="_blank" rel="noopener" href="{{ route('cookie_policy') }}">{{ __('Cookie Policy') }}</a>
-        <a target="_blank" rel="noopener"
-            href="{{ route('terms_and_conditions') }}">{{ __('Terms and Conditions') }}</a>
+<footer class="foot">
+    <div class="foot-top">
+        <nav class="foot-pages" aria-label="{{ __('Pages') }}">
+            @foreach ($foot_links as [$slug, $label, $url])
+                <a href="{{ $url }}" wire:navigate data-pan="cta-footer-{{ $slug }}">{{ $label }}</a>
+            @endforeach
+        </nav>
 
-        <button onclick="Livewire.dispatch('open-cookie-banner')" type="button"
-            class="hover:text-light/70 transition-colors duration-500 uppercase">
-            {{ __('Cookie preferences') }}
-        </button>
+        <x-social-links variant="foot" placement="footer" />
     </div>
 
-    <p class="text-[10px] text-light/20 tracking-widest uppercase">
-        {{ __('VAT') }} {{ config('company.vat') }} — © {{ date('Y') }} — {{ __('All rights reserved.') }}
-    </p>
+    <div class="foot-legal">
+        <span>© {{ date('Y') }} {{ config('company.friendly_name') }} · {{ __('VAT') }} {{ config('company.vat') }}</span>
+
+        <nav aria-label="{{ __('Legal notes') }}">
+            <a href="{{ route('privacy_policy') }}" wire:navigate>{{ __('Privacy') }}</a>
+            <a href="{{ route('cookie_policy') }}" wire:navigate>{{ __('Cookies') }}</a>
+            <a href="{{ route('terms_and_conditions') }}" wire:navigate>{{ __('Terms') }}</a>
+            <button type="button" class="linkbtn" data-cookie-prefs onclick="Livewire.dispatch('open-cookie-banner')">
+                {{ __('Cookie preferences') }}
+            </button>
+        </nav>
+    </div>
 </footer>

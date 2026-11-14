@@ -1,0 +1,9 @@
+.legal-body dl > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 4px 24px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.legal-body dt { color: var(--ink); font-weight: 700; }
+.legal-body dd { margin: 0; }
+.legal-body h3 { font-size: clamp(18px, 1.5vw, 22px); letter-spacing: -.02em; }
+.legal-body .legal-table { margin: 1.2em 0; }
+.legal-body .legal-table span { white-space: nowrap; }
+.legal-body .legal-chip, .legal-body button { display: inline-block; margin: 0 8px 8px 0; padding: 10px 16px; border: 1px solid var(--line); background: none; color: var(--ink); font: inherit; font-size: 12px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; cursor: pointer; transition: border-color .3s, color .3s; }
+.legal-body .legal-chip:hover, .legal-body button:hover { border-color: var(--acc); color: var(--acc); }
+@media (max-width: 700px) { .legal-body dl > div { grid-template-columns: 1fr; } }
