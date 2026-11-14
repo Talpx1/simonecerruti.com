@@ -56,8 +56,15 @@ Examples:
 | `cta-social-instagram` | every `<a>` to instagram (3 social-links variants) | aggregate across all variants |
 | `cta-hero-projects` | "See all" link in the home hero `projects` section | … |
 | `cta-hero-contacts` | "Don't wait, let's talk" CTA in the home intro | … |
-| `cta-contact-email` | mailto link in the floating contacts widget | … |
-| `cta-contact-form` | "HIRE" link in the floating contacts widget | … |
+| `cta-nav-cta` / `cta-nav-cta-mobile` | "Let's talk" button in the header / mobile menu | … |
+| `cta-footer-<slug>` | footer navigation links | … |
+| `cta-band-copy-email` | copy-email button of the closing contact band | … |
+| `cta-band-contacts` | "Contacts" link of the closing contact band | … |
+| `cta-home-door-<area>` / `cta-home-service-<area>` | home story doors and service cards (`erp`, `websites`, `ecommerce`, `apps`) | … |
+| `cta-home-work-open-<n>` | the n-th featured work on the home | … |
+| `cta-services-<area>-consultation` / `-more` | cards of the services hub (`management`, `web`, `consulting`) | … |
+| `cta-project-previous` / `cta-project-next` | previous / next project navigation | … |
+| `cta-blog-article-share-<channel>` | share buttons of the article page | … |
 | `card-project-click` | every project-card's "View" CTA | aggregate, not per-project |
 | `card-blog-click` | every blog-article-card's "Read" CTA | aggregate, not per-article |
 | `section-impression-hero` | home intro `<section>` | counted when the section enters the viewport |
