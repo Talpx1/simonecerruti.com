@@ -6,7 +6,6 @@ use App\Actions\SaveFieldPrompt;
 use App\Enums\GeneratableFields;
 use App\Models\User;
 use App\Settings\AiSettings;
-use Illuminate\Auth\Access\AuthorizationException;
 
 it('saves the prompt override for the field', function (): void {
     $this->actingAs(User::factory()->admin()->create());
@@ -27,13 +26,3 @@ it('keeps the overrides of the other fields', function (): void {
         GeneratableFields::SEO_TITLE->value => 'B',
     ]);
 });
-
-it('rejects users that cannot access the admin panel', function (): void {
-    $this->actingAs(User::factory()->create());
-
-    SaveFieldPrompt::run(GeneratableFields::TAG_DESCRIPTION, 'Custom prompt');
-})->throws(AuthorizationException::class);
-
-it('rejects guests', function (): void {
-    SaveFieldPrompt::run(GeneratableFields::TAG_DESCRIPTION, 'Custom prompt');
-})->throws(AuthorizationException::class);

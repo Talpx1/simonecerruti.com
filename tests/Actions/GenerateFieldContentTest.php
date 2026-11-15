@@ -7,7 +7,6 @@ use App\Ai\Agents\ContentWriter;
 use App\Data\FieldGenerationData;
 use App\Enums\GeneratableFields;
 use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
 use Laravel\Ai\Prompts\AgentPrompt;
 
 function makeGenerationData(GeneratableFields $field = GeneratableFields::BLOG_ARTICLE_SUMMARY, ?string $notes = 'Mention Laravel'): FieldGenerationData {
@@ -58,14 +57,3 @@ it('omits the notes when blank', function (): void {
 
     ContentWriter::assertPrompted(fn (AgentPrompt $prompt): bool => ! $prompt->contains('Notes and raw material'));
 });
-
-it('never prompts for users that cannot access the admin panel', function (): void {
-    ContentWriter::fake()->preventStrayPrompts();
-    $this->actingAs(User::factory()->create());
-
-    try {
-        GenerateFieldContent::run(makeGenerationData());
-    } finally {
-        ContentWriter::assertNeverPrompted();
-    }
-})->throws(AuthorizationException::class);

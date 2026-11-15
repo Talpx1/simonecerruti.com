@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Ai\Agents\ContentWriter;
-use App\Enums\Abilities;
 use App\Enums\GeneratableFields;
 use App\Filament\Resources\BlogArticles\Pages\EditBlogArticle;
 use App\Filament\Resources\Campaigns\Pages\EditCampaign;
@@ -13,7 +12,6 @@ use App\Models\BlogArticle;
 use App\Models\Campaign;
 use App\Models\Client;
 use App\Models\Project;
-use App\Models\User;
 use App\Settings\AiSettings;
 use Filament\Actions\Testing\TestAction;
 use Laravel\Ai\Exceptions\InsufficientCreditsException;
@@ -159,22 +157,4 @@ describe('failures', function (): void {
             ->callAction(TestAction::make('generateWithAi')->schemaComponent('summary'), ['prompt' => ''])
             ->assertHasActionErrors(['prompt' => 'required']);
     });
-});
-
-describe('authorization', function (): void {
-    it('allows admins to generate and manage the AI settings', function (Abilities $ability): void {
-        expect(Gate::allows($ability->value))->toBeTrue();
-    })->with(Abilities::cases());
-
-    it('denies users who cannot access the panel', function (Abilities $ability): void {
-        $this->actingAs(User::factory()->create());
-
-        expect(Gate::allows($ability->value))->toBeFalse();
-    })->with(Abilities::cases());
-
-    it('denies guests', function (Abilities $ability): void {
-        auth()->logout();
-
-        expect(Gate::allows($ability->value))->toBeFalse();
-    })->with(Abilities::cases());
 });

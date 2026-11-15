@@ -6,9 +6,7 @@ namespace App\Actions;
 
 use App\Ai\Agents\ContentWriter;
 use App\Data\FieldGenerationData;
-use App\Enums\Abilities;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -18,8 +16,6 @@ final class GenerateFieldContent {
     use AsAction;
 
     public function handle(FieldGenerationData $data): string {
-        Gate::authorize(Abilities::GENERATE_AI_CONTENT->value);
-
         set_time_limit(240);
 
         $language = config()->string("laravellocalization.supportedLocales.{$data->locale}.name", $data->locale);

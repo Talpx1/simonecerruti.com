@@ -63,7 +63,7 @@ arch('status-like enums are string backed')
     ->toBeStringBackedEnums();
 
 arch('the AI enums are string backed')
-    ->expect(['App\Enums\Abilities', 'App\Enums\GeneratableFields'])
+    ->expect('App\Enums\GeneratableFields')
     ->toBeStringBackedEnums();
 
 /*

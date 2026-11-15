@@ -33,7 +33,7 @@ Prompts live in the database (`App\Settings\AiSettings`, group `ai`) and are edi
 
 ## Authorization
 
-The `generate-ai-content` and `manage-ai-settings` abilities (`App\Enums\Abilities`) are granted to every user who can access the admin panel. `GenerateFieldContent` and `SaveFieldPrompt` check them explicitly, so the rule also holds outside Filament. The prompt, the notes and the generated text are never written to the logs.
+The application has a single user, so generation and the AI settings page have no authorization checks beyond the admin panel login. The prompt, the notes and the generated text are never written to the logs.
 
 ## Adding a generatable field
 

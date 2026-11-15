@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
-use App\Enums\Abilities;
 use App\Enums\GeneratableFields;
 use App\Settings\AiSettings;
 use BackedEnum;
@@ -13,16 +12,11 @@ use Filament\Pages\SettingsPage;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Facades\Gate;
 
 final class ManageAiSettings extends SettingsPage {
     protected static string $settings = AiSettings::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
-
-    public static function canAccess(): bool {
-        return Gate::allows(Abilities::MANAGE_AI_SETTINGS->value);
-    }
 
     public static function getNavigationLabel(): string {
         return __('AI settings');

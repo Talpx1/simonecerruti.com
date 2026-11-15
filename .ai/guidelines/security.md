@@ -1,9 +1,7 @@
 # Security
 
-- Provide a **Policy class per model** (CRUD + record-level)
-- Use **Gates** for abilities not tied to a model (e.g. "access the panel").
-- Posture is **default-deny**.
-- Action must check authorization **explicitly inside the Action**.
+- This is a **single-user application**: the only user is the owner, who can do everything. Access to the app is limited to that user by the admin panel login (`User::canAccessPanel()`), so there is **no per-feature authorization**.
+- Do not create Policies, Gates, ability enums, `->authorize()` calls, `Gate::authorize()` checks inside Actions, or authorization tests for new features.
 - Never use `$guarded = []` on any model.
 - Never unguard any model.
 - Cast sensible attributes as `encrypted`.  

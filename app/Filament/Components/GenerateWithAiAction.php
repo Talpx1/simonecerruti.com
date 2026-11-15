@@ -8,7 +8,6 @@ use App\Actions\GenerateFieldContent;
 use App\Actions\GetFieldPrompt;
 use App\Actions\SaveFieldPrompt;
 use App\Data\FieldGenerationData;
-use App\Enums\Abilities;
 use App\Enums\GeneratableFields;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Field;
@@ -31,7 +30,6 @@ final class GenerateWithAiAction {
             ->label(__('Generate with AI'))
             ->icon(Heroicon::OutlinedSparkles)
             ->color('primary')
-            ->authorize(Abilities::GENERATE_AI_CONTENT->value)
             ->modalHeading(__('Generate :field with AI', ['field' => $field->getLabel()]))
             ->modalDescription(__('The generated text replaces the current content of the field. Review it before saving.'))
             ->modalSubmitActionLabel(__('Generate'))
