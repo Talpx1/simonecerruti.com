@@ -51,6 +51,22 @@ describe('attributes', function () {
     });
 });
 
+describe('findOrCreate', function () {
+    it('creates a tag with a name and a slug in every supported locale', function () {
+        $tag = withLocale('it', fn () => Tag::findOrCreate('Gestionale', TagTypes::TAG->value));
+
+        expect($tag->getTranslationWithoutFallback('name', 'en'))->toBe('Gestionale')
+            ->and($tag->getTranslationWithoutFallback('slug', 'en'))->toBe('gestionale');
+    });
+
+    it('fills every tag when several names are given', function () {
+        $tags = withLocale('it', fn () => Tag::findOrCreate(['Alpha', 'Beta'], TagTypes::TAG->value));
+
+        expect($tags)->toHaveCount(2)
+            ->and($tags->every(fn (Tag $tag): bool => $tag->getTranslationWithoutFallback('slug', 'en') !== null))->toBeTrue();
+    });
+});
+
 describe('configuration', function () {
     it('is the model used by the tags package', function () {
         expect(config('tags.tag_model'))->toBe(Tag::class);
