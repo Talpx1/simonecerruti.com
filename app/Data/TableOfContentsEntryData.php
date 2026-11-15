@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DataTransferObjects;
+namespace App\Data;
 
 final readonly class TableOfContentsEntryData {
     public function __construct(

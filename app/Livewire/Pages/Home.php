@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages;
 
-use App\DataTransferObjects\WorkCardData;
+use App\Data\WorkCardData;
 use App\Enums\ServiceAreas;
 use App\Models\Project;
 use Filament\Forms\Components\RichEditor\RichContentRenderer;

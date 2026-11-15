@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DataTransferObjects;
+namespace App\Data;
 
 /**
  * Fully-resolved SEO metadata for a single page, consumed by the public layout.
