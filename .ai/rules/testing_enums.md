@@ -1,6 +1,6 @@
 ---
 paths:
-    - tests/Feature/Enums/**
+    - tests/Enums/**
 ---
 
 # Testing enums
