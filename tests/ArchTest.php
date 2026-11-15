@@ -62,6 +62,26 @@ arch('status-like enums are string backed')
     ->expect(['App\Enums\BlogArticleStatuses', 'App\Enums\LeadReadStatus', 'App\Enums\TagTypes'])
     ->toBeStringBackedEnums();
 
+arch('the AI enums are string backed')
+    ->expect('App\Enums\GeneratableFields')
+    ->toBeStringBackedEnums();
+
+/*
+|--------------------------------------------------------------------------
+| AI
+|--------------------------------------------------------------------------
+*/
+
+arch('AI agents implement the agent contract')
+    ->expect('App\Ai\Agents')
+    ->classes()
+    ->toImplement('Laravel\Ai\Contracts\Agent');
+
+arch('AI agents are final')
+    ->expect('App\Ai\Agents')
+    ->classes()
+    ->toBeFinal();
+
 /*
 |--------------------------------------------------------------------------
 | Data

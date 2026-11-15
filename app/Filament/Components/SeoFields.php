@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Components;
 
+use App\Enums\GeneratableFields;
 use App\Enums\RobotsDirective;
 use App\Enums\SchemaType;
 use App\Enums\TwitterCard;
@@ -53,11 +54,13 @@ class SeoFields {
             ->schema([
                 TextInput::make('title')
                     ->label(__('Meta title'))
+                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::SEO_TITLE))
                     ->maxLength(255)
                     ->hint(self::variablesHint($variables)),
 
                 Textarea::make('description')
                     ->label(__('Meta description'))
+                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::SEO_DESCRIPTION))
                     ->rows(3)
                     ->maxLength(255),
             ]);
@@ -68,10 +71,12 @@ class SeoFields {
             ->schema([
                 TextInput::make('og_title')
                     ->label(__('Open Graph title'))
+                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::SEO_OG_TITLE))
                     ->maxLength(255),
 
                 Textarea::make('og_description')
                     ->label(__('Open Graph description'))
+                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::SEO_OG_DESCRIPTION))
                     ->rows(2),
 
                 TextInput::make('og_image')
@@ -80,10 +85,12 @@ class SeoFields {
 
                 TextInput::make('twitter_title')
                     ->label(__('Twitter title'))
+                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::SEO_TWITTER_TITLE))
                     ->maxLength(255),
 
                 Textarea::make('twitter_description')
                     ->label(__('Twitter description'))
+                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::SEO_TWITTER_DESCRIPTION))
                     ->rows(2),
 
                 TextInput::make('twitter_image')

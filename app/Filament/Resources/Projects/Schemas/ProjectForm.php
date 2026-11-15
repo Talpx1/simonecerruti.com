@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Projects\Schemas;
 
+use App\Enums\GeneratableFields;
 use App\Enums\TagTypes;
+use App\Filament\Components\GenerateWithAiAction;
 use App\Filament\Components\SeoFields;
 use App\Filament\Components\TranslateTagsAction;
 use App\Filament\Resources\Clients\Schemas\ClientForm;
@@ -30,6 +32,7 @@ class ProjectForm {
                     ->schema([
                         TextInput::make('title')
                             ->label('Titolo')
+                            ->hintAction(GenerateWithAiAction::make(GeneratableFields::PROJECT_TITLE))
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
@@ -60,11 +63,13 @@ class ProjectForm {
                     ->schema([
                         Textarea::make('short_description')
                             ->label('Descrizione Breve')
+                            ->hintAction(GenerateWithAiAction::make(GeneratableFields::PROJECT_SHORT_DESCRIPTION))
                             ->rows(3)
                             ->maxLength(500),
 
                         RichEditor::make('description')
                             ->label('Descrizione Completa')
+                            ->hintAction(GenerateWithAiAction::make(GeneratableFields::PROJECT_DESCRIPTION))
                             ->fileAttachmentsDisk('public')
                             ->fileAttachmentsDirectory('projects/attachments'),
                     ]),
@@ -73,14 +78,17 @@ class ProjectForm {
                     ->schema([
                         Textarea::make('starting_point')
                             ->label('Punto di Partenza')
+                            ->hintAction(GenerateWithAiAction::make(GeneratableFields::PROJECT_STARTING_POINT))
                             ->rows(3),
 
                         Textarea::make('goal')
                             ->label('Obiettivo')
+                            ->hintAction(GenerateWithAiAction::make(GeneratableFields::PROJECT_GOAL))
                             ->rows(3),
 
                         TextInput::make('outcome')
                             ->label('Risultato')
+                            ->hintAction(GenerateWithAiAction::make(GeneratableFields::PROJECT_OUTCOME))
                             ->helperText('Risultato in una frase breve, mostrato come affermazione durante lo scroll.')
                             ->maxLength(255),
 
@@ -89,11 +97,13 @@ class ProjectForm {
                             ->schema([
                                 TextInput::make('title')
                                     ->label('Titolo')
+                                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::PROJECT_FEATURE_TITLE))
                                     ->required()
                                     ->maxLength(255),
 
                                 Textarea::make('description')
                                     ->label('Descrizione')
+                                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::PROJECT_FEATURE_DESCRIPTION))
                                     ->rows(2),
                             ])
                             ->defaultItems(0)
@@ -104,6 +114,7 @@ class ProjectForm {
 
                         RichEditor::make('home_summary')
                             ->label('Sintesi per la Home')
+                            ->hintAction(GenerateWithAiAction::make(GeneratableFields::PROJECT_HOME_SUMMARY))
                             ->toolbarButtons(['bold'])
                             ->columnSpanFull(),
                     ]),

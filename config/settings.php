@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Settings\AiSettings;
 use App\Settings\BlogSettings;
 use Spatie\LaravelSettings\SettingsCasts\DateTimeInterfaceCast;
 use Spatie\LaravelSettings\SettingsCasts\DateTimeZoneCast;
@@ -15,6 +16,7 @@ return [
      * put them (manually) here.
      */
     'settings' => [
+        AiSettings::class,
         BlogSettings::class,
     ],
 

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Campaigns\Schemas;
 
+use App\Enums\GeneratableFields;
 use App\Enums\TagTypes;
 use App\Enums\VisitMediumType;
+use App\Filament\Components\GenerateWithAiAction;
 use App\Filament\Components\TranslateTagsAction;
 use App\Models\Campaign;
 use Filament\Forms\Components\DateTimePicker;
@@ -105,6 +107,7 @@ class CampaignForm {
 
                 Textarea::make('description')
                     ->label(__('Description'))
+                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::CAMPAIGN_DESCRIPTION))
                     ->columnSpanFull(),
 
                 SpatieTagsInput::make('tags')
@@ -117,6 +120,7 @@ class CampaignForm {
 
                 Textarea::make('notes')
                     ->label(__('Notes'))
+                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::CAMPAIGN_NOTES))
                     ->columnSpanFull(),
             ]);
     }

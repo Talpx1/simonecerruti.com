@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Tags\Schemas;
 
+use App\Enums\GeneratableFields;
 use App\Enums\ServiceAreas;
+use App\Filament\Components\GenerateWithAiAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -36,6 +38,7 @@ class TagForm {
 
                 Textarea::make('description')
                     ->label('Descrizione')
+                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::TAG_DESCRIPTION))
                     ->rows(3),
 
                 Select::make('service')

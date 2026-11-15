@@ -5,6 +5,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | Applies to | Rule file |
 | --- | --- |
 | app/Actions/** | .ai/rules/actions.md |
+| app/Filament/**, app/Enums/GeneratableFields.php, database/migrations/** | .ai/rules/ai_content_generation.md |
 | app/Console/Commands/** | .ai/rules/console_commands.md |
 | app/Enums/** | .ai/rules/enums.md, .ai/rules/enums_filament.md |
 | app/Exceptions/** | .ai/rules/exceptions.md |
