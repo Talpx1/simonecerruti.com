@@ -4,53 +4,46 @@ declare(strict_types=1);
 
 use App\Actions\GetServiceAreaProjects;
 use App\Enums\ServiceAreas;
-use App\Enums\TagTypes;
 use App\Models\Project;
-use App\Models\Tag;
 
-function createServiceTag(ServiceAreas $area, string $name): Tag {
-    $tag = Tag::findOrCreate($name, TagTypes::TAG->value);
-    $tag->update(['service' => $area]);
+describe('service area projects', function (): void {
+    it('returns only published projects tagged with the given service area', function (): void {
+        $tag = createServiceTag(ServiceAreas::WEB_ECOMMERCE_PLATFORMS, 'Website');
+        $other_tag = createServiceTag(ServiceAreas::CONSULTING_AND_SEO, 'SEO');
 
-    return $tag;
-}
+        $matching = Project::factory()->published()->create();
+        $matching->attachTag($tag);
+        $unpublished = Project::factory()->unpublished()->create();
+        $unpublished->attachTag($tag);
+        $other_area = Project::factory()->published()->create();
+        $other_area->attachTag($other_tag);
+        Project::factory()->published()->create();
 
-it('returns only published projects tagged with the given service area', function () {
-    $tag = createServiceTag(ServiceAreas::WEB_ECOMMERCE_PLATFORMS, 'Website');
-    $other_tag = createServiceTag(ServiceAreas::CONSULTING_AND_SEO, 'SEO');
+        $result = GetServiceAreaProjects::run(ServiceAreas::WEB_ECOMMERCE_PLATFORMS, 5);
 
-    $matching = Project::factory()->published()->create();
-    $matching->attachTag($tag);
-    $unpublished = Project::factory()->unpublished()->create();
-    $unpublished->attachTag($tag);
-    $other_area = Project::factory()->published()->create();
-    $other_area->attachTag($other_tag);
-    Project::factory()->published()->create();
+        expect($result->pluck('id')->all())->toBe([$matching->id]);
+    });
 
-    $result = GetServiceAreaProjects::run(ServiceAreas::WEB_ECOMMERCE_PLATFORMS, 5);
+    it('ranks featured projects first and honours the limit', function (): void {
+        $tag = createServiceTag(ServiceAreas::MANAGEMENT_ERP_CRM, 'CRM');
+        $regular = Project::factory()->published()->create();
+        $featured = Project::factory()->published()->featured()->create();
+        $regular->attachTag($tag);
+        $featured->attachTag($tag);
 
-    expect($result->pluck('id')->all())->toBe([$matching->id]);
-});
+        $result = GetServiceAreaProjects::run(ServiceAreas::MANAGEMENT_ERP_CRM, 1);
 
-it('ranks featured projects first and honours the limit', function () {
-    $tag = createServiceTag(ServiceAreas::MANAGEMENT_ERP_CRM, 'CRM');
-    $regular = Project::factory()->published()->create();
-    $featured = Project::factory()->published()->featured()->create();
-    $regular->attachTag($tag);
-    $featured->attachTag($tag);
+        expect($result->pluck('id')->all())->toBe([$featured->id]);
+    });
 
-    $result = GetServiceAreaProjects::run(ServiceAreas::MANAGEMENT_ERP_CRM, 1);
+    it('eager loads the relations the views read', function (): void {
+        $tag = createServiceTag(ServiceAreas::MANAGEMENT_ERP_CRM, 'CRM');
+        Project::factory()->published()->create()->attachTag($tag);
 
-    expect($result->pluck('id')->all())->toBe([$featured->id]);
-});
+        $project = GetServiceAreaProjects::run(ServiceAreas::MANAGEMENT_ERP_CRM, 1)->first();
 
-it('eager loads the relations the views read', function () {
-    $tag = createServiceTag(ServiceAreas::MANAGEMENT_ERP_CRM, 'CRM');
-    Project::factory()->published()->create()->attachTag($tag);
-
-    $project = GetServiceAreaProjects::run(ServiceAreas::MANAGEMENT_ERP_CRM, 1)->first();
-
-    expect($project->relationLoaded('tags'))->toBeTrue()
-        ->and($project->relationLoaded('client'))->toBeTrue()
-        ->and($project->relationLoaded('media'))->toBeTrue();
+        expect($project->relationLoaded('tags'))->toBeTrue()
+            ->and($project->relationLoaded('client'))->toBeTrue()
+            ->and($project->relationLoaded('media'))->toBeTrue();
+    });
 });

@@ -7,206 +7,216 @@ use App\Models\BlogArticle;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-describe('wherePublished scope', function () {
-    it('only returns published articles with a past publish date', function () {
-        $published = BlogArticle::factory()->published()->create();
-        $draft = BlogArticle::factory()->draft()->create();
-        $scheduled = BlogArticle::factory()->scheduled()->create();
-        $archived = BlogArticle::factory()->archived()->create();
-        $hidden = BlogArticle::factory()->hidden()->create();
-        $unpublished = BlogArticle::factory()->unpublished()->create();
+describe('attributes', function (): void {
+    describe('can_be_crawled', function (): void {
+        it('is true only for crawlable statuses published in the past', function (BlogArticleStatuses $status, bool $expected): void {
+            $article = BlogArticle::factory()->create([
+                'status' => $status,
+                'published_at' => now()->subDay(),
+            ]);
 
-        $result = BlogArticle::query()->wherePublished()->get();
-
-        expect($result->contains($published))->toBeTrue()
-            ->and($result->contains($draft))->toBeFalse()
-            ->and($result->contains($scheduled))->toBeFalse()
-            ->and($result->contains($archived))->toBeFalse()
-            ->and($result->contains($hidden))->toBeFalse()
-            ->and($result->contains($unpublished))->toBeFalse();
-    });
-});
-
-describe('whereCanBeCrawled scope', function () {
-    it('returns crawlable statuses with a past publish date', function () {
-        $published = BlogArticle::factory()->published()->create();
-        $archived = BlogArticle::factory()->archived()->create();
-        $draft = BlogArticle::factory()->draft()->create();
-        $hidden = BlogArticle::factory()->hidden()->create();
-        $scheduled = BlogArticle::factory()->scheduled()->create();
-
-        $result = BlogArticle::query()->whereCanBeCrawled()->get();
-
-        expect($result->contains($published))->toBeTrue()
-            ->and($result->contains($archived))->toBeTrue()
-            ->and($result->contains($draft))->toBeFalse()
-            ->and($result->contains($hidden))->toBeFalse()
-            ->and($result->contains($scheduled))->toBeFalse();
-    });
-});
-
-describe('can_be_crawled attribute', function () {
-    it('is true only for crawlable statuses published in the past', function (BlogArticleStatuses $status, bool $expected) {
-        $article = BlogArticle::factory()->create([
-            'status' => $status,
-            'published_at' => now()->subDay(),
+            expect($article->can_be_crawled)->toBe($expected);
+        })->with([
+            'draft' => [BlogArticleStatuses::DRAFT, false],
+            'published' => [BlogArticleStatuses::PUBLISHED, true],
+            'archived' => [BlogArticleStatuses::ARCHIVED, true],
+            'hidden' => [BlogArticleStatuses::HIDDEN, false],
         ]);
 
-        expect($article->can_be_crawled)->toBe($expected);
-    })->with([
-        'draft' => [BlogArticleStatuses::DRAFT, false],
-        'published' => [BlogArticleStatuses::PUBLISHED, true],
-        'archived' => [BlogArticleStatuses::ARCHIVED, true],
-        'hidden' => [BlogArticleStatuses::HIDDEN, false],
-    ]);
+        it('is false when the publish date is in the future', function (): void {
+            $article = BlogArticle::factory()->scheduled()->create();
 
-    it('is false when the publish date is in the future', function () {
-        $article = BlogArticle::factory()->scheduled()->create();
+            expect($article->can_be_crawled)->toBeFalse();
+        });
 
-        expect($article->can_be_crawled)->toBeFalse();
+        it('is false when there is no publish date', function (): void {
+            $article = BlogArticle::factory()->create([
+                'status' => BlogArticleStatuses::PUBLISHED,
+                'published_at' => null,
+            ]);
+
+            expect($article->can_be_crawled)->toBeFalse();
+        });
     });
 
-    it('is false when there is no publish date', function () {
-        $article = BlogArticle::factory()->create([
-            'status' => BlogArticleStatuses::PUBLISHED,
-            'published_at' => null,
-        ]);
+    describe('summary_or_excerpt', function (): void {
+        it('returns the summary when present', function (): void {
+            $article = BlogArticle::factory()->create();
 
-        expect($article->can_be_crawled)->toBeFalse();
+            runWithLocale('en', function () use ($article): void {
+                expect($article->summary_or_excerpt)->toBe($article->summary);
+            });
+        });
     });
-});
 
-describe('summary_or_excerpt attribute', function () {
-    it('returns the summary when present', function () {
-        $article = BlogArticle::factory()->create();
+    describe('featured_image_url', function (): void {
+        it('falls back to the bundled placeholder when no media is attached', function (): void {
+            $article = BlogArticle::factory()->create();
 
-        withLocale('en', function () use ($article) {
-            expect($article->summary_or_excerpt)->toBe($article->summary);
+            expect($article->featured_image_url)->toBe(asset('images/fallback.jpg'));
+        });
+
+        it('returns a media url when a featured image is attached', function (): void {
+            $article = BlogArticle::factory()->create();
+
+            expect($article->featured_image_url)->toBe(asset('images/fallback.jpg'))
+                ->and($article->addMedia(UploadedFile::fake()->image('featured.jpg', 1920, 1080))->toMediaCollection('featured_image'))->toBeInstanceOf(Media::class)
+                ->and($article->refresh()->featured_image_url)->not->toBe(asset('images/fallback.jpg'));
+        });
+    });
+
+    describe('reading_time', function (): void {
+        it('exposes the reading time in minutes', function (): void {
+            $article = BlogArticle::factory()->make(['content' => str_repeat('word ', 500)]);
+
+            expect($article->reading_time)->toBe(3);
         });
     });
 });
 
-describe('featured_image_url attribute', function () {
-    it('falls back to the bundled placeholder when no media is attached', function () {
-        $article = BlogArticle::factory()->create();
+describe('scopes', function (): void {
+    describe('wherePublished', function (): void {
+        it('only returns published articles with a past publish date', function (): void {
+            $published = BlogArticle::factory()->published()->create();
+            $draft = BlogArticle::factory()->draft()->create();
+            $scheduled = BlogArticle::factory()->scheduled()->create();
+            $archived = BlogArticle::factory()->archived()->create();
+            $hidden = BlogArticle::factory()->hidden()->create();
+            $unpublished = BlogArticle::factory()->unpublished()->create();
 
-        expect($article->featured_image_url)->toBe(asset('images/fallback.jpg'));
+            $result = BlogArticle::query()->wherePublished()->get();
+
+            expect(BlogArticle::query()->count())->toBe(6)
+                ->and($result->contains($published))->toBeTrue()
+                ->and($result->contains($draft))->toBeFalse()
+                ->and($result->contains($scheduled))->toBeFalse()
+                ->and($result->contains($archived))->toBeFalse()
+                ->and($result->contains($hidden))->toBeFalse()
+                ->and($result->contains($unpublished))->toBeFalse();
+        });
     });
 
-    it('returns a media url when a featured image is attached', function () {
-        Storage::fake('public');
+    describe('whereCanBeCrawled', function (): void {
+        it('returns crawlable statuses with a past publish date', function (): void {
+            $published = BlogArticle::factory()->published()->create();
+            $archived = BlogArticle::factory()->archived()->create();
+            $draft = BlogArticle::factory()->draft()->create();
+            $hidden = BlogArticle::factory()->hidden()->create();
+            $scheduled = BlogArticle::factory()->scheduled()->create();
 
-        $article = BlogArticle::factory()->create();
-        $article->addMedia(UploadedFile::fake()->image('featured.jpg', 1920, 1080))
-            ->toMediaCollection('featured_image');
+            $result = BlogArticle::query()->whereCanBeCrawled()->get();
 
-        expect($article->refresh()->featured_image_url)->not->toBe(asset('images/fallback.jpg'));
-    });
-});
-
-describe('relationships', function () {
-    it('belongs to an author', function () {
-        $user = User::factory()->create();
-        $article = BlogArticle::factory()->for($user, 'author')->create();
-
-        expect($article->author)->toBeInstanceOf(User::class)
-            ->and($article->author->id)->toBe($user->id);
-    });
-
-    it('relates to projects through the relatables morph', function () {
-        $project = Project::factory()->create();
-        $article = BlogArticle::factory()->create();
-        $article->relatables()->create([
-            'relatable_type' => Project::class,
-            'relatable_id' => $project->id,
-        ]);
-
-        expect($article->relatables)->toHaveCount(1)
-            ->and($article->projects->pluck('id')->all())->toContain($project->id);
-    });
-});
-
-describe('previous and next', function () {
-    it('navigates published articles circularly by publish date', function () {
-        $oldest = BlogArticle::factory()->published()->create(['published_at' => now()->subDays(3)]);
-        $mid = BlogArticle::factory()->published()->create(['published_at' => now()->subDays(2)]);
-        $newest = BlogArticle::factory()->published()->create(['published_at' => now()->subDay()]);
-
-        expect($mid->previous()->id)->toBe($oldest->id)
-            ->and($mid->next()->id)->toBe($newest->id)
-            ->and($newest->next()->id)->toBe($oldest->id)
-            ->and($oldest->previous()->id)->toBe($newest->id);
-    });
-
-    it('does not wrap around with only two published articles', function () {
-        $older = BlogArticle::factory()->published()->create(['published_at' => now()->subDays(2)]);
-        $newer = BlogArticle::factory()->published()->create(['published_at' => now()->subDay()]);
-
-        expect($older->previous())->toBeNull()
-            ->and($older->next()->id)->toBe($newer->id)
-            ->and($newer->previous()->id)->toBe($older->id)
-            ->and($newer->next())->toBeNull();
-    });
-
-    it('returns null on both sides when it is the only published article', function () {
-        $article = BlogArticle::factory()->published()->create();
-
-        expect($article->previous())->toBeNull()
-            ->and($article->next())->toBeNull();
-    });
-
-    it('breaks publish date ties by id', function () {
-        $articles = BlogArticle::factory()->published()->count(3)->create(['published_at' => now()->subDay()])->sortBy('id')->values();
-
-        expect($articles[1]->previous()->id)->toBe($articles[0]->id)
-            ->and($articles[1]->next()->id)->toBe($articles[2]->id)
-            ->and($articles[0]->previous()->id)->toBe($articles[2]->id)
-            ->and($articles[2]->next()->id)->toBe($articles[0]->id);
-    });
-
-    it('returns null for an article without a publish date', function () {
-        $draft = BlogArticle::factory()->draft()->create();
-
-        expect($draft->previous())->toBeNull()
-            ->and($draft->next())->toBeNull();
+            expect(BlogArticle::query()->count())->toBe(5)
+                ->and($result->contains($published))->toBeTrue()
+                ->and($result->contains($archived))->toBeTrue()
+                ->and($result->contains($draft))->toBeFalse()
+                ->and($result->contains($hidden))->toBeFalse()
+                ->and($result->contains($scheduled))->toBeFalse();
+        });
     });
 });
 
-describe('relatedBlogArticles', function () {
-    it('orders related articles by the number of shared tags', function () {
-        $article = BlogArticle::factory()->published()->create();
-        $article->attachTags(['php', 'laravel']);
+describe('relationships', function (): void {
+    describe('author', function (): void {
+        it('belongs to a user', function (): void {
+            $user = User::factory()->create();
+            $article = BlogArticle::factory()->for($user, 'author')->create();
 
-        $sharesTwo = BlogArticle::factory()->published()->create();
-        $sharesTwo->attachTags(['php', 'laravel']);
-
-        $sharesOne = BlogArticle::factory()->published()->create();
-        $sharesOne->attachTags(['php']);
-
-        $sharesNone = BlogArticle::factory()->published()->create();
-        $sharesNone->attachTags(['design']);
-
-        $related = $article->relatedBlogArticles();
-
-        expect($related->pluck('id')->all())->not->toContain($article->id)
-            ->and($related->first()->id)->toBe($sharesTwo->id);
+            expect($article->author)->toBeInstanceOf(User::class)
+                ->and($article->author->id)->toBe($user->id);
+        });
     });
 
-    it('falls back to recent published articles when the source has no tags', function () {
-        $article = BlogArticle::factory()->published()->create();
-        $other = BlogArticle::factory()->published()->create(['published_at' => now()->subDay()]);
+    describe('relatables', function (): void {
+        it('relates to projects through the relatables morph', function (): void {
+            $project = Project::factory()->create();
+            $article = BlogArticle::factory()->create();
 
-        $related = $article->relatedBlogArticles();
-
-        expect($related->pluck('id')->all())->toContain($other->id)
-            ->and($related->pluck('id')->all())->not->toContain($article->id);
+            expect($article->relatables()->count())->toBe(0)
+                ->and($article->relatables()->create([
+                    'relatable_type' => Project::class,
+                    'relatable_id' => $project->id,
+                ]))->not->toBeNull()
+                ->and($article->refresh()->relatables)->toHaveCount(1)
+                ->and($article->projects->pluck('id')->all())->toContain($project->id);
+        });
     });
-});
 
-it('exposes the reading time in minutes', function () {
-    $article = BlogArticle::factory()->make(['content' => str_repeat('word ', 500)]);
+    describe('previous and next', function (): void {
+        it('navigates published articles circularly by publish date', function (): void {
+            $oldest = BlogArticle::factory()->published()->create(['published_at' => now()->subDays(3)]);
+            $mid = BlogArticle::factory()->published()->create(['published_at' => now()->subDays(2)]);
+            $newest = BlogArticle::factory()->published()->create(['published_at' => now()->subDay()]);
 
-    expect($article->reading_time)->toBe(3);
+            expect($mid->previous()->id)->toBe($oldest->id)
+                ->and($mid->next()->id)->toBe($newest->id)
+                ->and($newest->next()->id)->toBe($oldest->id)
+                ->and($oldest->previous()->id)->toBe($newest->id);
+        });
+
+        it('does not wrap around with only two published articles', function (): void {
+            $older = BlogArticle::factory()->published()->create(['published_at' => now()->subDays(2)]);
+            $newer = BlogArticle::factory()->published()->create(['published_at' => now()->subDay()]);
+
+            expect($older->previous())->toBeNull()
+                ->and($older->next()->id)->toBe($newer->id)
+                ->and($newer->previous()->id)->toBe($older->id)
+                ->and($newer->next())->toBeNull();
+        });
+
+        it('returns null on both sides when it is the only published article', function (): void {
+            $article = BlogArticle::factory()->published()->create();
+
+            expect($article->previous())->toBeNull()
+                ->and($article->next())->toBeNull();
+        });
+
+        it('breaks publish date ties by id', function (): void {
+            $articles = BlogArticle::factory()->published()->count(3)->create(['published_at' => now()->subDay()])->sortBy('id')->values();
+
+            expect($articles[1]->previous()->id)->toBe($articles[0]->id)
+                ->and($articles[1]->next()->id)->toBe($articles[2]->id)
+                ->and($articles[0]->previous()->id)->toBe($articles[2]->id)
+                ->and($articles[2]->next()->id)->toBe($articles[0]->id);
+        });
+
+        it('returns null for an article without a publish date', function (): void {
+            $draft = BlogArticle::factory()->draft()->create();
+
+            expect($draft->previous())->toBeNull()
+                ->and($draft->next())->toBeNull();
+        });
+    });
+
+    describe('relatedBlogArticles', function (): void {
+        it('orders related articles by the number of shared tags', function (): void {
+            $article = BlogArticle::factory()->published()->create();
+            $article->attachTags(['php', 'laravel']);
+
+            $shares_two = BlogArticle::factory()->published()->create();
+            $shares_two->attachTags(['php', 'laravel']);
+
+            $shares_one = BlogArticle::factory()->published()->create();
+            $shares_one->attachTags(['php']);
+
+            BlogArticle::factory()->published()->create()->attachTags(['design']);
+
+            $related = $article->relatedBlogArticles();
+
+            expect($related->pluck('id')->all())->not->toContain($article->id)
+                ->and($related->first()->id)->toBe($shares_two->id);
+        });
+
+        it('falls back to recent published articles when the source has no tags', function (): void {
+            $article = BlogArticle::factory()->published()->create();
+            $other = BlogArticle::factory()->published()->create(['published_at' => now()->subDay()]);
+
+            $related = $article->relatedBlogArticles();
+
+            expect($related->pluck('id')->all())->toContain($other->id)
+                ->and($related->pluck('id')->all())->not->toContain($article->id);
+        });
+    });
 });

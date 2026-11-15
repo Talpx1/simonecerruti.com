@@ -4,26 +4,40 @@ declare(strict_types=1);
 
 use App\Models\BlogArticle;
 use App\Models\Project;
+use Illuminate\Support\Facades\File;
 
-afterEach(function () {
-    $path = public_path('sitemap.xml');
+use function Pest\Laravel\artisan;
+use function Safe\file_get_contents;
+use function Safe\mkdir;
 
-    if (file_exists($path)) {
-        unlink($path);
-    }
+beforeEach(function (): void {
+    $this->public_directory = \sys_get_temp_dir().'/sitemap_'.\uniqid();
+    mkdir($this->public_directory);
+    app()->usePublicPath($this->public_directory);
 });
 
-it('generates the sitemap file without errors', function () {
-    // Exercises the crawlable-article path, which would throw on the old
-    // `news.show` route bug.
-    BlogArticle::factory()->published()->count(2)->create();
-    BlogArticle::factory()->draft()->create();
-    Project::factory()->published()->create();
+afterEach(function (): void {
+    File::deleteDirectory($this->public_directory);
+});
 
-    $this->artisan('app:generate-sitemap')->assertSuccessful();
+describe('app:generate-sitemap', function (): void {
+    it('writes the sitemap with the static pages and the crawlable content', function (): void {
+        $article = BlogArticle::factory()->published()->create();
+        $draft = BlogArticle::factory()->draft()->create();
+        $project = Project::factory()->published()->create();
+        $sitemap_path = public_path('sitemap.xml');
 
-    $path = public_path('sitemap.xml');
+        expect(File::exists($sitemap_path))->toBeFalse();
 
-    expect(file_exists($path))->toBeTrue()
-        ->and(file_get_contents($path))->toContain('<urlset');
+        artisan('app:generate-sitemap')->assertExitCode(0);
+
+        $sitemap = file_get_contents($sitemap_path);
+
+        expect(File::exists($this->public_directory.'/sitemap.xml'))->toBeTrue()
+            ->and($sitemap)->toContain('<urlset')
+            ->and($sitemap)->toContain(route('home'))
+            ->and($sitemap)->toContain($article->getTranslation('slug', 'en'))
+            ->and($sitemap)->toContain($project->getTranslation('slug', 'en'))
+            ->and($sitemap)->not->toContain($draft->getTranslation('slug', 'en'));
+    });
 });

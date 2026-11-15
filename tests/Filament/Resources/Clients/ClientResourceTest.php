@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Filament\Resources\Clients\ClientResource;
 use App\Filament\Resources\Clients\Pages\CreateClient;
 use App\Filament\Resources\Clients\Pages\EditClient;
 use App\Filament\Resources\Clients\Pages\ListClients;
@@ -12,68 +13,103 @@ use Filament\Actions\Testing\TestAction;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
-    $this->withoutVite();
-    actingAsAdmin();
+beforeEach(function (): void {
+    authenticateAsAdmin();
 });
 
-it('lists clients', function () {
-    $clients = Client::factory()->count(3)->create();
+describe('access', function (): void {
+    it('forbids users who cannot access the panel', function (): void {
+        $client = Client::factory()->create();
 
-    livewire(ListClients::class)
-        ->assertCanSeeTableRecords($clients);
+        assertPanelUrlIsForbiddenForNonAdminUser(ClientResource::getUrl('index'));
+        assertPanelUrlIsForbiddenForNonAdminUser(ClientResource::getUrl('create'));
+        assertPanelUrlIsForbiddenForNonAdminUser(ClientResource::getUrl('edit', ['record' => $client]));
+    });
+
+    it('redirects guests to the login page', function (): void {
+        $client = Client::factory()->create();
+
+        assertPanelUrlRedirectsGuestToLogin(ClientResource::getUrl('index'));
+        assertPanelUrlRedirectsGuestToLogin(ClientResource::getUrl('create'));
+        assertPanelUrlRedirectsGuestToLogin(ClientResource::getUrl('edit', ['record' => $client]));
+    });
 });
 
-it('creates a client', function () {
-    livewire(CreateClient::class)
-        ->fillForm([
-            'name' => 'Acme',
-            'description' => 'Un cliente storico',
-        ])
-        ->call('create')
-        ->assertHasNoFormErrors();
+describe('list page', function (): void {
+    it('lists clients', function (): void {
+        $clients = Client::factory()->count(3)->create();
 
-    expect(Client::query()->firstOrFail()->name)->toBe('Acme');
+        livewire(ListClients::class)
+            ->assertCanSeeTableRecords($clients);
+    });
+
+    it('detaches projects instead of deleting them when a client is deleted', function (): void {
+        $client = Client::factory()->create();
+        $project = Project::factory()->for($client)->create();
+
+        expect($project->client_id)->toBe($client->id);
+
+        livewire(ListClients::class)
+            ->callAction(TestAction::make(DeleteAction::class)->table($client))
+            ->assertNotified();
+
+        expect(Client::query()->find($client->id))->toBeNull()
+            ->and($project->refresh()->client_id)->toBeNull();
+    });
 });
 
-it('requires a client name', function () {
-    livewire(CreateClient::class)
-        ->fillForm(['name' => null])
-        ->call('create')
-        ->assertHasFormErrors(['name' => 'required']);
+describe('create page', function (): void {
+    it('creates a client', function (): void {
+        expect(Client::query()->count())->toBe(0);
+
+        livewire(CreateClient::class)
+            ->fillForm([
+                'name' => 'Acme',
+                'description' => 'Un cliente storico',
+            ])
+            ->call('create')
+            ->assertNotified()
+            ->assertHasNoFormErrors();
+
+        expect(Client::query()->count())->toBe(1)
+            ->and(Client::query()->firstOrFail()->name)->toBe('Acme');
+    });
+
+    it('requires a client name', function (): void {
+        livewire(CreateClient::class)
+            ->fillForm(['name' => null])
+            ->call('create')
+            ->assertHasFormErrors(['name' => 'required'])
+            ->assertNotNotified();
+
+        expect(Client::query()->count())->toBe(0);
+    });
 });
 
-it('updates a client', function () {
-    $client = Client::factory()->create();
+describe('edit page', function (): void {
+    it('updates a client', function (): void {
+        $client = Client::factory()->create(['name' => 'Original']);
 
-    livewire(EditClient::class, ['record' => $client->id])
-        ->fillForm(['name' => 'Renamed'])
-        ->call('save')
-        ->assertHasNoFormErrors();
+        livewire(EditClient::class, ['record' => $client->id])
+            ->fillForm(['name' => 'Renamed'])
+            ->call('save')
+            ->assertNotified()
+            ->assertHasNoFormErrors();
 
-    expect($client->refresh()->name)->toBe('Renamed');
-});
+        expect($client->refresh()->name)->toBe('Renamed');
+    });
 
-it('detaches projects instead of deleting them when a client is deleted from the table', function () {
-    $client = Client::factory()->create();
-    $project = Project::factory()->for($client)->create();
+    it('detaches projects instead of deleting them when a client is deleted', function (): void {
+        $client = Client::factory()->create();
+        $project = Project::factory()->for($client)->create();
 
-    livewire(ListClients::class)
-        ->callAction(TestAction::make(DeleteAction::class)->table($client))
-        ->assertNotified();
+        expect($project->client_id)->toBe($client->id);
 
-    expect(Client::query()->find($client->id))->toBeNull()
-        ->and($project->refresh()->client_id)->toBeNull();
-});
+        livewire(EditClient::class, ['record' => $client->id])
+            ->callAction(DeleteAction::class)
+            ->assertNotified();
 
-it('detaches projects instead of deleting them when a client is deleted from the edit page', function () {
-    $client = Client::factory()->create();
-    $project = Project::factory()->for($client)->create();
-
-    livewire(EditClient::class, ['record' => $client->id])
-        ->callAction(DeleteAction::class)
-        ->assertNotified();
-
-    expect(Client::query()->find($client->id))->toBeNull()
-        ->and($project->refresh()->client_id)->toBeNull();
+        expect(Client::query()->find($client->id))->toBeNull()
+            ->and($project->refresh()->client_id)->toBeNull();
+    });
 });

@@ -2,68 +2,74 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\File;
+
 use function Pest\Laravel\artisan;
-use function Safe\file_put_contents;
 use function Safe\mkdir;
 use function Safe\readlink;
 use function Safe\symlink;
 
-function aiHooksProject(): string {
-    $project = sys_get_temp_dir().'/ai_hooks_'.uniqid();
-    mkdir("{$project}/.ai/hooks", 0755, true);
-    file_put_contents("{$project}/.ai/hooks/guard.sh", '#!/usr/bin/env bash');
-
-    return $project;
-}
-
-test('links .ai/hooks into .claude, creating the folder', function (): void {
-    $project = aiHooksProject();
-
-    artisan('ai:link-hooks', ['--base-path' => $project])
-        ->expectsOutputToContain('.claude/hooks -> .ai/hooks')
-        ->assertSuccessful();
-
-    expect(is_link("{$project}/.claude/hooks"))->toBeTrue()
-        ->and(readlink("{$project}/.claude/hooks"))->toBe('../.ai/hooks')
-        ->and(is_file("{$project}/.claude/hooks/guard.sh"))->toBeTrue()
-        ->and(file_exists("{$project}/.codex"))->toBeFalse();
+afterEach(function (): void {
+    File::deleteDirectory($this->project);
 });
 
-test('links .codex too when the folder already exists', function (): void {
-    $project = aiHooksProject();
-    mkdir("{$project}/.codex");
+describe('ai:link-hooks', function (): void {
+    it('links .ai/hooks into .claude, creating the folder', function (): void {
+        $this->project = createAiHooksProject();
 
-    artisan('ai:link-hooks', ['--base-path' => $project])->assertSuccessful();
+        expect(\file_exists("{$this->project}/.claude"))->toBeFalse();
 
-    expect(is_link("{$project}/.codex/hooks"))->toBeTrue();
-});
+        artisan('ai:link-hooks', ['--base-path' => $this->project])
+            ->expectsOutputToContain('.claude/hooks -> .ai/hooks')
+            ->assertExitCode(0);
 
-test('replaces a link that points somewhere else', function (): void {
-    $project = aiHooksProject();
-    mkdir("{$project}/.claude");
-    symlink('../elsewhere', "{$project}/.claude/hooks");
+        expect(\is_link("{$this->project}/.claude/hooks"))->toBeTrue()
+            ->and(readlink("{$this->project}/.claude/hooks"))->toBe('../.ai/hooks')
+            ->and("{$this->project}/.claude/hooks/guard.sh")->toBeFile()
+            ->and(\file_exists("{$this->project}/.codex"))->toBeFalse();
+    });
 
-    artisan('ai:link-hooks', ['--base-path' => $project])->assertSuccessful();
+    it('links .codex too when the folder already exists', function (): void {
+        $this->project = createAiHooksProject();
+        mkdir("{$this->project}/.codex");
 
-    expect(readlink("{$project}/.claude/hooks"))->toBe('../.ai/hooks');
-});
+        expect(\is_link("{$this->project}/.codex/hooks"))->toBeFalse();
 
-test('refuses to replace a real folder', function (): void {
-    $project = aiHooksProject();
-    mkdir("{$project}/.claude/hooks", 0755, true);
+        artisan('ai:link-hooks', ['--base-path' => $this->project])->assertExitCode(0);
 
-    artisan('ai:link-hooks', ['--base-path' => $project])
-        ->expectsOutputToContain('is a real folder')
-        ->assertFailed();
+        expect(\is_link("{$this->project}/.codex/hooks"))->toBeTrue();
+    });
 
-    expect(is_link("{$project}/.claude/hooks"))->toBeFalse();
-});
+    it('replaces a link that points somewhere else', function (): void {
+        $this->project = createAiHooksProject();
+        mkdir("{$this->project}/.claude");
+        symlink('../elsewhere', "{$this->project}/.claude/hooks");
 
-test('fails when there is nothing to link', function (): void {
-    $project = sys_get_temp_dir().'/ai_hooks_'.uniqid();
-    mkdir($project);
+        expect(readlink("{$this->project}/.claude/hooks"))->toBe('../elsewhere');
 
-    artisan('ai:link-hooks', ['--base-path' => $project])
-        ->expectsOutputToContain('There is no .ai/hooks folder to link.')
-        ->assertFailed();
+        artisan('ai:link-hooks', ['--base-path' => $this->project])->assertExitCode(0);
+
+        expect(readlink("{$this->project}/.claude/hooks"))->toBe('../.ai/hooks');
+    });
+
+    it('refuses to replace a real folder', function (): void {
+        $this->project = createAiHooksProject();
+        mkdir("{$this->project}/.claude/hooks", 0755, true);
+
+        artisan('ai:link-hooks', ['--base-path' => $this->project])
+            ->expectsOutputToContain('is a real folder')
+            ->assertFailed();
+
+        expect(\is_link("{$this->project}/.claude/hooks"))->toBeFalse();
+    });
+
+    it('fails when there is nothing to link', function (): void {
+        $this->project = createAiHooksProject(has_hooks_folder: false);
+
+        artisan('ai:link-hooks', ['--base-path' => $this->project])
+            ->expectsOutputToContain('There is no .ai/hooks folder to link.')
+            ->assertFailed();
+
+        expect(\file_exists("{$this->project}/.claude"))->toBeFalse();
+    });
 });

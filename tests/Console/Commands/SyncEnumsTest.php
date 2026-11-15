@@ -3,17 +3,25 @@
 declare(strict_types=1);
 
 use App\Enums\TagTypes;
-use Illuminate\Support\Facades\DB;
+use App\Models\Tag;
 
-it('syncs enums that implement SyncsToDatabase', function () {
-    $this->artisan('enums:sync')->assertSuccessful();
+use function Pest\Laravel\artisan;
 
-    expect(DB::table('tags')->where('type', TagTypes::BLOG_CATEGORY->value)->count())->toBe(2);
-});
+describe('enums:sync', function (): void {
+    it('syncs enums that implement SyncsToDatabase', function (): void {
+        expect(Tag::query()->where('type', TagTypes::BLOG_CATEGORY->value)->count())->toBe(0);
 
-it('is idempotent across repeated runs', function () {
-    $this->artisan('enums:sync')->assertSuccessful();
-    $this->artisan('enums:sync')->assertSuccessful();
+        artisan('enums:sync')->expectsOutputToContain('Synced')->assertExitCode(0);
 
-    expect(DB::table('tags')->where('type', TagTypes::BLOG_CATEGORY->value)->count())->toBe(2);
+        expect(Tag::query()->where('type', TagTypes::BLOG_CATEGORY->value)->count())->toBe(2);
+    });
+
+    it('is idempotent across repeated runs', function (): void {
+        expect(Tag::query()->where('type', TagTypes::BLOG_CATEGORY->value)->count())->toBe(0);
+
+        artisan('enums:sync')->assertExitCode(0);
+        artisan('enums:sync')->assertExitCode(0);
+
+        expect(Tag::query()->where('type', TagTypes::BLOG_CATEGORY->value)->count())->toBe(2);
+    });
 });

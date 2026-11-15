@@ -3,18 +3,11 @@
 declare(strict_types=1);
 
 use App\Enums\ServiceAreas;
-use App\Enums\TagTypes;
 use App\Livewire\Pages\ServicesManagementErpCrm;
-use App\Models\Project;
-use App\Models\Tag;
-use Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter;
-use Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(fn () => $this->withoutVite());
-
-it('lays out the hero, pains, offers and FAQ sections', function () {
+it('lays out the hero, pains, offers and FAQ sections', function (): void {
     livewire(ServicesManagementErpCrm::class)
         ->assertOk()
         ->assertSeeHtml('data-pan="section-impression-services-custom-software-development"')
@@ -26,15 +19,15 @@ it('lays out the hero, pains, offers and FAQ sections', function () {
         ->assertSeeHtml('application/ld+json');
 });
 
-it('marks the current service in the services navigation', function () {
+it('marks the current service in the services navigation', function (): void {
     livewire(ServicesManagementErpCrm::class)
         ->assertOk()
-        ->assertSeeHtml('href="'.route('services.web_ecommerce_platforms').'"')
-        ->assertSeeHtml('href="'.route('services.consulting_and_seo').'"')
+        ->assertSeeHtml('href="'.route(ServiceAreas::WEB_ECOMMERCE_PLATFORMS->getRouteName()).'"')
+        ->assertSeeHtml('href="'.route(ServiceAreas::CONSULTING_AND_SEO->getRouteName()).'"')
         ->assertSeeHtml('class="is-current" aria-current="page"');
 });
 
-it('lists a commercial stack: PostgreSQL only, no React or MySQL', function () {
+it('lists a commercial stack: PostgreSQL only, no React or MySQL', function (): void {
     livewire(ServicesManagementErpCrm::class)
         ->assertOk()
         ->assertSee('PostgreSQL')
@@ -43,41 +36,22 @@ it('lists a commercial stack: PostgreSQL only, no React or MySQL', function () {
         ->assertDontSee('MySQL');
 });
 
-it('hides the projects showcase when no project is tagged with this service', function () {
-    $other_area_project = Project::factory()->published()->create();
-    $tag = Tag::findOrCreate('Website', TagTypes::TAG->value);
-    $tag->update(['service' => ServiceAreas::WEB_ECOMMERCE_PLATFORMS]);
-    $other_area_project->attachTag($tag);
-
-    livewire(ServicesManagementErpCrm::class)
-        ->assertOk()
-        ->assertDontSee(__('Already<br>in use'), escape: false)
-        ->assertDontSee($other_area_project->title);
+it('hides the projects showcase when no project is tagged with this service', function (): void {
+    assertServiceLandingHidesShowcaseWithoutTaggedProjects(ServicesManagementErpCrm::class, ServiceAreas::MANAGEMENT_ERP_CRM);
 });
 
-it('showcases published projects tagged with this service', function () {
-    $tag = Tag::findOrCreate('CRM', TagTypes::TAG->value);
-    $tag->update(['service' => ServiceAreas::MANAGEMENT_ERP_CRM]);
-    $project = Project::factory()->published()->create();
-    $project->attachTag($tag);
-    $unpublished = Project::factory()->unpublished()->create();
-    $unpublished->attachTag($tag);
-
-    livewire(ServicesManagementErpCrm::class)
-        ->assertOk()
-        ->assertSee(__('Already<br>in use'), escape: false)
-        ->assertSee($project->title)
-        ->assertDontSee($unpublished->title)
-        ->assertSeeHtml(route('project.show', $project->slug))
+it('showcases published projects tagged with this service', function (): void {
+    assertServiceLandingShowcasesTaggedProjects(ServicesManagementErpCrm::class, ServiceAreas::MANAGEMENT_ERP_CRM, 'CRM')
         ->assertSeeHtml('data-pan="cta-services-custom-software-development-project"');
 });
 
-it('is reachable at its localized route and emits a meta description', function () {
-    $response = $this->withoutMiddleware([
-        LaravelLocalizationRedirectFilter::class,
-        LocaleSessionRedirect::class,
-    ])->get(route('services.management_erp_crm'));
+it('is reachable at its localized route and emits a meta description', function (): void {
+    assertPageEmitsMetaDescription(
+        ServiceAreas::MANAGEMENT_ERP_CRM->getRouteName(),
+        __('Tailor-made management software, ERP and CRM for SMEs: one system stitched onto your processes. Workflow automation, real-time data, 100% your code. No more scattered spreadsheets and double data entry.'),
+    );
+});
 
-    $response->assertOk()
-        ->assertSee('<meta name="description" content="'.e(__('Tailor-made management software, ERP and CRM for SMEs: one system stitched onto your processes. Workflow automation, real-time data, 100% your code. No more scattered spreadsheets and double data entry.')).'">', escape: false);
+it('leaves the page indexable', function (): void {
+    assertPageIsIndexable(ServiceAreas::MANAGEMENT_ERP_CRM->getRouteName());
 });

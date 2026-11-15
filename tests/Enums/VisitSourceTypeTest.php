@@ -5,26 +5,33 @@ declare(strict_types=1);
 use App\Enums\VisitSourceType;
 use Filament\Support\Colors\Color;
 
-describe('values', function () {
-    it('exposes the expected backing values', function () {
-        expect(VisitSourceType::DIRECT->value)->toBe('direct')
-            ->and(VisitSourceType::INTERNAL->value)->toBe('internal')
-            ->and(VisitSourceType::UNKNOWN->value)->toBe('unknown');
-    });
+describe('getColor', function (): void {
+    it('maps the source type to its color', function (VisitSourceType $source_type): void {
+        $expected = [
+            VisitSourceType::DIRECT->value => Color::Slate,
+            VisitSourceType::INTERNAL->value => Color::Gray,
+            VisitSourceType::UNKNOWN->value => Color::Zinc,
+        ];
 
-    it('only contains the three fallback buckets', function () {
-        expect(VisitSourceType::cases())->toHaveCount(3);
-    });
+        expect($source_type->getColor())->toBe($expected[$source_type->value]);
+    })->with(VisitSourceType::cases());
 });
 
-describe('getColor', function () {
-    it('returns a color array for every case', function () {
-        foreach (VisitSourceType::cases() as $case) {
-            expect($case->getColor())->toBeArray();
-        }
-    });
+describe('getLabel', function (): void {
+    it('translates the label in the requested locale', function (VisitSourceType $source_type, string $locale): void {
+        $expected = [
+            'en' => [
+                VisitSourceType::DIRECT->value => 'Direct',
+                VisitSourceType::INTERNAL->value => 'Internal',
+                VisitSourceType::UNKNOWN->value => 'Unknown',
+            ],
+            'it' => [
+                VisitSourceType::DIRECT->value => 'Diretto',
+                VisitSourceType::INTERNAL->value => 'Interno',
+                VisitSourceType::UNKNOWN->value => 'Sconosciuto',
+            ],
+        ];
 
-    it('uses slate for direct', function () {
-        expect(VisitSourceType::DIRECT->getColor())->toBe(Color::Slate);
-    });
+        expect($source_type->getLabel($locale))->toBe($expected[$locale][$source_type->value]);
+    })->with(VisitSourceType::cases())->with(['en', 'it']);
 });

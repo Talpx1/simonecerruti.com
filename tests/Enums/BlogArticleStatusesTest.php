@@ -4,55 +4,65 @@ declare(strict_types=1);
 
 use App\Enums\BlogArticleStatuses;
 use Filament\Support\Colors\Color;
-use Illuminate\Support\Collection;
 
-describe('allowsCrawling', function () {
-    it('knows which statuses allow crawling', function (BlogArticleStatuses $status, bool $expected) {
-        expect($status->allowsCrawling())->toBe($expected);
-    })->with([
-        'draft' => [BlogArticleStatuses::DRAFT, false],
-        'published' => [BlogArticleStatuses::PUBLISHED, true],
-        'archived' => [BlogArticleStatuses::ARCHIVED, true],
-        'hidden' => [BlogArticleStatuses::HIDDEN, false],
-    ]);
+describe('allowsCrawling', function (): void {
+    it('tells whether the status allows crawling', function (BlogArticleStatuses $status): void {
+        $expected = [
+            BlogArticleStatuses::DRAFT->value => false,
+            BlogArticleStatuses::PUBLISHED->value => true,
+            BlogArticleStatuses::ARCHIVED->value => true,
+            BlogArticleStatuses::HIDDEN->value => false,
+        ];
+
+        expect($status->allowsCrawling())->toBe($expected[$status->value]);
+    })->with(BlogArticleStatuses::cases());
 });
 
-describe('getColor', function () {
-    it('maps each status to a color', function () {
-        expect(BlogArticleStatuses::DRAFT->getColor())->toBe(Color::Yellow)
-            ->and(BlogArticleStatuses::PUBLISHED->getColor())->toBe(Color::Green)
-            ->and(BlogArticleStatuses::ARCHIVED->getColor())->toBe(Color::Slate)
-            ->and(BlogArticleStatuses::HIDDEN->getColor())->toBe(Color::Gray);
-    });
+describe('getColor', function (): void {
+    it('maps the status to its color', function (BlogArticleStatuses $status): void {
+        $expected = [
+            BlogArticleStatuses::DRAFT->value => Color::Yellow,
+            BlogArticleStatuses::PUBLISHED->value => Color::Green,
+            BlogArticleStatuses::ARCHIVED->value => Color::Slate,
+            BlogArticleStatuses::HIDDEN->value => Color::Gray,
+        ];
+
+        expect($status->getColor())->toBe($expected[$status->value]);
+    })->with(BlogArticleStatuses::cases());
 });
 
-describe('collect', function () {
-    it('returns a collection of every case', function () {
-        expect(BlogArticleStatuses::collect())->toBeInstanceOf(Collection::class)
-            ->toHaveCount(4)
-            ->and(BlogArticleStatuses::collect()->all())->toBe(BlogArticleStatuses::cases());
-    });
+describe('getLabel', function (): void {
+    it('translates the label in the requested locale', function (BlogArticleStatuses $status, string $locale): void {
+        $expected = [
+            'en' => [
+                BlogArticleStatuses::DRAFT->value => 'Draft',
+                BlogArticleStatuses::PUBLISHED->value => 'Published',
+                BlogArticleStatuses::ARCHIVED->value => 'Archived',
+                BlogArticleStatuses::HIDDEN->value => 'Hidden',
+            ],
+            'it' => [
+                BlogArticleStatuses::DRAFT->value => 'Bozza',
+                BlogArticleStatuses::PUBLISHED->value => 'Pubblicato',
+                BlogArticleStatuses::ARCHIVED->value => 'Archiviato',
+                BlogArticleStatuses::HIDDEN->value => 'Nascosto',
+            ],
+        ];
+
+        expect($status->getLabel($locale))->toBe($expected[$locale][$status->value]);
+    })->with(BlogArticleStatuses::cases())->with(['en', 'it']);
 });
 
-describe('random', function () {
-    it('returns a valid case', function () {
-        expect(BlogArticleStatuses::cases())->toContain(BlogArticleStatuses::random());
-    });
-});
+describe('getDescription', function (): void {
+    it('translates the description in the current locale', function (BlogArticleStatuses $status, string $locale): void {
+        $description = runWithLocale($locale, fn (): string => $status->getDescription());
 
-describe('localized label and description', function () {
-    it('builds the label from a localized translation key', function () {
-        app('translator')->addLines(['enums.blog_article_statuses.draft.label' => 'Bozza'], 'it');
+        expect($description)->not->toBeEmpty()->not->toStartWith('enums.');
+    })->with(BlogArticleStatuses::cases())->with(['en', 'it']);
 
-        expect(BlogArticleStatuses::DRAFT->getLabel('it'))->toBe('Bozza');
-    });
+    it('differs between locales', function (BlogArticleStatuses $status): void {
+        $english = runWithLocale('en', fn (): string => $status->getDescription());
+        $italian = runWithLocale('it', fn (): string => $status->getDescription());
 
-    it('builds the description from a localized translation key', function () {
-        app('translator')->addLines(
-            ['enums.blog_article_statuses.draft.description' => 'A draft article'],
-            app()->getLocale(),
-        );
-
-        expect(BlogArticleStatuses::DRAFT->getDescription())->toBe('A draft article');
-    });
+        expect($english)->not->toBe($italian);
+    })->with(BlogArticleStatuses::cases());
 });

@@ -2,57 +2,81 @@
 
 declare(strict_types=1);
 
-use App\Http\Middleware\CookieConsentMiddleware;
-use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Route;
 
-it('shares a no-consent default when no cookie is present', function () {
-    $request = Request::create('/');
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
+use function Pest\Laravel\withCookie;
 
-    (new CookieConsentMiddleware)->handle($request, fn () => response('ok'));
-
-    expect(view()->shared('cookieConsent'))->toMatchArray([
-        'given' => false,
-        'necessary' => true,
-        'analytics' => false,
-        'functional' => false,
-        'marketing' => false,
-    ]);
+beforeEach(function (): void {
+    Route::middleware('web')->get('/_test_cookie_consent', fn () => response()->json(view()->shared('cookieConsent')));
 });
 
-it('parses a valid consent cookie', function () {
-    $request = Request::create('/');
-    $request->cookies->set('cookie_consent', json_encode([
-        'version' => 1,
-        'analytics' => true,
-        'functional' => false,
-        'marketing' => true,
-    ]));
+describe('guest', function (): void {
+    it('shares a no-consent default when no cookie is present', function (): void {
+        get('/_test_cookie_consent')
+            ->assertOk()
+            ->assertExactJson([
+                'given' => false,
+                'necessary' => true,
+                'analytics' => false,
+                'functional' => false,
+                'marketing' => false,
+            ]);
+    });
 
-    (new CookieConsentMiddleware)->handle($request, fn () => response('ok'));
+    it('parses a valid consent cookie', function (): void {
+        withCookie('cookie_consent', \Safe\json_encode([
+            'version' => 1,
+            'analytics' => true,
+            'functional' => false,
+            'marketing' => true,
+        ]));
 
-    expect(view()->shared('cookieConsent'))->toMatchArray([
-        'given' => true,
-        'necessary' => true,
-        'analytics' => true,
-        'functional' => false,
-        'marketing' => true,
-    ]);
+        get('/_test_cookie_consent')
+            ->assertOk()
+            ->assertExactJson([
+                'given' => true,
+                'necessary' => true,
+                'analytics' => true,
+                'functional' => false,
+                'marketing' => true,
+            ]);
+    });
+
+    it('ignores a cookie without a version marker', function (): void {
+        withCookie('cookie_consent', \Safe\json_encode(['analytics' => true]));
+
+        get('/_test_cookie_consent')
+            ->assertOk()
+            ->assertJson(['given' => false, 'analytics' => false]);
+    });
+
+    it('ignores a malformed cookie without throwing', function (): void {
+        withCookie('cookie_consent', 'not-valid-json{');
+
+        get('/_test_cookie_consent')
+            ->assertOk()
+            ->assertJson(['given' => false, 'analytics' => false]);
+    });
 });
 
-it('ignores a cookie without a version marker', function () {
-    $request = Request::create('/');
-    $request->cookies->set('cookie_consent', json_encode(['analytics' => true]));
+describe('authenticated user', function (): void {
+    it('shares a no-consent default when no cookie is present', function (): void {
+        actingAs(User::factory()->create());
 
-    (new CookieConsentMiddleware)->handle($request, fn () => response('ok'));
+        get('/_test_cookie_consent')
+            ->assertOk()
+            ->assertJson(['given' => false, 'necessary' => true, 'analytics' => false]);
+    });
 
-    expect(view()->shared('cookieConsent'))->toMatchArray(['given' => false]);
-});
+    it('parses a valid consent cookie', function (): void {
+        actingAs(User::factory()->create());
+        withCookie('cookie_consent', getAnalyticsConsentCookieValue());
 
-it('ignores a malformed cookie without throwing', function () {
-    $request = Request::create('/');
-    $request->cookies->set('cookie_consent', 'not-valid-json{');
-
-    (new CookieConsentMiddleware)->handle($request, fn () => response('ok'));
-
-    expect(view()->shared('cookieConsent'))->toMatchArray(['given' => false]);
+        get('/_test_cookie_consent')
+            ->assertOk()
+            ->assertJson(['given' => true, 'analytics' => true, 'marketing' => false]);
+    });
 });

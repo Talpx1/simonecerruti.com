@@ -4,21 +4,16 @@ declare(strict_types=1);
 
 use Illuminate\Http\Request;
 
-it('returns the query string value or the default', function (string $uri, ?string $expected) {
-    $request = Request::create($uri);
+describe('queryStringOrDefault', function (): void {
+    it('returns the query string value when it is a non-empty string', function (): void {
+        expect(Request::create('/?q=abc')->queryStringOrDefault('q', 'fallback'))->toBe('abc');
+    });
 
-    expect($request->queryStringOrDefault('q', 'fallback'))->toBe($expected ?? 'fallback');
-})->with([
-    'present' => ['/?q=abc', 'abc'],
-    'empty' => ['/?q=', null],
-    'missing' => ['/', null],
-    'array' => ['/?q[]=1', null],
-]);
-
-it('returns the query string value or null', function (string $uri, ?string $expected) {
-    expect(Request::create($uri)->queryStringOrNull('q'))->toBe($expected);
-})->with([
-    'present' => ['/?q=abc', 'abc'],
-    'empty' => ['/?q=', null],
-    'missing' => ['/', null],
-]);
+    it('returns the default when the value is not a usable string', function (string $uri): void {
+        expect(Request::create($uri)->queryStringOrDefault('q', 'fallback'))->toBe('fallback');
+    })->with([
+        'empty' => '/?q=',
+        'missing' => '/',
+        'array' => '/?q[]=1',
+    ]);
+});

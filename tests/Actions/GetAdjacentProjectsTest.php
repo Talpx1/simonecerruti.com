@@ -5,32 +5,21 @@ declare(strict_types=1);
 use App\Actions\GetAdjacentProjects;
 use App\Models\Project;
 
-/**
- * @return array{0: Project, 1: Project, 2: Project}
- */
-function createRankedProjects(): array {
-    return [
-        Project::factory()->featured()->create(['created_at' => now()->subDays(5)]),
-        Project::factory()->create(['created_at' => now()->subDay()]),
-        Project::factory()->create(['created_at' => now()->subDays(10)]),
-    ];
-}
-
-describe('neighbours', function () {
-    it('follows the public list order', function () {
+describe('neighbours', function (): void {
+    it('follows the public list order', function (): void {
         [$featured, $newest, $oldest] = createRankedProjects();
 
-        $result = withLocale('en', fn () => GetAdjacentProjects::run($newest));
+        $result = runWithLocale('en', fn (): mixed => GetAdjacentProjects::run($newest));
 
         expect($result->previous)->toBe($featured)
             ->and($result->next)->toBe($oldest);
     });
 
-    it('wraps around at both ends', function () {
+    it('wraps around at both ends', function (): void {
         [$featured, $newest, $oldest] = createRankedProjects();
 
-        $first = withLocale('en', fn () => GetAdjacentProjects::run($featured));
-        $last = withLocale('en', fn () => GetAdjacentProjects::run($oldest));
+        $first = runWithLocale('en', fn (): mixed => GetAdjacentProjects::run($featured));
+        $last = runWithLocale('en', fn (): mixed => GetAdjacentProjects::run($oldest));
 
         expect($first->previous)->toBe($oldest)
             ->and($first->next)->toBe($newest)
@@ -38,42 +27,42 @@ describe('neighbours', function () {
             ->and($last->next)->toBe($featured);
     });
 
-    it('never returns the current project with three or more projects', function () {
-        foreach (createRankedProjects() as $project) {
-            $result = withLocale('en', fn () => GetAdjacentProjects::run($project));
+    it('never returns the current project with three or more projects', function (int $position): void {
+        $project = createRankedProjects()[$position];
 
-            expect($result->previous)->not->toBeNull()
-                ->and($result->next)->not->toBeNull()
-                ->and($result->previous->is($project))->toBeFalse()
-                ->and($result->next->is($project))->toBeFalse();
-        }
-    });
+        $result = runWithLocale('en', fn (): mixed => GetAdjacentProjects::run($project));
 
-    it('returns null on both sides when it is the only project', function () {
+        expect($result->previous)->not->toBeNull()
+            ->and($result->next)->not->toBeNull()
+            ->and($result->previous->is($project))->toBeFalse()
+            ->and($result->next->is($project))->toBeFalse();
+    })->with([0, 1, 2]);
+
+    it('returns null on both sides when it is the only project', function (): void {
         $project = Project::factory()->create();
 
-        $result = withLocale('en', fn () => GetAdjacentProjects::run($project));
+        $result = runWithLocale('en', fn (): mixed => GetAdjacentProjects::run($project));
 
         expect($result->previous)->toBeNull()
             ->and($result->next)->toBeNull();
     });
 
-    it('returns null on both sides when the project is not in the ranked list', function () {
+    it('returns null on both sides when the project is not in the ranked list', function (): void {
         createRankedProjects();
         $unpublished = Project::factory()->unpublished()->create();
 
-        $result = withLocale('en', fn () => GetAdjacentProjects::run($unpublished));
+        $result = runWithLocale('en', fn (): mixed => GetAdjacentProjects::run($unpublished));
 
         expect($result->previous)->toBeNull()
             ->and($result->next)->toBeNull();
     });
 
-    it('does not wrap around when there are only two projects', function () {
+    it('does not wrap around when there are only two projects', function (): void {
         $first = Project::factory()->featured()->create();
         $last = Project::factory()->create(['created_at' => now()->subDay()]);
 
-        $first_result = withLocale('en', fn () => GetAdjacentProjects::run($first));
-        $last_result = withLocale('en', fn () => GetAdjacentProjects::run($last));
+        $first_result = runWithLocale('en', fn (): mixed => GetAdjacentProjects::run($first));
+        $last_result = runWithLocale('en', fn (): mixed => GetAdjacentProjects::run($last));
 
         expect($first_result->previous)->toBeNull()
             ->and($first_result->next->is($last))->toBeTrue()
@@ -81,19 +70,19 @@ describe('neighbours', function () {
             ->and($last_result->next)->toBeNull();
     });
 
-    it('ignores unpublished projects', function () {
+    it('ignores unpublished projects', function (): void {
         [$featured, $newest] = createRankedProjects();
         Project::factory()->unpublished()->create(['created_at' => now()->subDays(2)]);
 
-        $result = withLocale('en', fn () => GetAdjacentProjects::run($newest));
+        $result = runWithLocale('en', fn (): mixed => GetAdjacentProjects::run($newest));
 
         expect($result->previous)->toBe($featured);
     });
 
-    it('eager loads tags and media on the neighbours', function () {
+    it('eager loads tags and media on the neighbours', function (): void {
         [, $newest] = createRankedProjects();
 
-        $result = withLocale('en', fn () => GetAdjacentProjects::run($newest));
+        $result = runWithLocale('en', fn (): mixed => GetAdjacentProjects::run($newest));
 
         expect($result->previous->relationLoaded('tags'))->toBeTrue()
             ->and($result->previous->relationLoaded('media'))->toBeTrue()

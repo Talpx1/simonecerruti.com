@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 use Filament\Forms\Components\TextInput;
 
-it('registers field text-transform macros that set an onInput handler', function (string $macro, string $expected) {
-    $field = TextInput::make('test')->{$macro}();
+describe('uppercase', function (): void {
+    it('sets an onInput handler that uppercases the value', function (): void {
+        $field = TextInput::make('test');
 
-    expect($field->getExtraInputAttributes())->toHaveKey('onInput')
-        ->and($field->getExtraInputAttributes()['onInput'])->toContain($expected);
-})->with([
-    'uppercase' => ['uppercase', 'toUpperCase'],
-    'lowercase' => ['lowercase', 'toLowerCase'],
-    'capitalizeWords' => ['capitalizeWords', 'toUpperCase'],
-    'capitalizeFirstChar' => ['capitalizeFirstChar', 'toUpperCase'],
-]);
+        expect($field->getExtraInputAttributes())->not->toHaveKey('onInput');
+
+        $field->uppercase();
+
+        expect($field->getExtraInputAttributes()['onInput'])->toContain('toUpperCase()')
+            ->and($field->getAutocapitalize())->toBe('characters');
+    });
+});

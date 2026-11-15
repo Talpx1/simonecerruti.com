@@ -7,12 +7,11 @@ use Illuminate\Support\Facades\DB;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
-    $this->withoutVite();
-    actingAsAdmin();
+beforeEach(function (): void {
+    authenticateAsAdmin();
 });
 
-it('categorizes events by prefix in the table', function () {
+it('categorizes events by prefix in the table', function (): void {
     DB::table('pan_analytics')->insert([
         ['name' => 'cta-nav-home', 'impressions' => 12, 'hovers' => 3, 'clicks' => 4],
         ['name' => 'cta-social-instagram', 'impressions' => 8, 'hovers' => 1, 'clicks' => 2],
@@ -27,21 +26,12 @@ it('categorizes events by prefix in the table', function () {
         ->assertSee(__('Section impressions'))
         ->assertSee(__('Card clicks'))
         ->assertSee('cta-nav-home')
-        ->assertSee('card-project-click');
+        ->assertSee('card-project-click')
+        ->assertDontSee(__('No events tracked yet.'));
 });
 
-it('renders the empty state when no events exist', function () {
+it('renders the empty state when no events exist', function (): void {
     livewire(PanEventsWidget::class)
         ->assertSuccessful()
         ->assertSee(__('No events tracked yet.'));
-});
-
-it('renders rows when events exist', function () {
-    DB::table('pan_analytics')->insert([
-        ['name' => 'cta-nav-blog', 'impressions' => 1, 'hovers' => 0, 'clicks' => 2],
-    ]);
-
-    livewire(PanEventsWidget::class)
-        ->assertSuccessful()
-        ->assertSee('cta-nav-blog');
 });

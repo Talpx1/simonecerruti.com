@@ -2,16 +2,8 @@
 
 declare(strict_types=1);
 
-use Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter;
-use Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect;
-
-beforeEach(fn () => $this->withoutVite());
-
-it('marks the page hero title so its letters animate on load', function (string $route) {
-    $this->withoutMiddleware([
-        LaravelLocalizationRedirectFilter::class,
-        LocaleSessionRedirect::class,
-    ])->get(route($route))
+it('marks the page hero title so its letters animate on load', function (string $route): void {
+    getPageWithoutLocaleRedirects($route)
         ->assertOk()
         ->assertSee('data-variable-letters', escape: false);
 })->with([
@@ -24,11 +16,8 @@ it('marks the page hero title so its letters animate on load', function (string 
     'services consulting' => ['services.consulting_and_seo'],
 ]);
 
-it('marks content with the reveal class so it animates in on scroll', function (string $route) {
-    $this->withoutMiddleware([
-        LaravelLocalizationRedirectFilter::class,
-        LocaleSessionRedirect::class,
-    ])->get(route($route))
+it('marks content with the reveal class so it animates in on scroll', function (string $route): void {
+    getPageWithoutLocaleRedirects($route)
         ->assertOk()
         ->assertSee('class="section-title reveal', escape: false);
 })->with([

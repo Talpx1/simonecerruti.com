@@ -4,35 +4,45 @@ declare(strict_types=1);
 
 use App\Settings\BlogSettings;
 
-describe('author_bio', function () {
-    it('defaults to an empty array', function () {
+describe('author_bio', function (): void {
+    it('defaults to an empty array', function (): void {
         expect(resolve(BlogSettings::class)->author_bio)->toBeEmpty();
     });
 });
 
-describe('getAuthorBioForCurrentLocale', function () {
-    it('returns the bio for the current locale', function () {
+describe('getAuthorBioForCurrentLocale', function (): void {
+    it('returns the bio for the current locale', function (): void {
         $settings = resolve(BlogSettings::class);
         $settings->author_bio = ['it' => 'Ciao', 'en' => 'Hello'];
 
-        expect(withLocale('it', fn () => $settings->getAuthorBioForCurrentLocale()))->toBe('Ciao')
-            ->and(withLocale('en', fn () => $settings->getAuthorBioForCurrentLocale()))->toBe('Hello');
+        expect(runWithLocale('it', fn (): ?string => $settings->getAuthorBioForCurrentLocale()))->toBe('Ciao')
+            ->and(runWithLocale('en', fn (): ?string => $settings->getAuthorBioForCurrentLocale()))->toBe('Hello');
     });
 
-    it('returns null when the bio is missing or blank', function () {
+    it('returns null when the bio of the current locale is blank', function (): void {
         $settings = resolve(BlogSettings::class);
         $settings->author_bio = ['it' => '  ', 'en' => ''];
 
-        expect(withLocale('it', fn () => $settings->getAuthorBioForCurrentLocale()))->toBeNull()
-            ->and(withLocale('en', fn () => $settings->getAuthorBioForCurrentLocale()))->toBeNull()
-            ->and(withLocale('de', fn () => $settings->getAuthorBioForCurrentLocale()))->toBeNull();
+        expect(runWithLocale('it', fn (): ?string => $settings->getAuthorBioForCurrentLocale()))->toBeNull()
+            ->and(runWithLocale('en', fn (): ?string => $settings->getAuthorBioForCurrentLocale()))->toBeNull();
     });
 
-    it('persists the values through save', function () {
+    it('returns null when the current locale has no bio', function (): void {
         $settings = resolve(BlogSettings::class);
+        $settings->author_bio = ['it' => 'Ciao'];
+
+        expect(runWithLocale('de', fn (): ?string => $settings->getAuthorBioForCurrentLocale()))->toBeNull();
+    });
+
+    it('persists the values through save', function (): void {
+        $settings = resolve(BlogSettings::class);
+
+        expect(runWithLocale('en', fn (): ?string => $settings->getAuthorBioForCurrentLocale()))->toBeNull();
+
         $settings->author_bio = ['en' => 'Saved'];
         $settings->save();
+        app()->forgetInstance(BlogSettings::class);
 
-        expect(withLocale('en', fn () => resolve(BlogSettings::class)->getAuthorBioForCurrentLocale()))->toBe('Saved');
+        expect(runWithLocale('en', fn (): ?string => resolve(BlogSettings::class)->getAuthorBioForCurrentLocale()))->toBe('Saved');
     });
 });

@@ -6,46 +6,53 @@ use App\Filament\Pages\ManageBlogSettings;
 use App\Filament\Resources\BlogArticles\BlogArticleResource;
 use App\Settings\BlogSettings;
 use Filament\Facades\Filament;
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
-    $this->withoutVite();
+beforeEach(function (): void {
+    authenticateAsAdmin();
 });
 
-it('renders the blog settings page for an admin', function () {
-    actingAsAdmin();
+describe('access', function (): void {
+    it('renders the blog settings page for an admin', function (): void {
+        livewire(ManageBlogSettings::class)->assertOk();
+    });
 
-    livewire(ManageBlogSettings::class)->assertOk();
+    it('forbids users who cannot access the panel', function (): void {
+        assertPanelUrlIsForbiddenForNonAdminUser(ManageBlogSettings::getUrl());
+    });
+
+    it('redirects guests to the login page', function (): void {
+        assertPanelUrlRedirectsGuestToLogin(ManageBlogSettings::getUrl());
+    });
 });
 
-it('saves the author bio for both locales', function () {
-    actingAsAdmin();
+describe('saving', function (): void {
+    it('saves the author bio for both locales', function (): void {
+        $expected_bio = ['en' => 'English bio', 'it' => 'Bio italiana'];
 
-    livewire(ManageBlogSettings::class)
-        ->fillForm([
-            'author_bio' => ['en' => 'English bio', 'it' => 'Bio italiana'],
-        ])
-        ->call('save')
-        ->assertHasNoFormErrors();
+        expect(resolve(BlogSettings::class)->author_bio)->not->toBe($expected_bio);
 
-    $settings = resolve(BlogSettings::class);
+        livewire(ManageBlogSettings::class)
+            ->fillForm(['author_bio' => $expected_bio])
+            ->call('save')
+            ->assertNotified()
+            ->assertHasNoFormErrors();
 
-    expect($settings->author_bio)->toBe(['en' => 'English bio', 'it' => 'Bio italiana']);
+        expect(resolve(BlogSettings::class)->author_bio)->toBe($expected_bio);
+    });
 });
 
-it('redirects guests to the login page', function () {
-    $this->get(ManageBlogSettings::getUrl())->assertRedirect();
-});
+describe('navigation', function (): void {
+    it('nests the settings item under the blog articles navigation item', function (): void {
+        $blog_item = collect(Filament::getNavigation())
+            ->flatMap(fn (NavigationGroup $group) => $group->getItems())
+            ->first(fn (NavigationItem $item): bool => $item->getLabel() === BlogArticleResource::getNavigationLabel());
 
-it('nests the settings item under the blog articles navigation item', function () {
-    actingAsAdmin();
-
-    $blog_item = collect(Filament::getNavigation())
-        ->flatMap(fn ($group) => $group->getItems())
-        ->first(fn ($item) => $item->getLabel() === BlogArticleResource::getNavigationLabel());
-
-    expect($blog_item)->not->toBeNull()
-        ->and($blog_item->getChildItems())->toHaveCount(1)
-        ->and($blog_item->getChildItems()[0]->getLabel())->toBe(ManageBlogSettings::getNavigationLabel());
+        expect($blog_item)->not->toBeNull()
+            ->and($blog_item->getChildItems())->toHaveCount(1)
+            ->and($blog_item->getChildItems()[0]->getLabel())->toBe(ManageBlogSettings::getNavigationLabel());
+    });
 });

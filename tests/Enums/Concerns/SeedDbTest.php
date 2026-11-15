@@ -2,91 +2,54 @@
 
 declare(strict_types=1);
 
-use App\Enums\Concerns\SeedDb;
-use Illuminate\Support\Facades\DB;
+use App\Models\Tag;
+use Tests\Fixtures\Enums\ForceSeedableRows;
+use Tests\Fixtures\Enums\PartiallySeedableRows;
+use Tests\Fixtures\Enums\SeedableRows;
 
-/**
- * Fixture that syncs to the tags table with the default (non-partial,
- * non-forced) behaviour so the orphan-protection branch can be exercised.
- */
-enum SeedDbStrictFixture: int {
-    use SeedDb;
+describe('sync', function (): void {
+    it('upserts every case into the resolved table', function (): void {
+        $count = fn (): int => Tag::query()->where('type', SeedableRows::TYPE)->count();
 
-    case ONE = 1;
+        expect($count())->toBe(0)
+            ->and(SeedableRows::sync())->toBeNull()
+            ->and($count())->toBe(\count(SeedableRows::cases()));
+    });
 
-    public static function table(): string {
-        return 'tags';
-    }
+    it('does not duplicate the rows when synced twice', function (): void {
+        $count = fn (): int => Tag::query()->where('type', SeedableRows::TYPE)->count();
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function dbMap(): array {
-        return [
-            'id' => $this->value,
-            'name' => json_encode(['en' => 'One']),
-            'slug' => json_encode(['en' => 'one']),
-            'type' => 'fake',
-        ];
-    }
-}
+        SeedableRows::sync();
 
-/**
- * Fixture identical to the above but with forced sync enabled.
- */
-enum SeedDbForcedFixture: int {
-    use SeedDb;
+        expect($count())->toBe(\count(SeedableRows::cases()))
+            ->and(SeedableRows::sync())->toBeNull()
+            ->and($count())->toBe(\count(SeedableRows::cases()));
+    });
 
-    case ONE = 1;
+    it('throws when orphaned rows exist and force sync is disabled', function (): void {
+        SeedableRows::sync();
+        insertOrphanTag(99, SeedableRows::TYPE);
 
-    public static function table(): string {
-        return 'tags';
-    }
+        expect(fn () => SeedableRows::sync())
+            ->toThrow(RuntimeException::class, 'Cannot sync: orphaned rows exist [99]');
+    });
 
-    protected static function forceSync(): bool {
-        return true;
-    }
+    it('deletes orphaned rows when force sync is enabled', function (): void {
+        ForceSeedableRows::sync();
+        insertOrphanTag(99, ForceSeedableRows::TYPE);
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function dbMap(): array {
-        return [
-            'id' => $this->value,
-            'name' => json_encode(['en' => 'One']),
-            'slug' => json_encode(['en' => 'one']),
-            'type' => 'fake',
-        ];
-    }
-}
+        expect(Tag::query()->whereKey(99)->exists())->toBeTrue()
+            ->and(ForceSeedableRows::sync())->toBeNull()
+            ->and(Tag::query()->whereKey(99)->exists())->toBeFalse()
+            ->and(Tag::query()->where('type', ForceSeedableRows::TYPE)->count())->toBe(\count(ForceSeedableRows::cases()));
+    });
 
-function insertOrphanTag(): void {
-    DB::table('tags')->insert([
-        'id' => 99,
-        'name' => json_encode(['en' => 'Orphan']),
-        'slug' => json_encode(['en' => 'orphan']),
-        'type' => 'fake',
-    ]);
-}
+    it('keeps rows outside of the enum when partial sync is enabled', function (): void {
+        insertOrphanTag(99, PartiallySeedableRows::TYPE);
 
-it('upserts every case into the resolved table', function () {
-    SeedDbStrictFixture::sync();
-
-    expect(DB::table('tags')->where('id', 1)->where('type', 'fake')->exists())->toBeTrue();
-});
-
-it('throws when orphaned rows exist and force sync is disabled', function () {
-    SeedDbStrictFixture::sync();
-    insertOrphanTag();
-
-    expect(fn () => SeedDbStrictFixture::sync())->toThrow(RuntimeException::class);
-});
-
-it('deletes orphaned rows when force sync is enabled', function () {
-    SeedDbForcedFixture::sync();
-    insertOrphanTag();
-
-    SeedDbForcedFixture::sync();
-
-    expect(DB::table('tags')->where('id', 99)->exists())->toBeFalse();
+        expect(Tag::query()->whereKey(99)->exists())->toBeTrue()
+            ->and(PartiallySeedableRows::sync())->toBeNull()
+            ->and(Tag::query()->whereKey(99)->exists())->toBeTrue()
+            ->and(Tag::query()->whereKey(PartiallySeedableRows::ONE->value)->exists())->toBeTrue();
+    });
 });

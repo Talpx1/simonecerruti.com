@@ -6,23 +6,35 @@ use App\Enums\LeadReadStatus;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
 
-describe('getColor', function () {
-    it('maps each status to a color', function () {
-        expect(LeadReadStatus::UNREAD->getColor())->toBe(Color::Blue)
-            ->and(LeadReadStatus::READ->getColor())->toBe(Color::Green);
-    });
+describe('getColor', function (): void {
+    it('maps the status to its color', function (LeadReadStatus $status): void {
+        $expected = [
+            LeadReadStatus::UNREAD->value => Color::Blue,
+            LeadReadStatus::READ->value => Color::Green,
+        ];
+
+        expect($status->getColor())->toBe($expected[$status->value]);
+    })->with(LeadReadStatus::cases());
 });
 
-describe('getIcon', function () {
-    it('maps each status to an envelope icon', function () {
-        expect(LeadReadStatus::UNREAD->getIcon())->toBe(Heroicon::OutlinedEnvelope)
-            ->and(LeadReadStatus::READ->getIcon())->toBe(Heroicon::OutlinedEnvelopeOpen);
-    });
+describe('getIcon', function (): void {
+    it('maps the status to an envelope icon', function (LeadReadStatus $status): void {
+        $expected = [
+            LeadReadStatus::UNREAD->value => Heroicon::OutlinedEnvelope,
+            LeadReadStatus::READ->value => Heroicon::OutlinedEnvelopeOpen,
+        ];
+
+        expect($status->getIcon())->toBe($expected[$status->value]);
+    })->with(LeadReadStatus::cases());
 });
 
-describe('values', function () {
-    it('exposes the expected backing values', function () {
-        expect(LeadReadStatus::UNREAD->value)->toBe('unread')
-            ->and(LeadReadStatus::READ->value)->toBe('read');
-    });
+describe('getLabel', function (): void {
+    it('translates the label in the requested locale', function (LeadReadStatus $status, string $locale): void {
+        $expected = [
+            LeadReadStatus::UNREAD->value => 'Non letto',
+            LeadReadStatus::READ->value => 'Letto',
+        ];
+
+        expect($status->getLabel($locale))->toBe($expected[$status->value]);
+    })->with(LeadReadStatus::cases())->with(['en', 'it']);
 });

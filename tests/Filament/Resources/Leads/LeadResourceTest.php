@@ -9,29 +9,40 @@ use Filament\Actions\Testing\TestAction;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
-    $this->withoutVite();
-    actingAsAdmin();
+beforeEach(function (): void {
+    authenticateAsAdmin();
 });
 
-it('only registers an index page', function () {
-    expect(array_keys(LeadResource::getPages()))->toBe(['index']);
+it('only registers an index page', function (): void {
+    expect(\array_keys(LeadResource::getPages()))->toBe(['index']);
 });
 
-it('lists leads', function () {
-    $leads = Lead::factory()->count(3)->create();
+describe('access', function (): void {
+    it('forbids users who cannot access the panel', function (): void {
+        assertPanelUrlIsForbiddenForNonAdminUser(LeadResource::getUrl('index'));
+    });
 
-    livewire(ListLeads::class)
-        ->assertCanSeeTableRecords($leads);
+    it('redirects guests to the login page', function (): void {
+        assertPanelUrlRedirectsGuestToLogin(LeadResource::getUrl('index'));
+    });
 });
 
-it('marks a lead as read when it is viewed', function () {
-    $lead = Lead::factory()->create();
+describe('list page', function (): void {
+    it('lists leads', function (): void {
+        $leads = Lead::factory()->count(3)->create();
 
-    expect($lead->read_at)->toBeNull();
+        livewire(ListLeads::class)
+            ->assertCanSeeTableRecords($leads);
+    });
 
-    livewire(ListLeads::class)
-        ->callAction(TestAction::make('view')->table($lead));
+    it('marks a lead as read when it is viewed', function (): void {
+        $lead = Lead::factory()->create();
 
-    expect($lead->refresh()->read_at)->not->toBeNull();
+        expect($lead->read_at)->toBeNull();
+
+        livewire(ListLeads::class)
+            ->callAction(TestAction::make('view')->table($lead));
+
+        expect($lead->refresh()->read_at)->not->toBeNull();
+    });
 });

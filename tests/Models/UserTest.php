@@ -4,79 +4,103 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Filament\Facades\Filament;
-use Illuminate\Support\Facades\DB;
 
-describe('canAccessPanel', function () {
-    beforeEach(function () {
-        $this->panel = Filament::getDefaultPanel();
+describe('attributes', function (): void {
+    describe('app_authentication_secret', function (): void {
+        it('is stored encrypted', function (): void {
+            $user = User::factory()->withoutMfa()->create();
+
+            expect($user->getAppAuthenticationSecret())->toBeNull()
+                ->and($user->saveAppAuthenticationSecret('SECRET'))->toBeNull();
+
+            $raw_secret = User::query()->toBase()->where('id', $user->id)->value('app_authentication_secret');
+
+            expect($user->fresh()->getAppAuthenticationSecret())->toBe('SECRET')
+                ->and($raw_secret)->not->toBe('SECRET');
+        });
+
+        it('is hidden from serialization', function (): void {
+            $user = User::factory()->make(['app_authentication_secret' => 'SECRET']);
+
+            expect($user->toArray())->not->toHaveKey('app_authentication_secret');
+        });
     });
 
-    it('allows verified users with a company email', function () {
-        $user = User::factory()->create(['email' => 'simone@simonecerruti.com']);
+    describe('app_authentication_recovery_codes', function (): void {
+        it('is stored encrypted', function (): void {
+            $user = User::factory()->withoutMfa()->create();
 
-        expect($user->canAccessPanel($this->panel))->toBeTrue();
+            expect($user->getAppAuthenticationRecoveryCodes())->toBeNull()
+                ->and($user->saveAppAuthenticationRecoveryCodes(['first-code', 'second-code']))->toBeNull();
+
+            $raw_codes = User::query()->toBase()->where('id', $user->id)->value('app_authentication_recovery_codes');
+
+            expect($user->fresh()->getAppAuthenticationRecoveryCodes())->toBe(['first-code', 'second-code'])
+                ->and($raw_codes)->not->toContain('first-code');
+        });
+
+        it('is hidden from serialization', function (): void {
+            $user = User::factory()->make(['app_authentication_recovery_codes' => ['code']]);
+
+            expect($user->toArray())->not->toHaveKey('app_authentication_recovery_codes');
+        });
     });
 
-    it('rejects users with a different email domain', function () {
-        $user = User::factory()->create(['email' => 'someone@gmail.com']);
+    describe('has_email_authentication', function (): void {
+        it('is toggled on and off', function (): void {
+            $user = User::factory()->withoutMfa()->create();
 
-        expect($user->canAccessPanel($this->panel))->toBeFalse();
-    });
-
-    it('rejects unverified company users', function () {
-        $user = User::factory()->unverified()->create(['email' => 'simone@simonecerruti.com']);
-
-        expect($user->canAccessPanel($this->panel))->toBeFalse();
+            expect($user->hasEmailAuthentication())->toBeFalse()
+                ->and($user->toggleEmailAuthentication(true))->toBeNull()
+                ->and($user->fresh()->hasEmailAuthentication())->toBeTrue()
+                ->and($user->toggleEmailAuthentication(false))->toBeNull()
+                ->and($user->fresh()->hasEmailAuthentication())->toBeFalse();
+        });
     });
 });
 
-it('derives up to two uppercase initials from the name', function () {
-    expect(User::factory()->make(['name' => 'simone cerruti rossi'])->initials)->toBe('SC')
-        ->and(User::factory()->make(['name' => 'Madonna'])->initials)->toBe('M');
+describe('accessors', function (): void {
+    describe('initials', function (): void {
+        it('derives up to two uppercase initials from the name', function (): void {
+            expect(User::factory()->make(['name' => 'simone cerruti rossi'])->initials)->toBe('SC')
+                ->and(User::factory()->make(['name' => 'Madonna'])->initials)->toBe('M');
+        });
+    });
 });
 
-describe('multi-factor authentication', function () {
-    it('requires multi-factor authentication on the admin panel with app and email providers', function () {
-        $panel = Filament::getDefaultPanel();
+describe('filament', function (): void {
+    describe('canAccessPanel', function (): void {
+        it('allows verified users with a company email', function (): void {
+            $user = User::factory()->admin()->create();
 
-        expect($panel->isMultiFactorAuthenticationRequired())->toBeTrue()
-            ->and($panel->getMultiFactorAuthenticationProviders())->toHaveCount(2);
+            expect($user->canAccessPanel(Filament::getDefaultPanel()))->toBeTrue();
+        });
+
+        it('rejects users with a different email domain', function (): void {
+            $user = User::factory()->create();
+
+            expect($user->canAccessPanel(Filament::getDefaultPanel()))->toBeFalse();
+        });
+
+        it('rejects unverified company users', function (): void {
+            $user = User::factory()->admin()->unverified()->create();
+
+            expect($user->canAccessPanel(Filament::getDefaultPanel()))->toBeFalse();
+        });
     });
 
-    it('stores the app authentication secret and recovery codes encrypted', function () {
-        $user = User::factory()->create();
+    describe('multi-factor authentication', function (): void {
+        it('is required on the admin panel with app and email providers', function (): void {
+            $panel = Filament::getDefaultPanel();
 
-        $user->saveAppAuthenticationSecret('SECRET');
-        $user->saveAppAuthenticationRecoveryCodes(['first-code', 'second-code']);
+            expect($panel->isMultiFactorAuthenticationRequired())->toBeTrue()
+                ->and($panel->getMultiFactorAuthenticationProviders())->toHaveCount(2);
+        });
 
-        $raw = DB::table('users')->where('id', $user->id)->first();
+        it('uses the email as the app authentication holder name', function (): void {
+            $user = User::factory()->admin()->make();
 
-        expect($user->fresh())
-            ->getAppAuthenticationSecret()->toBe('SECRET')
-            ->getAppAuthenticationRecoveryCodes()->toBe(['first-code', 'second-code'])
-            ->and($raw->app_authentication_secret)->not->toBe('SECRET')
-            ->and($raw->app_authentication_recovery_codes)->not->toContain('first-code');
-    });
-
-    it('toggles the email authentication', function () {
-        $user = User::factory()->create();
-
-        expect($user->hasEmailAuthentication())->toBeFalse();
-
-        $user->toggleEmailAuthentication(true);
-
-        expect($user->fresh()->hasEmailAuthentication())->toBeTrue();
-    });
-
-    it('uses the email as the app authentication holder name', function () {
-        $user = User::factory()->make(['email' => 'simone@simonecerruti.com']);
-
-        expect($user->getAppAuthenticationHolderName())->toBe('simone@simonecerruti.com');
-    });
-
-    it('hides the multi-factor secrets from serialization', function () {
-        $user = User::factory()->make(['app_authentication_secret' => 'SECRET', 'app_authentication_recovery_codes' => ['code']]);
-
-        expect($user->toArray())->not->toHaveKeys(['app_authentication_secret', 'app_authentication_recovery_codes']);
+            expect($user->getAppAuthenticationHolderName())->toBe($user->email);
+        });
     });
 });
