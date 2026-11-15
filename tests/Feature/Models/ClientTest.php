@@ -4,7 +4,53 @@ declare(strict_types=1);
 
 use App\Models\Client;
 use App\Models\Project;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Activity;
+
+describe('client_image media', function () {
+    it('registers a single file client_image collection', function () {
+        $collection = Client::factory()->make()->getRegisteredMediaCollections()->firstWhere('name', 'client_image');
+
+        expect($collection->singleFile)->toBeTrue();
+    });
+
+    it('generates a square webp conversion', function () {
+        Storage::fake('public');
+
+        $client = Client::factory()->create();
+        $media = $client->addMedia(UploadedFile::fake()->image('logo.jpg', 1200, 800))->toMediaCollection('client_image');
+
+        [$width, $height] = getimagesize($media->refresh()->getPath('client_image_webp'));
+
+        expect($width)->toBe(600)->and($height)->toBe(600);
+    });
+
+    it('replaces the previous image when a new one is attached', function () {
+        Storage::fake('public');
+
+        $client = Client::factory()->create();
+        $client->addMedia(UploadedFile::fake()->image('a.jpg', 800, 800))->toMediaCollection('client_image');
+        $client->addMedia(UploadedFile::fake()->image('b.jpg', 800, 800))->toMediaCollection('client_image');
+
+        expect($client->getMedia('client_image'))->toHaveCount(1);
+    });
+});
+
+describe('image_url attribute', function () {
+    it('is null without media', function () {
+        expect(Client::factory()->create()->image_url)->toBeNull();
+    });
+
+    it('returns the conversion url when an image is attached', function () {
+        Storage::fake('public');
+
+        $client = Client::factory()->create();
+        $client->addMedia(UploadedFile::fake()->image('logo.jpg', 800, 800))->toMediaCollection('client_image');
+
+        expect($client->refresh()->image_url)->toContain('client_image_webp');
+    });
+});
 
 describe('attributes', function () {
     describe('description', function () {

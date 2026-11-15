@@ -73,7 +73,7 @@ Fonts are self-hosted: Archivo Variable comes from `@fontsource-variable/archivo
 
 ### Client
 
-`clients` table, `Client` model: `name` and a translatable `description`. A client has many projects (`projects.client_id`). Managed in the Filament Client resource. Deleting goes through the `DeleteClient` action, which first nulls `client_id` on the client's projects so no project is lost.
+`clients` table, `Client` model: `name` and a translatable `description`. A client has many projects (`projects.client_id`). Each client can have one square image (`client_image` media collection, single file): the `client_image_webp` conversion crops it to a 600x600 webp, tuned in `config/client.php`, and `image_url` returns its URL or `null`. The project page shows it in the Client block when present. Managed in the Filament Client resource, which includes the image upload. Deleting goes through the `DeleteClient` action, which first nulls `client_id` on the client's projects so no project is lost.
 
 ### Project
 
