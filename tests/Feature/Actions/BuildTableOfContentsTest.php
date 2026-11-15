@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\BuildTableOfContents;
-use App\DataTransferObjects\TableOfContentsEntryData;
+use App\Data\TableOfContentsEntryData;
 
 it('lists h2 and h3 headings in document order with their level', function () {
     $entries = BuildTableOfContents::run('<h1 id="skip">Skip</h1><h2 id="first">First</h2><p>x</p><h3 id="nested">Nested</h3><h2 id="second">Second</h2><h4 id="skip-too">Skip too</h4>');

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DataTransferObjects;
+namespace App\Data;
 
 readonly class VisitSourceData {
     public function __construct(

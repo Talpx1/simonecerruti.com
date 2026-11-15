@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\DataTransferObjects\SeoData;
+use App\Data\SeoData;
 use App\View\Composers\SeoComposer;
 use Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter;
 use Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\DataTransferObjects\VisitSourceData;
+use App\Data\VisitSourceData;
 use App\Enums\VisitMediumType;
 use App\Enums\VisitSourceType;
 use App\Models\Campaign;

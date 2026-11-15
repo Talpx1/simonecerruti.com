@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Actions\DetectVisitSource;
-use App\DataTransferObjects\ExistingSessionState;
-use App\DataTransferObjects\NewSessionState;
-use App\DataTransferObjects\VisitSourceData;
+use App\Data\ExistingSessionState;
+use App\Data\NewSessionState;
+use App\Data\VisitSourceData;
 use App\Enums\DeviceType;
 use App\Models\PageView;
 use App\Models\VisitSession;
