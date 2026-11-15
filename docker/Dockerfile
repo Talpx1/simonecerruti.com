@@ -5,8 +5,10 @@ FROM php:8.5.12-fpm AS base
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+    curl \
     nano \
     nginx \
+    openssl \
     supervisor \
     cron \
     libpq-dev \
@@ -16,7 +18,7 @@ RUN apt-get update && \
     bash \
     logrotate \
     gettext-base \
-    postgresql-client \
+    gnupg \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev \
@@ -28,10 +30,21 @@ RUN apt-get update && \
     webp && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
-    docker-php-ext-install pdo_pgsql intl zip exif gd bcmath
+# pg_dump (backups, schema dumps) refuses to dump a server newer than itself, and the Debian repo ships
+# an older client than the database: take it from the PostgreSQL repo and keep the major in step with
+# the `postgres` image of docker-compose.local.yml, deploy/compose.yml and the CI workflows.
+RUN install -d -m 0755 /etc/apt/keyrings && \
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/keyrings/postgresql.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo "$VERSION_CODENAME")-pgdg main" \
+        > /etc/apt/sources.list.d/pgdg.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends postgresql-client-18 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
+    docker-php-ext-install pdo_pgsql intl zip exif gd bcmath sockets
+
+COPY --from=composer:2.10 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
@@ -64,15 +77,16 @@ FROM base AS web-common
 
 # Nginx config
 COPY ./docker/configs/nginx.conf /etc/nginx/sites-available/default.template
+COPY ./docker/configs/nginx-real-ip.conf /etc/nginx/conf.d/real-ip.conf
 
-# Setup PHP-FPM pool config (templated; entrypoint renders the final www.conf)
+# Setup PHP-FPM pool config
 COPY ./docker/configs/php-fpm-www.conf /usr/local/etc/php-fpm.d/www.conf.template
 
 # Setup php.ini
-COPY ./docker/configs/php.ini $PHP_INI_DIR/php.ini
+COPY ./docker/configs/php.ini $PHP_INI_DIR/php.ini.template
 
 # Setup supervisord configs
-COPY ./docker/configs/supervisord.conf /etc/supervisor/supervisord.conf
+COPY ./docker/configs/supervisord.conf.template /etc/supervisor/supervisord.conf.template
 
 # Setup cron supervisor (for Laravel scheduler)
 COPY ./docker/configs/crontab /etc/crontab
@@ -89,11 +103,11 @@ COPY ./docker/configs/nginx-supervisor.conf /etc/supervisor/conf.d/nginx.conf
 COPY ./docker/configs/php-fpm-supervisor.conf /etc/supervisor/conf.d/php-fpm.conf
 
 # Setup logrotate
-COPY ./docker/configs/logrotate /etc/logrotate.d/simone_cerruti_website
+COPY ./docker/configs/logrotate /etc/logrotate.d/laravel
 
-# Setup Watchtower lifecycle executables
-COPY ./docker/scripts/post-update.sh /post-update.sh
-RUN chmod +x /post-update.sh
+# Setup cache rebuild script
+COPY ./docker/scripts/rebuild-caches.sh /rebuild-caches.sh
+RUN chmod +x /rebuild-caches.sh
 
 # Setup healthcheck script
 COPY ./docker/scripts/healthcheck.sh /healthcheck.sh
@@ -105,6 +119,7 @@ COPY ./docker/configs/opcache.ini /usr/local/etc/php/conf.d/opcache.ini.template
 # Setup entrypoint
 COPY ./docker/scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
 
 # Set the working directory
 WORKDIR /var/www/html
@@ -140,13 +155,17 @@ CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf", "-n"]
 FROM web-common AS web-production
 
 COPY ./docker/scripts/cloudflare-ips.sh /usr/local/bin/cloudflare-ips.sh
-RUN printf '%s\n' \
+RUN chmod +x /usr/local/bin/cloudflare-ips.sh && \
+    printf '%s\n' \
     "# Refresh Cloudflare IP ranges weekly (Sunday 4am)" \
     "0 4 * * 0 root /usr/local/bin/cloudflare-ips.sh >> /var/www/html/storage/logs/cloudflare-ips.log 2>&1" \
     >> /etc/crontab
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www
+# The code stays owned by root: a compromised app (www-data) must not be able to rewrite what the
+# root entrypoint executes at the next start. www-data owns only the writable paths.
+RUN touch public/sitemap.xml && \
+    chown -R www-data:www-data public/sitemap.xml storage bootstrap/cache /var/www/.cache /var/www/.npm /var/www/.config && \
+    ln -s ../storage/app/public public/storage
 
 # ========================
 # 5b. WEB LOCAL (dev)
@@ -158,8 +177,9 @@ ARG WWWGID=1000
 
 # Dev system deps + pcntl
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git ssh xclip ca-certificates curl gnupg && \
+    apt-get install -y --no-install-recommends git ssh xclip ca-certificates curl gnupg jq fd-find && \
     docker-php-ext-install pcntl && \
+    ln -sf "$(command -v fdfind)" /usr/local/bin/fd && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Coverage + debugging drivers (dev only): PCOV drives Pest/PHPUnit coverage (fast),
@@ -173,14 +193,8 @@ COPY ./docker/configs/pcov.ini /usr/local/etc/php/conf.d/zz-pcov.ini
 # Node (for running vite dev server inside the container)
 RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y nodejs && \
-    npm install -g npm@latest && \
+    npm install -g npm@12.1.0 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# CodeGraph (local code-intelligence graph + MCP server for the agents). The npm package ships
-# the native binary as an optionalDependency, so the build needs no runtime download. Telemetry
-# defaults to ON upstream and the home dir isn't a persisted volume, so it's disabled via env.
-ENV CODEGRAPH_TELEMETRY=0
-RUN npm install -g @colbymchenry/codegraph@1.6.0 && npm cache clean --force
 
 # Claude CLI
 RUN install -d -m 0755 /etc/apt/keyrings && \
@@ -191,6 +205,42 @@ RUN install -d -m 0755 /etc/apt/keyrings && \
     apt-get install -y claude-code && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     install -d -o www-data -g www-data /var/www/.claude
+
+# GitHub CLI
+RUN install -d -m 0755 /etc/apt/keyrings && \
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg -o /etc/apt/keyrings/githubcli-archive-keyring.gpg && \
+    chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+        > /etc/apt/sources.list.d/github-cli.list && \
+    apt-get update && \
+    apt-get install -y gh && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Playwright system libs for the Pest browser tests (dev only). The chromium binary itself is
+# installed at container start by entrypoint.sh, from the `playwright` version pinned in
+# package.json, so the deps installed here stay in lockstep with it.
+RUN npx --yes playwright@1.64.0 install-deps chromium && \
+    npm cache clean --force && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# ast-grep (structural code search/refactor on the PHP/Blade tree). Its global bin is named
+# "sg", which collides with util-linux's /usr/bin/sg (switch-group); unused in this container.
+RUN rm -f /usr/bin/sg && \
+    npm install -g @ast-grep/cli@0.45.3 && npm cache clean --force
+
+# CodeGraph (local code-intelligence graph + MCP server for the agents). The npm package ships
+# the native binary as an optionalDependency, so the build needs no runtime download. Telemetry
+# defaults to ON upstream and the home dir isn't a persisted volume, so it's disabled via env.
+ENV CODEGRAPH_TELEMETRY=0
+RUN npm install -g @colbymchenry/codegraph@1.6.0 && npm cache clean --force
+
+
+# Reap orphaned `playwright run-server` processes left by Pest browser tests (dev only —
+# pest-plugin-browser never terminates the process it spawns; see
+# docker/scripts/reap-playwright-orphans.sh).
+COPY ./docker/scripts/reap-playwright-orphans.sh /reap-playwright-orphans.sh
+RUN chmod +x /reap-playwright-orphans.sh
+COPY ./docker/configs/reap-playwright-orphans-supervisor.conf /etc/supervisor/conf.d/reap-playwright-orphans.conf
 
 # Vite watch supervisor (dev only)
 COPY ./docker/configs/vite-watch.conf /etc/supervisor/conf.d/vite-watch.conf
