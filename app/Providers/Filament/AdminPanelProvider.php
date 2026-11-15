@@ -11,6 +11,8 @@ use App\Filament\Widgets\TopPagesTable;
 use App\Filament\Widgets\TopReferrersTable;
 use App\Filament\Widgets\VisitsByDayChart;
 use App\Filament\Widgets\VisitsBySourcePieChart;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
+use Filament\Auth\MultiFactor\Email\EmailAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -72,6 +74,7 @@ class AdminPanelProvider extends PanelProvider {
             ->favicon('/favicon/favicon.svg')
             ->brandLogo(fn () => view('components.app-logo', ['color' => '#000']))
             ->darkModeBrandLogo(fn () => view('components.app-logo'))
-            ->brandLogoHeight('2.5rem');
+            ->brandLogoHeight('2.5rem')
+            ->multiFactorAuthentication([AppAuthentication::make()->recoverable(), EmailAuthentication::make()], isRequired: true);
     }
 }

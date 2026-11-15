@@ -3,7 +3,6 @@
 - Sequential explicit logic invocation is preferred over event-driven design.
 - Actions pattern wins over Observers.
 - When creating or refactoring a behavior, prefer an **Action** (`lorisleiva/laravel-actions`) over a Support class, an helper method or similar.
-- Filament-specific behavior must be wrapped in a Filament Action. Whenever, write a generic Action and reference it from a Filament Action. Treat Filament action as adapter/wrapper over generic actions.
 - Prefer macros instead of Support classes or helpers. Eg: prefer creating macros on the `Cache` facade instead of creating a `Support\CacheHelper` class.
 - One Service Provider per macro family, registering every macro on that same macroable class: all `Config` macros in `ConfigMacroServiceProvider`, all `Str` macros in `StrMacroServiceProvider`, etc.
 - Use Services **only for external integrations**.

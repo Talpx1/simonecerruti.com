@@ -9,3 +9,7 @@
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
+
+composer.lock -diff linguist-generated
+package-lock.json -diff linguist-generated
+/public/build/** linguist-generated

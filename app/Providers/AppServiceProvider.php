@@ -22,7 +22,11 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Field;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Columns\TextColumn;
+use Google\Client as GoogleClient;
+use Google\Service\Drive as GoogleDrive;
+use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -30,6 +34,7 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
@@ -37,7 +42,9 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
 use Illuminate\Support\Uri;
+use League\Flysystem\Filesystem;
 use Livewire\Livewire;
+use Masbug\Flysystem\GoogleDriveAdapter;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use Mcamara\LaravelLocalization\Traits\LoadsTranslatedCachedRoutes;
 use Pan\PanConfiguration;
@@ -78,6 +85,8 @@ class AppServiceProvider extends ServiceProvider {
         URL::forceHttps($this->app->environment(['staging', 'production']));
         DB::prohibitDestructiveCommands($this->app->environment('production'));
         Http::preventStrayRequests($this->app->runningUnitTests());
+
+        Storage::extend('google', $this->makeGoogleDriveFilesystem(...));
 
         RouteServiceProvider::loadCachedRoutesUsing(fn () => $this->loadCachedRoutes());
 
@@ -154,5 +163,19 @@ class AppServiceProvider extends ServiceProvider {
         /** @var array<int, string> $allowed_analytics */
         $allowed_analytics = config()->array('analytics.pan.allowed_analytics');
         PanConfiguration::allowedAnalytics($allowed_analytics);
+    }
+
+    /**
+     * @param  array{clientId: string, clientSecret: string, refreshToken: string, folder?: string|null}  $config
+     */
+    private function makeGoogleDriveFilesystem(ApplicationContract $app, array $config): FilesystemAdapter {
+        $client = new GoogleClient;
+        $client->setClientId($config['clientId']);
+        $client->setClientSecret($config['clientSecret']);
+        $client->refreshToken($config['refreshToken']);
+
+        $adapter = new GoogleDriveAdapter(new GoogleDrive($client), $config['folder'] ?? '/');
+
+        return new FilesystemAdapter(new Filesystem($adapter, $config), $adapter, $config);
     }
 }
