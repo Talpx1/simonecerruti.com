@@ -97,6 +97,8 @@ The home page works section is built from a list of `WorkCardData` (title, kind,
 
 Tags have a `description` and an optional `service`, a `ServiceAreas` case (`management_erp_crm`, `web_ecommerce_platforms`, `consulting_and_seo`). `GetServiceAreaProjects::run($area, $limit)` returns the featured projects that carry a tag with that service; the matching service landing page (`$area->getRouteName()`) uses it for its project section. To show a project on a landing page, tag it with a tag whose `service` is set.
 
+Every tag has a name in every supported locale, so the public site never meets a tag without a slug. `Tag::findOrCreate()` (used by every tags input) runs `FillMissingTagTranslations`, which copies the name into the locales that have none; the slug follows from the name when the tag is saved. Until someone translates it, the English site shows the Italian name. The "Translate tags" action beside each tags input opens a modal with one name field per locale for the tags of that field, and saves them through `UpdateTagTranslations` (gate `translateTags`). To fix tags created before this behavior, run `php artisan tags:fill-missing-translations` once.
+
 ### Blog
 
 - `BlogSettings` (Filament settings page, group `blog`) holds the per-locale `author_bio`, shown in the article footer through `getAuthorBioForCurrentLocale()`; it is null when empty.
