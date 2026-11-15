@@ -10,7 +10,9 @@
         }
     ],
     "support": {
-        "email": "hello@simonecerruti.com"
+        "email": "hello@simonecerruti.com",
+        "issues": "https://github.com/Talpx1/simonecerruti.com/issues",
+        "source": "https://github.com/Talpx1/simonecerruti.com"
     },
     "type": "project",
     "description": "Personal website.",
@@ -88,7 +90,7 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate",
             "@php artisan migrate --force",
-            "npm install",
+            "npm install --ignore-scripts",
             "npm run build"
         ],
         "dev": [
@@ -166,10 +168,18 @@
             "@php artisan package:discover --ansi",
             "@php artisan filament:upgrade"
         ],
+        "ai:update": [
+            "@php artisan boost:update --ansi",
+            "@php artisan ai:link-hooks --ansi"
+        ],
+        "statusline": [
+            "Composer\\Config::disableProcessTimeout",
+            "npx -y ccstatusline@latest --config /var/www/html/.claude/ccstatusline/settings.json"
+        ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
             "@php artisan lang:update",
-            "@php artisan boost:update --ansi"
+            "@composer ai:update"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""

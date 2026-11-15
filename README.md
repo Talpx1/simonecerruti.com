@@ -1,5 +1,22 @@
 Simone Cerruti Website
 
+## Development
+
+The project runs in the dev container defined by `docker-compose.local.yml` (app, Postgres, Mailpit). Open the folder in VS Code and reopen it in the container, then:
+
+```
+composer setup
+composer dev
+```
+
+Quality scripts: `composer test`, `composer pint`, `composer rector`, `composer stan`, `composer qa`. Each has an `:agentic` variant with machine-readable output.
+
+AI tooling (Boost guidelines, skills, hooks) is regenerated with `composer ai:update`; see [`docs/ai-setup.md`](docs/ai-setup.md).
+
+## Deploy
+
+Images are built by GitHub Actions and rolled out to the server through a restricted SSH gateway: merges into `staging` deploy to staging, the **Release** workflow promotes the same image to production. Server setup, GitHub secrets and the cutover checklist are in [`docs/deploy.md`](docs/deploy.md) and [`deploy/README.md`](deploy/README.md).
+
 ## Internal analytics — UTM campaign URLs
 
 Internal traffic statistics live in `visit_sessions` / `page_views` and surface in the Filament admin (`/admin`) under the **Visit sessions** resource and the dashboard widgets.
