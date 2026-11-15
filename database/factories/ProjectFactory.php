@@ -110,4 +110,14 @@ class ProjectFactory extends Factory {
             'featured' => true,
         ]);
     }
+
+    /**
+     * A project with the same title and slug in every locale.
+     */
+    public function withTitleAndSlug(string $title, string $slug): static {
+        return $this->state(fn (array $attributes): array => [
+            'title' => ['en' => $title, 'it' => $title],
+            'slug' => ['en' => $slug, 'it' => $slug],
+        ]);
+    }
 }

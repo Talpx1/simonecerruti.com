@@ -112,13 +112,17 @@ arch('console commands extend the base command')
     ->expect('App\Console\Commands')
     ->toExtend('Illuminate\Console\Command');
 
-arch('field macros implement the macro contract')
-    ->expect('App\Filament\Macros\Field')
-    ->toImplement('App\Macros\Concerns\Macro');
+arch('macros extend the Macro contract')
+    ->expect('App\Macros')
+    ->classes()
+    ->toExtend('App\Macros\Contracts\Macro')
+    ->ignoring('App\Macros\Contracts');
 
-arch('string macros implement the macro contract')
-    ->expect('App\Macros\Str')
-    ->toImplement('App\Macros\Concerns\Macro');
+arch('macros are final')
+    ->expect('App\Macros')
+    ->classes()
+    ->toBeFinal()
+    ->ignoring('App\Macros\Contracts');
 
 arch('exceptions are throwable')
     ->expect('App\Exceptions')

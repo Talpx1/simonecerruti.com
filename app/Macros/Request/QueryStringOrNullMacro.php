@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace App\Macros\Request;
 
-use App\Macros\Concerns\Macro;
+use App\Macros\Contracts\InstanceMacro;
+use Illuminate\Http\Request;
 
-class QueryStringOrNullMacro implements Macro {
-    public static function register(): array {
-        return [
-            'queryStringOrNull',
-            function (string $key): ?string {
-                $value = $this->query($key);
+final class QueryStringOrNullMacro extends InstanceMacro {
+    protected static function macroable(): string {
+        return Request::class;
+    }
 
-                return \is_string($value) && $value !== '' ? $value : null;
-            },
-        ];
+    protected static function name(): string {
+        return 'queryStringOrNull';
+    }
+
+    public static function handle(Request $request, string $key): ?string {
+        $value = $request->query($key);
+
+        return \is_string($value) && $value !== '' ? $value : null;
     }
 }

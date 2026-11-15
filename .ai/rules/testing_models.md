@@ -1,6 +1,6 @@
 ---
 paths:
-    - tests/Feature/Models/**
+    - tests/Models/**
 ---
 
 # Testing Models
@@ -12,6 +12,8 @@ Group Model tests in `describe` blocks following this structure:
     - `describe('<accessor name>')`: accessor-specific tests
 - `describe('scopes')`
     - `describe('<scope name>')`: scope-specific tests
+- `describe('relationships')`
+    - `describe('<relation name>')`: relation-specific tests such as related model, cascade/null on delete, eager loading
 - `describe('mass-assignment')`: mass-assignment and fillable definition tests
 - `describe('filament')`: Filament tests
 - `describe('activity logging')`: activity logging tests

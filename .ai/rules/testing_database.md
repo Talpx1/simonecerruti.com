@@ -1,6 +1,6 @@
 ---
 paths:
-    - tests/Feature/Database/**
+    - tests/Database/**
 ---
 
 # Testing database (migrations, seeders)

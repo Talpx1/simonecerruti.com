@@ -23,7 +23,7 @@ is git-ignored.
 ## Maintenance
 
 Because the file is static, update `public/llms.txt` by hand when contacts,
-services or positioning change. `tests/Feature/LlmsTxtTest.php` guards the file
+services or positioning change. `tests/Public/LlmsTxtTest.php` guards the file
 and keeps the contacts and social links in sync with `config/company.php`: change
 a contact there and the test fails until `llms.txt` is updated to match.
 

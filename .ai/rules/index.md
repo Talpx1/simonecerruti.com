@@ -14,11 +14,11 @@ Before planning or editing, find the row whose globs match the file's path and r
 | database/migrations/** | .ai/rules/migrations.md |
 | app/Models/** | .ai/rules/models.md |
 | tests/** | .ai/rules/testing.md |
-| tests/Feature/Actions/** | .ai/rules/testing_actions.md |
+| tests/Actions/** | .ai/rules/testing_actions.md |
 | tests/Browser/** | .ai/rules/testing_browser.md |
-| tests/Feature/Console/** | .ai/rules/testing_console_commands.md |
-| tests/Feature/Database/** | .ai/rules/testing_database.md |
-| tests/Feature/Enums/** | .ai/rules/testing_enums.md |
-| tests/Feature/Filament/** | .ai/rules/testing_filament.md |
-| tests/Feature/Http/** | .ai/rules/testing_http.md |
-| tests/Feature/Models/** | .ai/rules/testing_models.md, .ai/rules/testing_models_filament.md |
+| tests/Console/** | .ai/rules/testing_console_commands.md |
+| tests/Database/** | .ai/rules/testing_database.md |
+| tests/Enums/** | .ai/rules/testing_enums.md |
+| tests/Filament/** | .ai/rules/testing_filament.md |
+| tests/Http/** | .ai/rules/testing_http.md |
+| tests/Models/** | .ai/rules/testing_models.md, .ai/rules/testing_models_filament.md |

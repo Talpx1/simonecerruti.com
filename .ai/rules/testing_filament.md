@@ -1,6 +1,6 @@
 ---
 paths:
-    - tests/Feature/Filament/**
+    - tests/Filament/**
 ---
 
 # Testing Filament

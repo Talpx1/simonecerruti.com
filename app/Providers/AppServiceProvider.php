@@ -4,22 +4,11 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Exceptions\MissingRoutableLocalizedRouteKeyException;
-use App\Filament\Macros\Field\CapitalizeFirstCharMacro;
-use App\Filament\Macros\Field\CapitalizeWordsMacro;
-use App\Filament\Macros\Field\LowercaseMacro;
-use App\Filament\Macros\Field\UppercaseMacro;
 use App\Http\Middleware\TrackVisit;
-use App\Macros\Concerns\Macro;
-use App\Macros\Request\CookieStringOrDefaultMacro;
-use App\Macros\Request\QueryStringOrDefaultMacro;
-use App\Macros\Request\QueryStringOrNullMacro;
-use App\Macros\Str\ReplacePlaceholdersMacro;
 use App\View\Composers\SeoComposer;
 use Carbon\CarbonImmutable;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Field;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Columns\TextColumn;
 use Google\Client as GoogleClient;
@@ -28,8 +17,6 @@ use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -39,8 +26,6 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
-use Illuminate\Support\Uri;
 use Illuminate\Validation\Rules\Password;
 use League\Flysystem\Filesystem;
 use Livewire\Livewire;
@@ -95,48 +80,6 @@ class AppServiceProvider extends ServiceProvider {
 
         RouteServiceProvider::loadCachedRoutesUsing(fn () => $this->loadCachedRoutes());
 
-        App::macro('supportedLocales', fn (): array => LaravelLocalization::getSupportedLocales());
-
-        App::macro('supportedLocaleCodes',
-            /** @return list<string> */
-            function (): array {
-                return \array_map(\strval(...), \array_keys(App::supportedLocales()));
-            });
-
-        $localizedUri = function (
-            string|bool|null $locale = null,
-            string|false|null $url = null,
-            array $attributes = [],
-            bool $force_default_location = false
-        ): Uri {
-            try {
-                return Uri::of((string) LaravelLocalization::getLocalizedURL($locale, $url, $attributes, $force_default_location))
-                    ->withoutQuery(['missing_translations']);
-            } catch (MissingRoutableLocalizedRouteKeyException) {
-                return Uri::of(request()->url())->withQuery(['missing_translations' => $locale]);
-            }
-        };
-
-        Route::macro('localizedUrl', $localizedUri);
-
-        // Same as localizedUrl(), but returns the URL already cast to a string —
-        // saves callers the `->__toString()` (and the @var Uri hint larastan needs).
-        Route::macro('localizedUrlString',
-            fn (
-                string|bool|null $locale = null,
-                string|false|null $url = null,
-                array $attributes = [],
-                bool $force_default_location = false
-            ): string => $localizedUri($locale, $url, $attributes, $force_default_location)->__toString()
-        );
-
-        Route::macro('livewireLocalized',
-            fn (string $trans_name, string $component) => Route::livewire(
-                LaravelLocalization::transRoute("routes.{$trans_name}"),
-                $component
-            )
-        );
-
         DateTimePicker::configureUsing(function (DateTimePicker $component) {
             if ($component->hasTime()) {
                 $component->timezone(config()->string('app.actual_timezone'));
@@ -146,28 +89,7 @@ class AppServiceProvider extends ServiceProvider {
         TextColumn::configureUsing(fn (TextColumn $column) => $column->timezone(config()->string('app.actual_timezone')));
         TextEntry::configureUsing(fn (TextEntry $entry) => $entry->timezone(config()->string('app.actual_timezone')));
 
-        collect([
-            UppercaseMacro::class,
-            LowercaseMacro::class,
-            CapitalizeWordsMacro::class,
-            CapitalizeFirstCharMacro::class,
-        ])->each(function (string $macro): void {
-            /** @var class-string<Macro> $macro */
-            Field::macro(...$macro::register());
-        });
-
-        Str::macro(...ReplacePlaceholdersMacro::register());
-
         View::composer(['layouts::public.index', 'layouts.public.index'], SeoComposer::class);
-
-        collect([
-            QueryStringOrDefaultMacro::class,
-            QueryStringOrNullMacro::class,
-            CookieStringOrDefaultMacro::class,
-        ])->each(function (string $macro): void {
-            /** @var class-string<Macro> $macro */
-            Request::macro(...$macro::register());
-        });
 
         PanConfiguration::maxAnalytics(config()->integer('analytics.pan.max_analytics'));
 

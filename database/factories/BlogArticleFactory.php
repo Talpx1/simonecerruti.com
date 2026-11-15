@@ -108,4 +108,13 @@ class BlogArticleFactory extends Factory {
             'published_at' => null,
         ]);
     }
+
+    /**
+     * An article with the same title in every locale.
+     */
+    public function withTitle(string $title): static {
+        return $this->state(fn (array $attributes): array => [
+            'title' => ['en' => $title, 'it' => $title],
+        ]);
+    }
 }
