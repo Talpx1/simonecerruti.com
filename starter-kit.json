@@ -2,7 +2,7 @@
     "app_name": "Simone Cerruti website",
     "app_slug": "simone_cerruti_website",
     "vendor": "talpx1",
-    "license": "mit",
+    "license": "proprietary",
     "port": 80,
     "timezone": "Europe/Rome",
     "gh_repository": "Talpx1/simonecerruti.com",

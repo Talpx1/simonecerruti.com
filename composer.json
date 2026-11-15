@@ -19,7 +19,7 @@
     "keywords": [
         "website"
     ],
-    "license": "MIT",
+    "license": "proprietary",
     "require": {
         "php": "^8.5.12",
         "andreiio/blade-remix-icon": "^3.9",

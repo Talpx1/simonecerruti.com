@@ -2,7 +2,7 @@
     "$schema": "https://json.schemastore.org/package.json",
     "name": "simone_cerruti_website",
     "private": true,
-    "license": "MIT",
+    "license": "UNLICENSED",
     "type": "module",
     "scripts": {
         "build": "vite build",
