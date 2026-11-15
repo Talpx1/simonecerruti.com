@@ -1,15 +1,15 @@
 @props(['project', 'eager' => false])
 
-<div class="cover">
+<div class="project-cover">
     @if ($project->featured)
-        <span class="badge">★ {{ __('Featured') }}</span>
+        <span class="project-cover-badge">★ {{ __('Featured') }}</span>
     @endif
 
-    <div class="in">
+    <div class="project-cover-inner">
         @if ($project->hasMedia('featured_image'))
             <img src="{{ $project->featured_image_url }}" alt="" loading="{{ $eager ? 'eager' : 'lazy' }}">
         @else
-            <span class="ghost" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($project->title, 0, 1)) }}</span>
+            <span class="before-after-screen-watermark" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($project->title, 0, 1)) }}</span>
         @endif
     </div>
 </div>

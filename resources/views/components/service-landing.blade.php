@@ -1,16 +1,16 @@
 @props([
     'area',
-    'pan',
-    'mode',
+    'analyticsSlug',
+    'effectMode',
     'name',
     'label',
     'rows',
     'schema_description',
     'pains',
     'offers',
-    'scrub',
-    'stack',
-    'ai',
+    'closingStatement',
+    'technologyStack',
+    'aiDescription',
     'projects',
     'faqs',
 ])
@@ -53,42 +53,42 @@
 @endphp
 
 <div>
-    <x-page-hero :label="$label" :rows="$rows" data-pan="section-impression-services-{{ $pan }}">
+    <x-page-hero :label="$label" :rows="$rows" data-pan="section-impression-services-{{ $analyticsSlug }}">
         <x-slot:eyebrow>
-            <canvas id="svcbg" class="hero-bg" data-fx="svc" data-mode="{{ $mode }}" aria-hidden="true"></canvas>
+            <canvas id="service-landing-hero-canvas" class="page-hero-background" data-effect="service-landing-hero" data-mode="{{ $effectMode }}" aria-hidden="true"></canvas>
         </x-slot:eyebrow>
 
         {{ $intro }}
 
         <x-slot:actions>
-            <a class="more" href="{{ route('services') }}" wire:navigate data-pan="cta-services-{{ $pan }}-back">{{ __('All services') }} <span>→</span></a>
-            <a class="cta xl mag hero-cta" href="{{ route('contacts') }}" wire:navigate data-cursor="{{ __('Write to me') }}"
-                data-pan="cta-services-{{ $pan }}-consultation"><span>{{ __('Let\'s talk') }}</span><span class="ar">→</span></a>
+            <a class="button-outline-link" href="{{ route('services') }}" wire:navigate data-pan="cta-services-{{ $analyticsSlug }}-back">{{ __('All services') }} <span>→</span></a>
+            <a class="button-primary button-large magnetic-hover home-hero-cta" href="{{ route('contacts') }}" wire:navigate data-cursor="{{ __('Write to me') }}"
+                data-pan="cta-services-{{ $analyticsSlug }}-consultation"><span>{{ __('Let\'s talk') }}</span><span class="button-arrow">→</span></a>
         </x-slot:actions>
     </x-page-hero>
 
     <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) !!}</script>
 
-    <section class="sec pains-sec">
-        <div class="sec-head">
-            <h2 class="h2 rv">{!! __('Sound<br>familiar') !!}<span class="acc">?</span></h2>
-            <p class="lead rv">{!! __('If you recognize yourself in at least one of these, you are in the right place. <b>We remove them one at a time.</b>') !!}</p>
+    <section class="section service-pains-section">
+        <div class="section-header">
+            <h2 class="section-title reveal">{!! __('Sound<br>familiar') !!}<span class="text-accent">?</span></h2>
+            <p class="section-lead reveal">{!! __('If you recognize yourself in at least one of these, you are in the right place. <b>We remove them one at a time.</b>') !!}</p>
         </div>
-        <ul class="pains">
+        <ul class="service-pains">
             @foreach ($pains as $pain)
-                <li class="rv">{{ $pain }}</li>
+                <li class="reveal">{{ $pain }}</li>
             @endforeach
         </ul>
     </section>
 
-    <section class="sec">
-        <div class="sec-head">
-            <h2 class="h2 rv">{!! __('What I<br>build') !!}<span class="acc">.</span></h2>
-            <a class="more rv" href="{{ route('how_i_work') }}" wire:navigate>{{ __('The method, step by step') }} <span>→</span></a>
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title reveal">{!! __('What I<br>build') !!}<span class="text-accent">.</span></h2>
+            <a class="button-outline-link reveal" href="{{ route('how_i_work') }}" wire:navigate>{{ __('The method, step by step') }} <span>→</span></a>
         </div>
-        <div class="soffer">
+        <div class="service-offer">
             @foreach ($offers as [$offer_title, $offer_lead, $offer_items])
-                <div class="so rv">
+                <div class="service-offer-item reveal">
                     <h3>{{ $offer_title }}</h3>
                     <p>{{ $offer_lead }}</p>
                     <ul>
@@ -101,55 +101,55 @@
         </div>
     </section>
 
-    <section class="sec scrub"><p data-acc="\.$">{{ $scrub }}</p></section>
+    <section class="section scroll-lit"><p data-accent-pattern="\.$">{{ $closingStatement }}</p></section>
 
-    <section class="sec">
-        <div class="swith">
+    <section class="section">
+        <div class="service-stack">
             <div>
-                <h2 class="h2 rv">{{ __('With what') }}<span class="acc">.</span></h2>
-                <div class="tags rv">
-                    @foreach ($stack as $item)
+                <h2 class="section-title reveal">{{ __('With what') }}<span class="text-accent">.</span></h2>
+                <div class="chip-list reveal">
+                    @foreach ($technologyStack as $item)
                         <span>{{ $item }}</span>
                     @endforeach
                 </div>
             </div>
-            <div class="rv">
-                <h3>{{ __('And with AI') }}<span class="acc">.</span></h3>
-                <p>{{ $ai }}</p>
+            <div class="reveal">
+                <h3>{{ __('And with AI') }}<span class="text-accent">.</span></h3>
+                <p>{{ $aiDescription }}</p>
             </div>
         </div>
     </section>
 
     @if ($projects->isNotEmpty())
-        <section class="sec tight">
-            <div class="sec-head">
-                <h2 class="h2 rv">{!! __('Already<br>in use') !!}<span class="acc">.</span></h2>
-                <a class="more rv" href="{{ route('projects') }}" wire:navigate>{{ __('All works') }} <span>→</span></a>
+        <section class="section section--tight">
+            <div class="section-header">
+                <h2 class="section-title reveal">{!! __('Already<br>in use') !!}<span class="text-accent">.</span></h2>
+                <a class="button-outline-link reveal" href="{{ route('projects') }}" wire:navigate>{{ __('All works') }} <span>→</span></a>
             </div>
         </section>
 
         @foreach ($projects as $project)
-            <x-service-project :$project :pan="$loop->first ? 'cta-services-'.$pan.'-project' : 'cta-services-'.$pan.'-case'" />
+            <x-service-project :$project :analytics-name="$loop->first ? 'cta-services-'.$analyticsSlug.'-project' : 'cta-services-'.$analyticsSlug.'-case'" />
         @endforeach
     @endif
 
-    <section class="sec">
-        <div class="sec-head"><h2 class="h2 rv">{!! __('Frequent<br>questions') !!}<span class="acc">.</span></h2></div>
-        <div class="xrows faq" data-fx="faq">
+    <section class="section">
+        <div class="section-header"><h2 class="section-title reveal">{!! __('Frequent<br>questions') !!}<span class="text-accent">.</span></h2></div>
+        <div class="accordion service-faq" data-effect="faq">
             @foreach ($faqs as [$question, $answer])
-                <button class="xrow" type="button">
-                    <div class="xrow-h"><span>{{ $question }}</span><em>+</em></div>
-                    <div class="xrow-d"><div><p>{{ $answer }}</p></div></div>
+                <button class="accordion-item" type="button">
+                    <div class="accordion-item-head"><span>{{ $question }}</span><em>+</em></div>
+                    <div class="accordion-item-body"><div><p>{{ $answer }}</p></div></div>
                 </button>
             @endforeach
         </div>
     </section>
 
-    <section class="sec tight">
-        <nav class="tagcloud svc-cloud" aria-label="{{ __('Other services') }}">
+    <section class="section section--tight">
+        <nav class="tag-cloud service-tagcloud" aria-label="{{ __('Other services') }}">
             @foreach ($areas as $other_area)
                 <a href="{{ route($other_area->getRouteName()) }}" wire:navigate
-                    @if ($other_area === $area) class="here" aria-current="page" @endif>{{ $area_names[$other_area->value] }}</a>
+                    @if ($other_area === $area) class="is-current" aria-current="page" @endif>{{ $area_names[$other_area->value] }}</a>
             @endforeach
         </nav>
     </section>

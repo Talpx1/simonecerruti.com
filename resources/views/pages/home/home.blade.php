@@ -56,8 +56,8 @@
     ];
 @endphp
 
-<div data-fx="home" data-config="{{ json_encode($canvas_config, JSON_UNESCAPED_UNICODE) }}">
-    <canvas id="gl" aria-hidden="true"></canvas>
+<div data-effect="home" data-config="{{ json_encode($canvas_config, JSON_UNESCAPED_UNICODE) }}">
+    <canvas id="home-webgl-canvas" aria-hidden="true"></canvas>
 
     @include('pages.home.components.hero')
     @include('pages.home.components.marquee')
@@ -71,7 +71,7 @@
     @include('pages.home.components.manifesto')
     @include('pages.home.components.about')
 
-    <div data-sec="contact">
+    <div data-section="contact">
         <x-contact-band />
     </div>
 </div>

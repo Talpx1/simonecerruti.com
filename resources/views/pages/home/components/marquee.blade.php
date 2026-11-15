@@ -3,9 +3,9 @@
     $second_row = [__('Web platforms'), __('PWA'), __('Apps'), __('Automations')];
 @endphp
 
-<section class="mq" data-sec="mq" aria-label="{{ __('What I build') }}">
-    <div class="mq-row" data-dir="1">
-        <div class="mq-in">
+<section class="home-marquee" data-section="marquee" aria-label="{{ __('What I build') }}">
+    <div class="home-marquee-row" data-direction="1">
+        <div class="home-marquee-track">
             @foreach (range(1, 2) as $copy)
                 @foreach ($first_row as $word)
                     <span>{{ $word }}</span><i></i>
@@ -13,8 +13,8 @@
             @endforeach
         </div>
     </div>
-    <div class="mq-row o" data-dir="-1">
-        <div class="mq-in">
+    <div class="home-marquee-row home-marquee-row--outline" data-direction="-1">
+        <div class="home-marquee-track">
             @foreach (range(1, 2) as $copy)
                 @foreach ($second_row as $word)
                     <span>{{ $word }}</span><i></i>

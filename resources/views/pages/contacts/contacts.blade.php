@@ -15,21 +15,21 @@
 @endphp
 
 <div>
-    <x-page-hero fx="ping" :label="__('Contacts: let\'s talk.')" :rows="[__('Let\'s talk.')]"
+    <x-page-hero effect="contact-network-ping" :label="__('Contacts: let\'s talk.')" :rows="[__('Let\'s talk.')]"
         data-pan="section-impression-contacts" :data-ping-label="__('SIMONE · REPLIES WITHIN 24 HOURS')">
         {!! __('I reply within 24 hours, in person. Let\'s start here: <em>we build the rest together.</em>') !!}
     </x-page-hero>
 
-    <section class="sec tight">
-        <div class="ct-grid">
+    <section class="section section--tight">
+        <div class="contact-layout">
             <div>
                 <livewire:components.contact-form />
             </div>
 
             <div>
-                <div class="steps">
+                <div class="contact-steps">
                     @foreach ($steps as $i => [$step_title, $step_body])
-                        <div class="step">
+                        <div class="contact-step">
                             <b>{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</b>
                             <div>
                                 <h3>{{ $step_title }}</h3>
@@ -39,8 +39,8 @@
                     @endforeach
                 </div>
 
-                <div class="direct">
-                    <a class="dc dc-call mag" href="{{ config()->string('company.contacts.koalenda_url') }}"
+                <div class="contact-direct">
+                    <a class="contact-channel contact-channel--call magnetic-hover" href="{{ config()->string('company.contacts.koalenda_url') }}"
                         data-cursor="{{ __('Book a call') }}" target="_blank" rel="noopener"
                         data-pan="cta-contacts-call">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -50,7 +50,7 @@
                         <span><b>{{ __('Book a call') }}</b><small>{{ __('Rather talk than write? Pick a slot and we\'ll have a chat.') }}</small></span>
                         <i>→</i>
                     </a>
-                    <a class="dc dc-wa mag" href="{{ $whatsapp_url }}" data-cursor="{{ __('Start a Chat') }}"
+                    <a class="contact-channel contact-channel--whatsapp magnetic-hover" href="{{ $whatsapp_url }}" data-cursor="{{ __('Start a Chat') }}"
                         target="_blank" rel="noopener" data-pan="cta-contacts-whatsapp">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M4 20l1.2-4A8 8 0 1 1 8 18.8z" />
@@ -59,7 +59,7 @@
                         <span><b>{{ __('Text me on WhatsApp') }}</b><small>{{ __('A quick question or an informal first contact? Send me a message.') }}</small></span>
                         <i>→</i>
                     </a>
-                    <a class="dc dc-wa mag" href="mailto:{{ $email }}" data-cursor="{{ __('Email me') }}"
+                    <a class="contact-channel contact-channel--whatsapp magnetic-hover" href="mailto:{{ $email }}" data-cursor="{{ __('Email me') }}"
                         data-pan="cta-contacts-email">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <rect x="3" y="5" width="18" height="14" />
@@ -70,7 +70,7 @@
                     </a>
                 </div>
 
-                <div class="ct-soc">
+                <div class="contact-social">
                     <span>{{ __('Follow me') }}</span>
                     <x-social-links variant="foot" placement="contacts" />
                 </div>

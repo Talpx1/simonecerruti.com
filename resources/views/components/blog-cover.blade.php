@@ -1,4 +1,4 @@
-@props(['article', 'class' => 'pcover'])
+@props(['article', 'class' => 'post-cover'])
 
 <span {{ $attributes->class($class) }} aria-hidden="true">
     @if ($article->hasMedia('featured_image'))

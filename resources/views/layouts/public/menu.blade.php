@@ -10,13 +10,13 @@
     ];
 @endphp
 
-<nav class="mmenu" id="mmenu" aria-label="{{ __('Menu') }}">
+<nav class="mobile-menu" id="mobile-menu" aria-label="{{ __('Menu') }}">
     @foreach ($menu_links as [$slug, $label, $url])
         <a href="{{ $url }}" wire:navigate data-pan="cta-nav-{{ $slug }}-mobile">{{ $label }}</a>
     @endforeach
-    <a class="acc" href="{{ route('contacts') }}" wire:navigate data-pan="cta-nav-cta-mobile">{{ __('Let\'s talk') }} →</a>
+    <a class="text-accent" href="{{ route('contacts') }}" wire:navigate data-pan="cta-nav-cta-mobile">{{ __('Let\'s talk') }} →</a>
 
-    <div class="lang-m">
+    <div class="mobile-menu-language">
         @foreach (App::supportedLocales() as $locale_code => $properties)
             <a href="{{ Route::localizedUrl(locale: $locale_code, force_default_location: true) }}"
                 lang="{{ $locale_code }}" hreflang="{{ $locale_code }}"

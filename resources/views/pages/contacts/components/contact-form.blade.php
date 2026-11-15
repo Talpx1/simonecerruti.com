@@ -18,7 +18,7 @@
         </div>
 
         <div>
-            <button class="cta xl mag" type="submit" data-cursor="{{ __('Let\'s talk') }}" data-pan="cta-contacts-submit"><span>{{ __('Let\'s talk') }}</span><span class="ar">→</span></button>
+            <button class="button-primary button-large magnetic-hover" type="submit" data-cursor="{{ __('Let\'s talk') }}" data-pan="cta-contacts-submit"><span>{{ __('Let\'s talk') }}</span><span class="button-arrow">→</span></button>
         </div>
     </form>
 

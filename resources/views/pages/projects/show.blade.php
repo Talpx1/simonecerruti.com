@@ -14,34 +14,34 @@
 @endphp
 
 <div>
-    <x-page-hero fx="bp" :label="$project->title" :rows="$title_rows">
+    <x-page-hero effect="project-blueprint" :label="$project->title" :rows="$title_rows">
         <p>{{ $project->short_description }}</p>
 
         <x-slot:actions>
             @if ($project->external_link)
-                <a class="more" href="{{ $project->external_link }}" target="_blank" rel="noopener"
+                <a class="button-outline-link" href="{{ $project->external_link }}" target="_blank" rel="noopener"
                     data-pan="cta-project-visit-site">{{ $external_host }} <span>↗</span></a>
             @endif
-            <a class="cta xl mag hero-cta" wire:navigate href="{{ route('contacts') }}" data-cursor="{{ __('Write to me') }}"
-                data-pan="cta-project-contacts"><span>{{ __('I want something like this') }}</span><span class="ar">→</span></a>
+            <a class="button-primary button-large magnetic-hover home-hero-cta" wire:navigate href="{{ route('contacts') }}" data-cursor="{{ __('Write to me') }}"
+                data-pan="cta-project-contacts"><span>{{ __('I want something like this') }}</span><span class="button-arrow">→</span></a>
         </x-slot:actions>
     </x-page-hero>
 
-    <section class="sec tight">
-        <div class="pd-top">
-            <div class="screen">
-                <div class="after">
+    <section class="section section--tight">
+        <div class="project-detail-top">
+            <div class="before-after-screen">
+                <div class="before-after-screen-after">
                     @if ($project->hasMedia('featured_image'))
                         <img src="{{ $project->featured_image_url }}" alt="{{ $project->title }}">
                     @else
-                        <span class="ghost" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($project->title, 0, 1)) }}</span>
+                        <span class="before-after-screen-watermark" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($project->title, 0, 1)) }}</span>
                     @endif
                 </div>
             </div>
 
-            <div class="facts">
+            <div class="project-detail-facts">
                 @if ($project->client)
-                    <div><span class="label">{{ __('Client') }}</span>
+                    <div><span class="eyebrow">{{ __('Client') }}</span>
                         <p>
                             @if ($project->client->description)
                                 {{ $project->client->description }}
@@ -53,8 +53,8 @@
                 @endif
 
                 @if ($type_tags->isNotEmpty())
-                    <div><span class="label">{{ __('Type') }}</span>
-                        <div class="tags taglinks">
+                    <div><span class="eyebrow">{{ __('Type') }}</span>
+                        <div class="chip-list taglinks">
                             @foreach ($type_tags as $tag)
                                 <a wire:navigate href="{{ route('tag_archive', ['slug' => $tag->slug]) }}">{{ $tag->name }}</a>
                             @endforeach
@@ -63,8 +63,8 @@
                 @endif
 
                 @if ($stack_tags->isNotEmpty())
-                    <div><span class="label">{{ __('Stack') }}</span>
-                        <div class="tags">
+                    <div><span class="eyebrow">{{ __('Stack') }}</span>
+                        <div class="chip-list">
                             @foreach ($stack_tags as $tag)
                                 <span>{{ $tag->name }}</span>
                             @endforeach
@@ -73,7 +73,7 @@
                 @endif
 
                 @if ($project->links->isNotEmpty())
-                    <div><span class="label">{{ __('Links') }}</span>
+                    <div><span class="eyebrow">{{ __('Links') }}</span>
                         @foreach ($project->links->pluck('url') as $link)
                             <p><a href="{{ $link }}" target="_blank" rel="noopener">{{ \Illuminate\Support\Uri::of($link)->host() }} ↗</a></p>
                         @endforeach
@@ -84,9 +84,9 @@
     </section>
 
     @if ($has_story)
-        <section class="sec story">
-            <div class="sec-head"><h2 class="h2 rv">{{ __('The work') }}<span class="acc">.</span></h2></div>
-            <div class="prose rv">
+        <section class="section project-detail-story">
+            <div class="section-header"><h2 class="section-title reveal">{{ __('The work') }}<span class="text-accent">.</span></h2></div>
+            <div class="project-detail-prose reveal">
                 @if (filled($project->starting_point))
                     <p><b>{{ __('The starting point.') }}</b> {{ $project->starting_point }}</p>
                 @endif
@@ -98,20 +98,20 @@
     @endif
 
     @if (filled($project->outcome))
-        <section class="sec scrub"><p>{{ $project->outcome }}</p></section>
+        <section class="section scroll-lit"><p>{{ $project->outcome }}</p></section>
     @endif
 
     @if ($features->isNotEmpty())
-        <section class="sec">
-            <div class="sec-head">
-                <h2 class="h2 rv">{!! __('Features<br>and challenges') !!}<span class="acc">.</span></h2>
-                <p class="lead mute rv">{{ __('Hover over. Or tap, on a phone.') }}</p>
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title reveal">{!! __('Features<br>and challenges') !!}<span class="text-accent">.</span></h2>
+                <p class="section-lead section-lead--muted reveal">{{ __('Hover over. Or tap, on a phone.') }}</p>
             </div>
-            <div class="xrows">
+            <div class="accordion">
                 @foreach ($features as $feature)
-                    <button class="xrow" type="button" x-data x-on:click="$el.classList.toggle('open')">
-                        <div class="xrow-h"><span>{{ $feature['title'] }}</span><em>+</em></div>
-                        <div class="xrow-d">
+                    <button class="accordion-item" type="button" x-data x-on:click="$el.classList.toggle('open')">
+                        <div class="accordion-item-head"><span>{{ $feature['title'] }}</span><em>+</em></div>
+                        <div class="accordion-item-body">
                             <div>
                                 <p>{{ $feature['description'] ?? '' }}</p>
                             </div>
@@ -123,17 +123,17 @@
     @endif
 
     @if (! $has_story && ! $features->count() && filled($project->description))
-        <section class="sec story">
-            <div class="sec-head"><h2 class="h2 rv">{{ __('The work') }}<span class="acc">.</span></h2></div>
-            <div class="prose rv">
+        <section class="section project-detail-story">
+            <div class="section-header"><h2 class="section-title reveal">{{ __('The work') }}<span class="text-accent">.</span></h2></div>
+            <div class="project-detail-prose reveal">
                 {{ \Filament\Forms\Components\RichEditor\RichContentRenderer::make($project->description) }}
             </div>
         </section>
     @endif
 
     @if ($gallery->isNotEmpty())
-        <section class="sec">
-            <div class="sec-head"><h2 class="h2 rv">{{ __('Gallery') }}<span class="acc">.</span></h2></div>
+        <section class="section">
+            <div class="section-header"><h2 class="section-title reveal">{{ __('Gallery') }}<span class="text-accent">.</span></h2></div>
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($gallery as $media)
                     <picture>
@@ -148,12 +148,12 @@
     @endif
 
     @if (! $adjacent_projects['previous']->is($project))
-        <nav class="pn" aria-label="{{ __('Other work') }}">
-            <a class="pn-prev" wire:navigate href="{{ route('project.show', $adjacent_projects['previous']->slug) }}"
-                data-cursor="{{ __('Back') }}" data-pan="cta-project-previous"><span class="label">← {{ __('Previous work') }}</span>
+        <nav class="previous-next-navigation" aria-label="{{ __('Other work') }}">
+            <a class="previous-next-navigation-previous" wire:navigate href="{{ route('project.show', $adjacent_projects['previous']->slug) }}"
+                data-cursor="{{ __('Back') }}" data-pan="cta-project-previous"><span class="eyebrow">← {{ __('Previous work') }}</span>
                 <h3>{{ $adjacent_projects['previous']->title }}</h3></a>
-            <a class="pn-next" wire:navigate href="{{ route('project.show', $adjacent_projects['next']->slug) }}"
-                data-cursor="{{ __('Forward') }}" data-pan="cta-project-next"><span class="label">{{ __('Next work') }} →</span>
+            <a class="previous-next-navigation-next" wire:navigate href="{{ route('project.show', $adjacent_projects['next']->slug) }}"
+                data-cursor="{{ __('Forward') }}" data-pan="cta-project-next"><span class="eyebrow">{{ __('Next work') }} →</span>
                 <h3>{{ $adjacent_projects['next']->title }}</h3></a>
         </nav>
     @endif

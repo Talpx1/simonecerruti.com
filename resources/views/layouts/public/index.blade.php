@@ -42,13 +42,13 @@
 </head>
 
 <body>
-    @persist('fx-layers')
-        <div id="fx-layers" aria-hidden="true">
-            <div class="vignette"></div>
-            <div class="grain"></div>
-            <div class="bar"></div>
-            <div class="cur"><span></span></div>
-            <div class="cur-dot"></div>
+    @persist('persisted-effect-layers')
+        <div id="persisted-effect-layers" aria-hidden="true">
+            <div class="effect-vignette"></div>
+            <div class="effect-grain"></div>
+            <div class="scroll-progress"></div>
+            <div class="cursor-ring"><span></span></div>
+            <div class="cursor-dot"></div>
         </div>
     @endpersist
 

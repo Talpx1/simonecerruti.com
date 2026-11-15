@@ -45,9 +45,9 @@
     @break
 
     @case('foot')
-        <nav class="foot-soc" aria-label="{{ __('Social') }}">
+        <nav class="site-footer-social" aria-label="{{ __('Social') }}">
             @foreach ($socials as $social)
-                <a class="ico mag" href="{{ config('company.socials.' . $social['key'] . '.link') }}" target="_blank"
+                <a class="social-icon magnetic-hover" href="{{ config('company.socials.' . $social['key'] . '.link') }}" target="_blank"
                     rel="noopener" aria-label="{{ $social['label'] }}" data-cursor="{{ $social['label'] }}"
                     data-pan="cta-social-{{ $social['key'] }}-{{ $placement }}">
                     <svg viewBox="0 0 24 24" aria-hidden="true">{!! $line_icons[$social['key']] !!}</svg>

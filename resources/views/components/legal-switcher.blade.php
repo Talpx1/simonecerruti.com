@@ -8,8 +8,8 @@
     ];
 @endphp
 
-<nav class="legal-sw" aria-label="{{ __('Legal documents') }}">
+<nav class="legal-switcher" aria-label="{{ __('Legal documents') }}">
     @foreach ($documents as $key => [$label, $url])
-        <a href="{{ $url }}" wire:navigate @if ($key === $current) class="here" aria-current="page"@endif>{{ $label }}</a>
+        <a href="{{ $url }}" wire:navigate @if ($key === $current) class="is-current" aria-current="page"@endif>{{ $label }}</a>
     @endforeach
 </nav>

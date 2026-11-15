@@ -72,14 +72,14 @@
     ];
 @endphp
 
-<x-service-landing :area="\App\Enums\ServiceAreas::WEB_ECOMMERCE_PLATFORMS" pan="web-development" mode="flow"
+<x-service-landing :area="\App\Enums\ServiceAreas::WEB_ECOMMERCE_PLATFORMS" analytics-slug="web-development" effect-mode="flow"
     :name="__('Tailor-made websites, e-commerce and web apps')" :label="__('Tailor-made websites, e-commerce and web apps')"
     :rows="[__('Websites, e-commerce'), __('and web apps.')]"
     :schema_description="__('Tailor-made websites, e-commerce and platforms for SMEs: fast, ready for Google, connected to your tools and with code you own.')"
     :$pains :$offers
-    :scrub="__('Good looking is the bare minimum. The rest is speed, Google and sales.')"
-    :stack="['Laravel', 'PHP', 'Livewire', 'Vue', 'Tailwind', 'GSAP', __('Technical SEO'), __('Online payments'), 'Docker']"
-    :ai="__('Search that understands what the customer is really looking for, personalized suggestions, assistants that answer at three in the morning too.')"
+    :closing-statement="__('Good looking is the bare minimum. The rest is speed, Google and sales.')"
+    :technology-stack="['Laravel', 'PHP', 'Livewire', 'Vue', 'Tailwind', 'GSAP', __('Technical SEO'), __('Online payments'), 'Docker']"
+    :ai-description="__('Search that understands what the customer is really looking for, personalized suggestions, assistants that answer at three in the morning too.')"
     :$projects :$faqs>
     <x-slot:intro>
         <p>{!! __('Not a showcase to look at: <em>a tool that brings customers and sales.</em>') !!}</p>

@@ -1,4 +1,4 @@
-<div class="gallery">
+<div class="article-gallery">
     @foreach ($images as $image)
         <figure>
             <img src="{{ $image['url'] }}" alt="{{ $image['caption'] }}" loading="lazy">

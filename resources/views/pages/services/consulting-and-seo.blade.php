@@ -68,14 +68,14 @@
     ];
 @endphp
 
-<x-service-landing :area="\App\Enums\ServiceAreas::CONSULTING_AND_SEO" pan="consulting-and-seo" mode="rank"
+<x-service-landing :area="\App\Enums\ServiceAreas::CONSULTING_AND_SEO" analytics-slug="consulting-and-seo" effect-mode="rank"
     :name="__('Digital consulting and SEO')" :label="__('Digital consulting and SEO')"
     :rows="[__('Consulting'), __('and SEO.')]"
     :schema_description="__('Digital and SEO consulting for SMEs: strategy before code, independent technology choices, Google ranking and support for your team.')"
     :$pains :$offers
-    :scrub="__('Sometimes the most useful advice is to build nothing. If that is the case, I will tell you.')"
-    :stack="[__('SEO audit'), 'Search Console', __('Keyword analysis'), 'Core Web Vitals', __('Structured data'), __('Security audit'), 'SBOM']"
-    :ai="__('AI quickly analyzes large amounts of data: searches, competitors, content. The decisions stay with the two of us.')"
+    :closing-statement="__('Sometimes the most useful advice is to build nothing. If that is the case, I will tell you.')"
+    :technology-stack="[__('SEO audit'), 'Search Console', __('Keyword analysis'), 'Core Web Vitals', __('Structured data'), __('Security audit'), 'SBOM']"
+    :ai-description="__('AI quickly analyzes large amounts of data: searches, competitors, content. The decisions stay with the two of us.')"
     :$projects :$faqs>
     <x-slot:intro>
         <p>{!! __('Strategy first, then code. <em>That way you do not pay twice.</em>') !!}</p>

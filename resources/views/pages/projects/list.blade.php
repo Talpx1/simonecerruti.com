@@ -8,13 +8,13 @@
         ->sortDesc();
 @endphp
 
-<div data-fx="projects-rail">
-    <section class="pj-hero">
+<div data-effect="projects-rail">
+    <section class="projects-hero">
         <div>
-            <h1 class="ph1" aria-label="{{ __('Work.') }}"><span class="row" data-split>{{ __('Work.') }}</span></h1>
-            <p class="lead">{{ __('Real problems, solved custom and used every day. No showcase mockups: only things that work.') }}</p>
+            <h1 class="page-hero-title" aria-label="{{ __('Work.') }}"><span class="page-hero-title-line" data-variable-letters>{{ __('Work.') }}</span></h1>
+            <p class="section-lead">{{ __('Real problems, solved custom and used every day. No showcase mockups: only things that work.') }}</p>
         </div>
-        <div class="pj-canvas" aria-hidden="true"><canvas id="frames" data-fx="frames"></canvas></div>
+        <div class="projects-hero-canvas" aria-hidden="true"><canvas id="projects-3d-frames-canvas" data-effect="projects-3d-frames"></canvas></div>
     </section>
 
     @foreach ($featured_projects as $project)
@@ -22,22 +22,22 @@
     @endforeach
 
     @if ($projects->isEmpty())
-        <section class="sec">
-            <p class="lead mute">{{ __('No projects yet.') }}</p>
+        <section class="section">
+            <p class="section-lead section-lead--muted">{{ __('No projects yet.') }}</p>
         </section>
     @else
-        <section class="rail-sec" id="tutti">
-            <div class="rail-head">
+        <section class="projects-rail-section" id="tutti">
+            <div class="projects-rail-head">
                 <div>
-                    <h2 class="h2">{!! __('All<br>the work') !!}<span class="acc">.</span></h2>
-                    <div class="filters" role="group" aria-label="{{ __('Filter by type') }}">
-                        <button type="button" class="on" data-f="*">{{ __('All') }}<small>{{ $projects->count() }}</small></button>
+                    <h2 class="section-title">{!! __('All<br>the work') !!}<span class="text-accent">.</span></h2>
+                    <div class="filter-bar" role="group" aria-label="{{ __('Filter by type') }}">
+                        <button type="button" class="is-active" data-f="*">{{ __('All') }}<small>{{ $projects->count() }}</small></button>
                         @foreach ($filter_tags as $tag_name => $tag_count)
                             <button type="button" data-f="{{ $tag_name }}">{{ $tag_name }}<small>{{ $tag_count }}</small></button>
                         @endforeach
                     </div>
                 </div>
-                <div class="rail-ctrl">
+                <div class="projects-rail-controls">
                     <button type="button" data-rail-step="-1" aria-label="{{ __('Previous') }}"
                         data-pan="cta-projects-rail-previous">←</button>
                     <button type="button" data-rail-step="1" aria-label="{{ __('Next') }}"
@@ -45,9 +45,9 @@
                 </div>
             </div>
 
-            <div class="rail" id="rail" data-cursor="{{ __('Drag') }}">
+            <div class="projects-rail" id="projects-rail" data-cursor="{{ __('Drag') }}">
                 @foreach ($projects as $project)
-                    <a class="rcard" wire:navigate wire:key="rail-{{ $project->id }}" href="{{ route('project.show', $project->slug) }}"
+                    <a class="projects-rail-card" wire:navigate wire:key="rail-{{ $project->id }}" href="{{ route('project.show', $project->slug) }}"
                         data-types="{{ $project->tags->where('type', \App\Enums\TagTypes::TAG->value)->pluck('name')->implode('|') }}"
                         data-cursor="{{ __('Open work') }}">
                         <x-project-cover :project="$project" />
@@ -55,12 +55,12 @@
                         <div>
                             <h3>{{ $project->title }}</h3>
                             @if ($project->kind_or_tag_names)
-                                <span class="kind">{{ $project->kind_or_tag_names }}</span>
+                                <span class="project-feature-kind">{{ $project->kind_or_tag_names }}</span>
                             @endif
                         </div>
 
                         @if ($project->tags->where('type', \App\Enums\TagTypes::TAG->value)->isNotEmpty())
-                            <div class="tags small">
+                            <div class="chip-list chip-list--small">
                                 @foreach ($project->tags->where('type', \App\Enums\TagTypes::TAG->value) as $tag)
                                     <span>{{ $tag->name }}</span>
                                 @endforeach
@@ -68,7 +68,7 @@
                         @endif
 
                         @if ($project->tags->where('type', \App\Enums\TagTypes::TECHNOLOGY->value)->isNotEmpty())
-                            <div class="tags small stack">
+                            <div class="chip-list chip-list--small chip-list--stack">
                                 @foreach ($project->tags->where('type', \App\Enums\TagTypes::TECHNOLOGY->value) as $tag)
                                     <span>{{ $tag->name }}</span>
                                 @endforeach
@@ -78,13 +78,13 @@
                 @endforeach
             </div>
 
-            <p class="rail-empty" id="rail-empty">{{ __('No work with this tag. Yet.') }}</p>
+            <p class="projects-rail-empty" id="projects-rail-empty">{{ __('No work with this tag. Yet.') }}</p>
 
-            <div class="rail-bar"><i id="railbar"></i></div>
+            <div class="projects-rail-progress"><i id="projects-rail-progress"></i></div>
 
             @if ($this->canLoadMore('projects'))
-                <div class="sec-head" style="margin-top: 40px; padding: 0 var(--gut);">
-                    <button type="button" class="more" wire:click="loadMore('projects')" wire:loading.attr="disabled"
+                <div class="section-header" style="margin-top: 40px; padding: 0 var(--site-gutter);">
+                    <button type="button" class="button-outline-link" wire:click="loadMore('projects')" wire:loading.attr="disabled"
                         data-pan="cta-projects-load-more">
                         <span wire:loading.remove wire:target="loadMore('projects')">{{ __('Load more') }}</span>
                         <span wire:loading wire:target="loadMore('projects')">{{ __('Loading...') }}</span>

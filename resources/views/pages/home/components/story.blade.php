@@ -9,33 +9,33 @@
     ];
 @endphp
 
-<section class="hstory" id="method" data-sec="story">
-    <div class="story-pin">
-        <div class="giant" aria-hidden="true">
+<section class="home-story" id="method" data-section="story">
+    <div class="home-story-stage">
+        <div class="home-story-word" aria-hidden="true">
             @foreach ($chapters as $chapter)
-                <span data-g="{{ $loop->index }}" @class(['fin' => $loop->last])>{{ $chapter['giant'] }}</span>
+                <span data-g="{{ $loop->index }}" @class(['home-story-word--final' => $loop->last])>{{ $chapter['giant'] }}</span>
             @endforeach
         </div>
 
-        <div class="ch-copy">
+        <div class="home-story-copy">
             @foreach ($chapters as $chapter)
-                <div class="ch" data-c="{{ $loop->index }}">
+                <div class="home-story-chapter">
                     <h2>{{ $chapter['title'] }}</h2>
                     <p>{{ $chapter['text'] }}</p>
                     @if ($loop->first)
-                        <span class="hint">{{ __('Move the mouse between the pieces') }}</span>
+                        <span class="home-story-hint">{{ __('Move the mouse between the pieces') }}</span>
                     @endif
                     @if ($loop->last)
-                        <a class="more" style="margin-top: 22px" href="{{ route('how_i_work') }}" wire:navigate
+                        <a class="button-outline-link" style="margin-top: 22px" href="{{ route('how_i_work') }}" wire:navigate
                             data-pan="cta-home-method">{{ __('Find out how I work') }} <span>→</span></a>
                     @endif
                 </div>
             @endforeach
         </div>
 
-        <div class="ch-index" role="group" aria-label="{{ __('Method chapters') }}">
+        <div class="home-story-nav" role="group" aria-label="{{ __('Method chapters') }}">
             @foreach ($chapters as $chapter)
-                <button type="button" data-go="{{ $loop->index }}"><i></i>{{ $chapter['index'] }}</button>
+                <button type="button" data-chapter-index="{{ $loop->index }}"><i></i>{{ $chapter['index'] }}</button>
             @endforeach
         </div>
     </div>

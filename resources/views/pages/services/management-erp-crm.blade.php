@@ -68,14 +68,14 @@
     ];
 @endphp
 
-<x-service-landing :area="\App\Enums\ServiceAreas::MANAGEMENT_ERP_CRM" pan="custom-software-development" mode="cells"
+<x-service-landing :area="\App\Enums\ServiceAreas::MANAGEMENT_ERP_CRM" analytics-slug="custom-software-development" effect-mode="cells"
     :name="__('Management software, ERP and CRM')" :label="__('Tailor-made management software, ERP and CRM')"
     :rows="[__('Management software, ERP'), __('and tailor-made CRM.')]"
     :schema_description="__('Tailor-made management software, ERP and CRM for SMEs: built on your processes, with automations, real-time data and code you own.')"
     :$pains :$offers
-    :scrub="__('Tailor-made management software costs less than you think. The wrong one costs more, every single day.')"
-    :stack="['Laravel', 'PHP', 'Filament', 'Livewire', 'Vue', 'PostgreSQL', __('REST APIs'), 'Webhook', 'Docker']"
-    :ai="__('Assistants that answer on your data, automatic extraction from documents and PDFs, smart search in the archive. AI works inside the software, not instead of you.')"
+    :closing-statement="__('Tailor-made management software costs less than you think. The wrong one costs more, every single day.')"
+    :technology-stack="['Laravel', 'PHP', 'Filament', 'Livewire', 'Vue', 'PostgreSQL', __('REST APIs'), 'Webhook', 'Docker']"
+    :ai-description="__('Assistants that answer on your data, automatic extraction from documents and PDFs, smart search in the archive. AI works inside the software, not instead of you.')"
     :$projects :$faqs>
     <x-slot:intro>
         <p>{!! __('The software that runs your company, built around how you really work. <em>Not the other way around.</em>') !!}</p>

@@ -1,6 +1,6 @@
 <div>
     <section class="legal-hero">
-        <h1 class="legal-h1">{{ __('Cookie Policy') }}<span class="acc">.</span></h1>
+        <h1 class="legal-h1">{{ __('Cookie Policy') }}<span class="text-accent">.</span></h1>
 
         <div class="legal-meta">
             <p>{{ __('Which cookies this website uses, what they are for and how you can manage them.') }}</p>
@@ -10,10 +10,10 @@
         <x-legal-switcher current="cookies" />
     </section>
 
-    <div class="art-grid legal-grid" data-fx="legal">
-        <aside class="art-side" aria-label="{{ __('Index') }}">
-            <div class="art-prog" aria-hidden="true"><i></i></div>
-            <nav class="toc" aria-label="{{ __('Index') }}">
+    <div class="article-layout legal-grid" data-effect="legal">
+        <aside class="article-sidebar" aria-label="{{ __('Index') }}">
+            <div class="article-progress" aria-hidden="true"><i></i></div>
+            <nav class="article-toc" aria-label="{{ __('Index') }}">
                 <a href="#what-are-cookies-and-similar-technologie">{{ __('What are Cookies and similar technologies?') }}</a>
                 <a href="#how-this-website-uses-cookies-and-tracke">{{ __('How this Website uses Cookies and Trackers') }}</a>
                 <a href="#cookie-categories">{{ __('Cookie Categories') }}</a>
@@ -22,7 +22,7 @@
             </nav>
         </aside>
 
-        <article class="art-body legal-body">
+        <article class="article-body legal-body">
 
         <section>
             <p>

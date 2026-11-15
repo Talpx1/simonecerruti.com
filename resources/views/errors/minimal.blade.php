@@ -31,18 +31,18 @@
 </head>
 
 <body>
-    <div id="fx-layers" aria-hidden="true">
-        <div class="vignette"></div>
-        <div class="grain"></div>
-        <div class="bar"></div>
-        <div class="cur"><span></span></div>
-        <div class="cur-dot"></div>
+    <div id="persisted-effect-layers" aria-hidden="true">
+        <div class="effect-vignette"></div>
+        <div class="effect-grain"></div>
+        <div class="scroll-progress"></div>
+        <div class="cursor-ring"><span></span></div>
+        <div class="cursor-dot"></div>
     </div>
 
-    <header class="nav">
-        <div class="blend">
-            <a class="mark" href="{{ $home_url }}" aria-label="{{ config('company.friendly_name') }}, {{ __('Home') }}">
-                <x-app-logo class="logo" width="52" height="28" color="currentColor" aria-hidden="true" />
+    <header class="site-nav">
+        <div class="site-nav-inner">
+            <a class="site-brand" href="{{ $home_url }}" aria-label="{{ config('company.friendly_name') }}, {{ __('Home') }}">
+                <x-app-logo class="site-brand-logo" width="52" height="28" color="currentColor" aria-hidden="true" />
                 <b>{{ config('company.friendly_name') }}</b><i>{{ __('tailor-made') }}</i>
             </a>
         </div>
@@ -50,30 +50,30 @@
 
     <main>
         <section class="page-hero">
-            <canvas id="nf" class="hero-bg nf-bg" data-fx="nf" data-code="@yield('code')" aria-hidden="true"></canvas>
+            <canvas id="not-found-canvas" class="page-hero-background" data-effect="not-found-particles" data-code="@yield('code')" aria-hidden="true"></canvas>
 
-            <h1 class="ph1" aria-label="{!! str_replace('|', ' ', $page_title) !!}">
+            <h1 class="page-hero-title" aria-label="{!! str_replace('|', ' ', $page_title) !!}">
                 @foreach ($rows as $row)
-                    <span class="row" data-split>{!! $row !!}</span>
+                    <span class="page-hero-title-line" data-variable-letters>{!! $row !!}</span>
                 @endforeach
             </h1>
 
-            <div class="ph-sub">
+            <div class="page-hero-subtitle">
                 @hasSection('description')
                     <p>@yield('description')</p>
                 @endif
 
-                <div class="actions">
-                    <a class="more" href="{{ $home_url }}">{{ __('Back to home') }} <span>→</span></a>
+                <div class="button-group">
+                    <a class="button-outline-link" href="{{ $home_url }}">{{ __('Back to home') }} <span>→</span></a>
                     @hasSection('cta')
-                        <a class="cta xl mag hero-cta" href="{{ route('contacts') }}"><span>@yield('cta')</span><span class="ar">→</span></a>
+                        <a class="button-primary button-large magnetic-hover home-hero-cta" href="{{ route('contacts') }}"><span>@yield('cta')</span><span class="button-arrow">→</span></a>
                     @endif
                 </div>
             </div>
         </section>
 
-        <section class="sec tight">
-            <nav class="tagcloud" aria-label="{{ __('Maybe you were looking for') }}">
+        <section class="section section--tight">
+            <nav class="tag-cloud" aria-label="{{ __('Maybe you were looking for') }}">
                 @foreach ($links as [$label, $url])
                     <a href="{{ $url }}">{{ $label }}</a>
                 @endforeach

@@ -1,6 +1,6 @@
 <div>
     <section class="legal-hero">
-        <h1 class="legal-h1">{{ __('Terms and Conditions') }}<span class="acc">.</span></h1>
+        <h1 class="legal-h1">{{ __('Terms and Conditions') }}<span class="text-accent">.</span></h1>
 
         <div class="legal-meta">
             <p>{{ __('The rules for using this website. Short, clear, no surprises.') }}</p>
@@ -10,10 +10,10 @@
         <x-legal-switcher current="terms" />
     </section>
 
-    <div class="art-grid legal-grid" data-fx="legal">
-        <aside class="art-side" aria-label="{{ __('Index') }}">
-            <div class="art-prog" aria-hidden="true"><i></i></div>
-            <nav class="toc" aria-label="{{ __('Index') }}">
+    <div class="article-layout legal-grid" data-effect="legal">
+        <aside class="article-sidebar" aria-label="{{ __('Index') }}">
+            <div class="article-progress" aria-hidden="true"><i></i></div>
+            <nav class="article-toc" aria-label="{{ __('Index') }}">
                 <a href="#owner">{{ __('Owner') }}</a>
                 <a href="#what-the-user-should-know-at-a-glance">{{ __('What the User should know at a glance') }}</a>
                 <a href="#terms-of-use">{{ __('Terms of Use') }}</a>
@@ -30,7 +30,7 @@
             </nav>
         </aside>
 
-        <article class="art-body legal-body">
+        <article class="article-body legal-body">
 
         <section>
             <p>
