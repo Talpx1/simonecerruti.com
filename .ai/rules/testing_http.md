@@ -1,6 +1,6 @@
 ---
 paths:
-    - tests/Feature/Http/**
+    - tests/Http/**
 ---
 
 # Testing controllers and middleware

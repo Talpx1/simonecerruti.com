@@ -14,11 +14,12 @@
     displayDetailsOnTestsThatTriggerWarnings="true"
 >
     <testsuites>
-        <testsuite name="Unit">
-            <directory>tests/Unit</directory>
-        </testsuite>
-        <testsuite name="Feature">
-            <directory>tests/Feature</directory>
+        <testsuite name="App">
+            <directory>tests</directory>
+            <exclude>tests/Browser</exclude>
+            <exclude>tests/Datasets</exclude>
+            <exclude>tests/Fixtures</exclude>
+            <exclude>tests/ArchTest.php</exclude>
         </testsuite>
         <testsuite name="Browser">
             <directory>tests/Browser</directory>

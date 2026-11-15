@@ -1,6 +1,6 @@
 ---
 paths:
-    - tests/Feature/Console/**
+    - tests/Console/**
 ---
 
 # Testing console commands

@@ -9,8 +9,10 @@ paths:
 
 ## Where things live
 
-- Mirror the source code directories under `tests/Feature` (anything booting the framework: HTTP, Livewire, Filament, models, actions, commands, ...) or `tests/Unit` (pure, framework-free logic). Eg: tests for `app/Actions/DetectVisitSource.php` live in `tests/Feature/Actions/DetectVisitSourceTest.php`.
-- Large or shared datasets live in `tests/Datasets`.
+- There is no Feature/Unit split. `tests/` mirrors the project structure: one test file per source class, at the same relative path. Eg: tests for `app/Actions/DetectVisitSource.php` live in `tests/Actions/DetectVisitSourceTest.php`.
+- Sources outside `app/` mirror their root folder in StudlyCase: `resources/views/...` in `tests/Resources/Views/...`, `routes/console.php` in `tests/Routes/ConsoleTest.php`, `config/analytics.php` in `tests/Config/AnalyticsTest.php`, `public/llms.txt` in `tests/Public/LlmsTxtTest.php`.
+- `tests/Browser`, `tests/ArchTest.php`, `tests/Pest.php` and `tests/TestCase.php` stay at their place.
+- Large or shared datasets live in `tests/Datasets`. Fixture classes (eg: fixture enums) live in `tests/Fixtures`.
 - Testing a Filament Resource: see `.ai/rules/testing_filament.md`.
 
 ## `tests/Pest.php`
