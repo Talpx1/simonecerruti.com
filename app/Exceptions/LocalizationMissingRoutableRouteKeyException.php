@@ -6,7 +6,7 @@ namespace App\Exceptions;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MissingRoutableLocalizedRouteKeyException extends LocalizationException {
+class LocalizationMissingRoutableRouteKeyException extends LocalizationException {
     public function __construct(string $key, string $locale, Model|string|null $model = null) {
         $msg = "Missing localized route key '{$key}' for locale '{$locale}'.";
 
