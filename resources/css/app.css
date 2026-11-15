@@ -33,10 +33,10 @@
     --color-light: #ffffff;
     --color-dark: #000000;
     --color-bg: #090909;
-    --color-ink: #f1f0ec;
-    --color-mute: #8c8b86;
-    --color-acc: #ff4a1c;
-    --color-acc-ink: #0a0a0a;
+    --color-text: #f1f0ec;
+    --color-text-muted: #8c8b86;
+    --color-accent: #ff4a1c;
+    --color-on-accent: #0a0a0a;
 }
 
 @keyframes marquee {
