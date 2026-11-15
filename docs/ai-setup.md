@@ -33,6 +33,7 @@ The agent instructions are authored in `.ai` and compiled into `CLAUDE.md` by La
 
 - Composer `:agentic` script variants (`test`, `coverage`, `type-coverage`, `mutate`, `pint`, `rector`, `stan`) emit agent-friendly output; `composer qa` runs the full quality gate.
 - Pest 5 with `--tia` (runs only tests affected by the change), `pest-plugin-agent` (`--agent` one-shot tests), mutation and type coverage. Coverage is driven by PCOV in the `web-local` image; Xdebug is installed but off unless `XDEBUG_MODE` is set.
+- Tests have no Feature/Unit split: `tests/` mirrors the project structure, one test file per source class (`app/Actions/X.php` is tested by `tests/Actions/XTest.php`). Shared helpers and setup live in `tests/Pest.php`, shared datasets in `tests/Datasets`, fixture classes in `tests/Fixtures`. See `.ai/rules/testing.md`.
 - `laravel/pao` formats tool output for agents.
 - CodeGraph indexes the repo in `.codegraph/` (built on first container boot by the entrypoint) and is exposed through the `codegraph` MCP server and a `UserPromptSubmit` hook.
 - Context7 MCP authenticates with `CONTEXT7_API_KEY` from `.env`; `gh` uses the project-scoped `GH_TOKEN`.

@@ -1,6 +1,6 @@
 ---
 paths:
-    - tests/Feature/Actions/**
+    - tests/Actions/**
 ---
 
 # Testing Actions

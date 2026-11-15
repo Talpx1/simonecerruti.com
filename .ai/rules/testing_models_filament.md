@@ -1,6 +1,6 @@
 ---
 paths:
-    - tests/Feature/Models/**
+    - tests/Models/**
 ---
 
 # Testing Models (Filament)

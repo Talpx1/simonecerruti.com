@@ -33,6 +33,12 @@ class UserFactory extends Factory {
         ];
     }
 
+    public function admin(): static {
+        return $this->state(fn (array $attributes): array => [
+            'email' => fake()->unique()->userName().'@simonecerruti.com',
+        ]);
+    }
+
     public function withoutMfa(): static {
         return $this->state(fn (array $attributes): array => [
             'app_authentication_secret' => null,
