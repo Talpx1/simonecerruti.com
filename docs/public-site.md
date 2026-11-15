@@ -4,67 +4,68 @@ How the public pages are built: the frontend runtime, the data behind the back-o
 
 ## Frontend runtime
 
-`resources/js/public.js` is the single entry point for every public page. It exposes `window.SC` with shared helpers (`reduce`, `fine`, `clamp`, `lerp`, `smooth`, `$`, `$$`, `mouse`) and `SC.onFrame`, an array of callbacks run on each animation frame as `fn(now, dt)`.
+`resources/js/public.js` is the single entry point for every public page. It exposes `window.siteRuntime` with shared helpers (`prefersReducedMotion`, `hasFinePointer`, `clamp`, `linearInterpolate`, `smoothStep`, `queryOne`, `queryAll`, `pointer`) and `siteRuntime.frameCallbacks`, an array of callbacks run on each animation frame as `callback(timestamp, deltaSeconds)`.
 
-Two flags drive every effect: `SC.reduce` (`prefers-reduced-motion`) and `SC.fine` (a precise pointer). Effects that need the mouse or heavy motion must check them.
+Two flags drive every effect: `siteRuntime.prefersReducedMotion` (`prefers-reduced-motion`) and `siteRuntime.hasFinePointer` (a precise pointer). Effects that need the mouse or heavy motion must check them.
 
 ### Page lifecycle
 
 The site uses `wire:navigate`, so the document is never reloaded between pages.
 
-- `livewire:navigating` calls `resetPage()`: it runs every registered cleanup, empties `SC.onFrame` and resets the per-page state.
-- `livewire:navigated` calls `refresh()`: it rebinds the menu, copy buttons, reveals, word scrubs, the logo and every `data-fx` module. `refresh()` skips work if `<main>` is the same element as the last run.
+- `livewire:navigating` calls `resetPage()`: it runs every registered cleanup, empties `siteRuntime.frameCallbacks` and resets the per-page state.
+- `livewire:navigated` calls `refreshPage()`: it rebinds the menu, copy buttons, reveals, scroll-lit statements, the logo and every `data-effect` module. `refreshPage()` skips work if `<main>` is the same element as the last run.
 
 Anything attached to `document`, `window` or an observer must be removed in a cleanup, or it will leak across navigations.
 
-### `data-fx` modules
+### `data-effect` modules
 
-A `data-fx="name"` attribute on an element loads `resources/js/pages/name.js` through `import.meta.glob`, so each module is its own chunk and only loads on pages that use it.
+A `data-effect="name"` attribute on an element loads `resources/js/pages/name.js` through `import.meta.glob`, so each module is its own chunk and only loads on pages that use it.
 
 To add one:
 
-1. Create `resources/js/pages/<name>.js` with a default export `function (el, SC)`.
-2. Put `data-fx="<name>"` on the root element in Blade.
-3. Return a cleanup function. It runs on the next `wire:navigate` and must undo listeners, observers and timers. Push per-frame work onto `SC.onFrame` (it is cleared automatically).
+1. Create `resources/js/pages/<name>.js` with a default export `function (element, siteRuntime)`.
+2. Put `data-effect="<name>"` on the root element in Blade.
+3. Return a cleanup function. It runs on the next `wire:navigate` and must undo listeners, observers and timers. Push per-frame work onto `siteRuntime.frameCallbacks` (it is cleared automatically).
 
 ```js
-export default function (el, SC) {
-    const rows = SC.$$('.xrow', el);
-    const offs = rows.map((row) => {
-        const toggle = () => row.classList.toggle('open');
-        row.addEventListener('click', toggle);
-        return () => row.removeEventListener('click', toggle);
+export default function (element, siteRuntime) {
+    const accordionItems = siteRuntime.queryAll('.accordion-item', element);
+    const removeListeners = accordionItems.map((accordionItem) => {
+        const toggleItem = () => accordionItem.classList.toggle('is-open');
+        accordionItem.addEventListener('click', toggleItem);
+        return () => accordionItem.removeEventListener('click', toggleItem);
     });
 
-    return () => offs.forEach((off) => off());
+    return () => removeListeners.forEach((removeListener) => removeListener());
 }
 ```
 
-The module is skipped if `el` is no longer connected when it finishes loading. `faq.js` is the smallest reference.
+The module is skipped if `element` is no longer connected when it finishes loading. `faq.js` is the smallest reference.
 
 ### Reveals and other markup hooks
 
-- `.rv`: the element slides up and fades in the first time it enters the viewport (an `IntersectionObserver` adds `.in`). With reduced motion it is shown immediately.
-- `[data-split]`: text is split into letters that react to the cursor (variable font weight).
-- `.scrub p`: words light up as the paragraph scrolls; `data-acc` is a regex marking accent words.
-- `.mag`: magnetic hover. `[data-cursor]`: label shown inside the custom cursor.
+- `.reveal`: the element slides up and fades in the first time it enters the viewport (an `IntersectionObserver` adds `.is-revealed`). With reduced motion it is shown immediately.
+- `[data-variable-letters]`: text is split into letters that react to the cursor (variable font weight).
+- `.scroll-lit p`: words light up as the paragraph scrolls; `data-accent-pattern` is a regex marking accent words.
+- `.magnetic-hover`: magnetic hover. `[data-cursor]`: label shown inside the custom cursor.
 - `[data-copy]`: copies the value to the clipboard (`data-copied` is the confirmation label).
 
 ### Persisted layers
 
-The cursor, grain, vignette and progress bar live in `#fx-layers`, wrapped in `@persist('fx-layers')` in `layouts/public/index.blade.php`. Livewire keeps them across navigations, so they must not be re-created by modules. The `requestAnimationFrame` loop in `public.js` drives them and is started once.
+The cursor, grain, vignette and progress bar live in `#persisted-effect-layers`, wrapped in `@persist('persisted-effect-layers')` in `layouts/public/index.blade.php`. Livewire keeps them across navigations, so they must not be re-created by modules. The `requestAnimationFrame` loop in `public.js` drives them and is started once.
 
 ### Home canvas and three.js
 
-Only the home page owns the `#gl` canvas (`pages/home/home.blade.php`). `three` is imported dynamically from `pages/home.js`, so no other page downloads it. If the import or WebGL initialisation fails, the `no-gl` class is set on the root and the page falls back to its static look. Do not add a second canvas or a static `three` import elsewhere.
+Only the home page owns the `#home-webgl-canvas` canvas (`pages/home/home.blade.php`). `three` is imported dynamically from `pages/home.js`, so no other page downloads it. If the import or WebGL initialisation fails, the `is-webgl-unavailable` class is set on the root and the page falls back to its static look. Do not add a second canvas or a static `three` import elsewhere.
 
 ## CSS organisation
 
 `resources/css/app.css` is the only stylesheet entry. It imports Tailwind, the Filament styles, then `site.css`, `cookie.css` and `pages/*.css`, and defines the theme tokens (`--color-*`, `--font-*`) as Tailwind theme variables.
 
-- `site.css`: design tokens on `:root` (`--bg`, `--ink`, `--mute`, `--acc`, `--gut`, ...), fixed layers, navigation, buttons and shared components.
+- `site.css`: design tokens on `:root` (`--site-color-background`, `--site-color-text`, `--site-color-text-muted`, `--site-color-accent`, `--site-gutter`, ...), fixed layers, navigation, buttons and shared components.
 - `pages/<page>.css`: styles scoped to a single page or feature (`home`, `blog`, `contacts`, `legal`, `cookie-consent`). A new page style goes in its own file, imported at the end of `app.css`.
 - Use the tokens instead of literal colours.
+- Class names are long and speak for themselves: a component prefix, then the part (`cookie-banner-accept`, `home-works-item-name`), `--` for variants (`section--tight`) and `is-*` for states (`is-active`, `is-open`, `is-visible`). Never abbreviate (`ck`, `rv`, `ph1`). JavaScript variables follow the same rule.
 
 Fonts are self-hosted: Archivo Variable comes from `@fontsource-variable/archivo` (imported in `app.css`, `wdth` axis included), so no request goes to Google Fonts.
 
