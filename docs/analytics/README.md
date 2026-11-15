@@ -14,7 +14,7 @@ This documentation covers the last two. They were built to answer a single busin
 
 1. **[Flow](flow.md)** — request path through the middleware, what gets persisted, and how consent gates which fields.
 2. **[Campaigns](campaigns.md)** — how to create a campaign in the admin and wire it to outbound URLs (Instagram, QR, newsletter…).
-3. **[Pan events](pan.md)** — how `data-pan` attributes turn into rows in `pan_analytics` and how to whitelist new events.
+3. **[Pan events](pan.md)** — how `data-pan` attributes turn into rows in `pan_analytics` and how to whitelist new events. To add a tracked element on a public page, see also [Public site](../public-site.md#tracked-elements).
 4. **[Examples](examples.md)** — two end-to-end walkthroughs: a sponsored Instagram post and the QR code on the business card.
 5. **[Admin reference](admin.md)** — what each Filament resource and widget shows, and how to read it.
 

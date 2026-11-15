@@ -3,11 +3,15 @@
 declare(strict_types=1);
 
 use App\Enums\SchemaType;
+use App\Enums\TagTypes;
 use App\Filament\Resources\Projects\Pages\CreateProject;
 use App\Filament\Resources\Projects\Pages\EditProject;
 use App\Filament\Resources\Projects\Pages\ListProjects;
+use App\Models\Client;
 use App\Models\Project;
+use Filament\Actions\Testing\TestAction;
 
+use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
 beforeEach(function () {
@@ -32,6 +36,64 @@ it('creates a project', function () {
         ->assertHasNoFormErrors();
 
     expect(Project::query()->count())->toBe(1);
+});
+
+it('creates a project for an existing client', function () {
+    $client = Client::factory()->create();
+
+    livewire(CreateProject::class)
+        ->fillForm([
+            'title' => 'Client Project',
+            'slug' => 'client-project',
+            'client_id' => $client->id,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Project::query()->firstOrFail()->client_id)->toBe($client->id);
+});
+
+it('creates a client from the project form select', function () {
+    livewire(CreateProject::class)
+        ->fillForm([
+            'title' => 'Fresh Client Project',
+            'slug' => 'fresh-client-project',
+        ])
+        ->callAction(TestAction::make('createOption')->schemaComponent('client_id'), [
+            'name' => 'Brand New Client',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    assertDatabaseHas(Client::class, ['name' => 'Brand New Client']);
+    expect(Project::query()->firstOrFail()->client?->name)->toBe('Brand New Client');
+});
+
+it('saves the story fields of a project', function () {
+    $project = Project::factory()->create();
+
+    livewire(EditProject::class, ['record' => $project->id])
+        ->fillForm([
+            'starting_point' => 'Un gestionale obsoleto',
+            'goal' => 'Unificare i processi',
+            'outcome' => 'Meno tempo perso',
+            'kinds' => ['Piattaforma web'],
+            'features' => [
+                ['title' => 'Dashboard', 'description' => 'Metriche in tempo reale'],
+            ],
+            'home_summary' => '<p>Un <strong>risultato</strong> concreto</p>',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $project->refresh();
+
+    expect($project->getTranslation('starting_point', 'it'))->toBe('Un gestionale obsoleto')
+        ->and($project->getTranslation('goal', 'it'))->toBe('Unificare i processi')
+        ->and($project->getTranslation('outcome', 'it'))->toBe('Meno tempo perso')
+        ->and($project->getTranslation('features', 'it'))->toHaveCount(1)
+        ->and($project->getTranslation('home_summary', 'it'))->toContain('<strong>risultato</strong>')
+        ->and($project->tagsWithType(TagTypes::PROJECT_KIND->value)->pluck('name')->all())->toBe(['Piattaforma web']);
 });
 
 it('saves SEO overrides for a project per locale', function () {

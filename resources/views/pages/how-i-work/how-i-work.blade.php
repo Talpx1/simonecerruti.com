@@ -1,272 +1,315 @@
+@php
+    $rules = [
+        [
+            'title' => 'Orders after 5 pm',
+            'rule' => 'If an order arrives after 5 pm and the customer already has 3 open orders, it goes to warehouse B. Except on Fridays.',
+            'template_steps' => [
+                ['blocked', 'Arrival times do not change the warehouse'],
+                ['blocked', 'No exception by day of the week'],
+                ['workaround', 'Workaround: someone checks the orders by hand every evening'],
+                ['workaround', 'Workaround: an Excel sheet with the customers to keep an eye on'],
+            ],
+            'custom_steps' => [
+                ['supported', 'Time and open orders read in real time'],
+                ['supported', 'Automatic routing to warehouse B'],
+                ['supported', 'On Fridays the rule switches itself off'],
+                ['supported', 'Zero manual checks'],
+            ],
+        ],
+        [
+            'title' => 'Loyalty-only discounts',
+            'rule' => 'The discount applies only to customers with us for more than 5 years, and only on the lines chosen by the local sales rep.',
+            'template_steps' => [
+                ['blocked', 'The discount is the same for everyone or per category'],
+                ['blocked', 'No link between sales rep and product lines'],
+                ['workaround', 'Workaround: the discount is applied by hand on the invoice'],
+                ['workaround', 'Workaround: a list of long-time customers on a shared sheet'],
+            ],
+            'custom_steps' => [
+                ['supported', 'Customer seniority calculated automatically'],
+                ['supported', 'Each sales rep manages their own lines'],
+                ['supported', 'The right discount already shows up in the quote'],
+                ['supported', 'No mistakes on the invoice'],
+            ],
+        ],
+        [
+            'title' => 'Invoice to the accountant',
+            'rule' => 'Some customers want the invoice sent to their accountant, not to them. But the payment reminder goes to the customer.',
+            'template_steps' => [
+                ['blocked', 'A customer has only one sending address'],
+                ['blocked', 'Invoice and reminder always go to the same contact'],
+                ['workaround', 'Workaround: every invoice is forwarded by hand'],
+                ['workaround', 'Workaround: a red note on the customer record, hoping someone reads it'],
+            ],
+            'custom_steps' => [
+                ['supported', 'Different recipients for invoice and reminder'],
+                ['supported', 'Accountant linked to the customer record'],
+                ['supported', 'Right recipients, every time, automatically'],
+                ['supported', 'No note to remember'],
+            ],
+        ],
+    ];
+
+    $modules = [
+        ['Orders', '36', 'to ship today', 'rows'],
+        ['Warehouse', '4', 'items below stock', 'bar'],
+        ['Customers', '412', 'active customers', 'dots'],
+        ['Invoices', '12', 'ready to issue', 'rows'],
+        ['Reports', '+8%', 'compared to last month', 'chart'],
+        ['Mobile app', 'Online', 'synced with the management system', 'phone'],
+        ['Customer portal', '28', 'logins today', 'dots'],
+        ['AI assistant', '“Reorder 3 items?”', 'today\'s suggestion', 'ai'],
+        ['Digital signature', '5', 'contracts signed', 'rows'],
+        ['B2B e-commerce', '9', 'online orders today', 'chart'],
+        ['WhatsApp', '31', 'notifications sent', 'bar'],
+    ];
+
+    $automations = [
+        ['Sales report', 'Every Monday, two hours copying numbers into a sheet.', ['Sales report generated and sent to management', 'Weekly report updated with yesterday\'s orders']],
+        ['Deadline reminders', 'You call customers one by one to remind them of deadlines.', ['Reminder sent to Rossi Srl on WhatsApp', 'Deadline notice sent to Studio Neri by email']],
+        ['E-commerce orders', 'You copy online orders into the management system by hand.', ['Order #2291 imported, warehouse updated', 'Order #2292 imported, customer notified']],
+        ['Quotes and delivery notes', 'You prepare every document starting from a Word template.', ['Quote P-0412 generated and ready to sign', 'Delivery note 118 created and attached to the shipment']],
+    ];
+
+    $page_effect_config = [
+        'locale' => str_replace('_', '-', app()->getLocale()),
+        'rules' => array_map(fn (array $rule): array => [
+            'title' => __($rule['title']),
+            'rule' => __($rule['rule']),
+            'template_steps' => array_map(fn (array $item): array => [$item[0], __($item[1])], $rule['template_steps']),
+            'custom_steps' => array_map(fn (array $item): array => [$item[0], __($item[1])], $rule['custom_steps']),
+        ], $rules),
+        'modules' => array_map(fn (array $module): array => [
+            'name' => __($module[0]),
+            'value' => __($module[1]),
+            'label' => __($module[2]),
+            'visualization' => $module[3],
+        ], $modules),
+        'automations' => array_map(fn (array $automation): array => [
+            'name' => __($automation[0]),
+            'pain' => __($automation[1]),
+            'events' => array_map(fn (string $event): string => __($event), $automation[2]),
+        ], $automations),
+        'text' => [
+            'workarounds' => __('Workarounds needed: :count'),
+            'rule_stays_outside' => __('and the rule still stays outside the system'),
+            'waiting' => __('pending'),
+            'running' => __('running'),
+            'analysing' => __('analysing'),
+            'passed' => __('passed'),
+            'clean' => __('clean'),
+            'none' => __('none'),
+            'new' => __('Brand new'),
+            'modules' => __('Modules: :count · Rewrites needed: 0'),
+            'restart' => __('Start over'),
+            'add_module' => __('Add a module'),
+            'all_manual' => __('Everything still done by hand. Turn on an automation.'),
+            'done_automatically' => __('Done automatically. You never think about it again.'),
+            'by_hand' => __('By hand: :left of :total'),
+            'write_something' => __('Write something.'),
+            'email_ok' => __('Valid. It goes into the database.'),
+            'email_bad' => __('Rejected. It does not go into the database.'),
+            'vat_ok' => __('Eleven digits. Accepted.'),
+            'vat_bad' => __('It takes 11 digits, no letters. Rejected.'),
+            'report_sent' => __('Report sent to the office ✓'),
+            'close_job' => __('Close job'),
+        ],
+    ];
+@endphp
+
 <div>
-    <section class="flex flex-col px-8 lg:px-14 pb-20">
-        <div class="flex gap-32">
-            <h1 data-reveal class="font-black uppercase leading-none tracking-tight text-7xl lg:text-8xl xl:text-9xl">
-                {!! __('How <br> :tag I Work :tag_close', [
-                    'tag' => '<span class="text-light/20">',
-                    'tag_close' => '</span>',
-                ]) !!}
-            </h1>
+    <x-page-hero effect="method-mesh" :label="__('How I work: software that does not break.')"
+        :rows="[__('Software that'), __('does not break.')]">
+        <p>{!! __('My method, in short: interfaces that do not frustrate and results that <em>last over time.</em> Try to break it.') !!}</p>
 
-            <x-app-logo class="max-w-96 hidden lg:block" />
+        <x-slot:actions>
+            <a class="button-primary button-large magnetic-hover home-hero-cta" href="{{ route('contacts') }}" wire:navigate data-cursor="{{ __('Write to me') }}"
+                data-pan="cta-method-hero"><span>{{ __('Let\'s talk') }}</span><span class="button-arrow">→</span></a>
+        </x-slot:actions>
+    </x-page-hero>
 
-        </div>
+    <section class="section section--tight method-principles" data-effect="how-i-work">
+        <script type="application/json" class="page-effect-config">{!! json_encode($page_effect_config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR) !!}</script>
 
-        <p data-reveal class="mt-10 text-light/60 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
-            {{ __("Software that doesn't break. Interfaces that don't frustrate. Results that outlast the trend. Here's what that actually means — and why it makes a difference.") }}
-        </p>
-    </section>
-
-    <x-marquee :entries="[
-        __('BESPOKE'),
-        __('QUALITY'),
-        trans_choice('RELIABLE', 1),
-        __('SCALABLE'),
-        __('NO LIMITS'),
-        __('MODERN'),
-        __('AUTOMATED'),
-        __('TAILOR-MADE'),
-    ]" />
-
-    <section data-reveal class="bg-dark px-8 lg:px-14 py-24 lg:py-36 border-b border-light/10">
-        <p class="font-semibold leading-tight tracking-tight text-light text-3xl lg:text-5xl 2xl:text-6xl max-w-5xl">
-            {{ __('The market is full of software built fast, sold cheap, and replaced in two years.') }} <br>
-            <span class="text-light/25"> {{ __("I don't work that way.") }}</span>
-        </p>
-        <p class="mt-8 text-light/50 text-base lg:text-lg font-light leading-relaxed max-w-3xl">
-            {{ __('Every choice — from the first line of code to the final interface — is made to last, to scale, and to work exactly the way your business works. Not the other way around.') }}
-        </p>
-    </section>
-
-
-    <section class="divide-y divide-light/10">
-        <div class="grid grid-cols-1 lg:grid-cols-2 px-8 lg:px-0">
-            <div
-                class="flex flex-col justify-center py-16 lg:py-24 lg:pl-14 lg:pr-20 lg:border-r lg:border-light/10 gap-6">
-                <h2 class="font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-6xl">
-                    {{ __('Built around you.') }}<br>
-                    <span class="text-light/30">{{ __('Every time.') }}</span>
-                </h2>
-                <p class="text-light/55 text-sm lg:text-base leading-relaxed font-light">
-                    {{ __("No templates, no shortcuts, no \"we adapt what we have\". Every project starts from a blank page and a conversation. Your processes, your logic, your needs become the blueprint. The result is software that fits you perfectly — because it was designed exclusively for you.") }}
-                </p>
-                <x-chip class="w-fit" size="xs">{{ __('TAILOR-MADE') }}</x-chip>
+        <div class="method-principle">
+            <div>
+                <h3 class="reveal">{!! __('Built<br>around you<span class="text-accent">.</span>') !!}</h3>
+                <p class="reveal">{{ __('Every company has its strange rules. The ones only you have, that no off-the-shelf management system foresaw. A template forces you into workarounds: separate sheets, reminders, manual steps. Custom software writes them into the code, and from then on applies them by itself.') }}</p>
+                <p class="reveal">{{ __('Every project starts from a blank page and a conversation. Your processes drive the software, never the other way around.') }}</p>
             </div>
-            <div class="hidden lg:flex items-center justify-center p-14">
-                <div class="grid grid-cols-2 gap-4 w-full max-w-xs opacity-20">
-                    @for ($i = 0; $i < 16; $i++)
-                        <div class="h-12 border border-light/40 @if ($i % 3 === 0) bg-light/5 @endif">
-                        </div>
-                    @endfor
+            <div class="method-demo" id="method-fit-section">
+                <span class="eyebrow">{{ __('Pick a rule only your company has') }}</span>
+                <div class="method-rules" role="group" aria-label="{{ __('Example rules') }}"></div>
+                <div class="method-fit-head"><span class="eyebrow" id="method-fit-rule-title">{{ __('How it handles it') }}</span>
+                    <div class="segmented-toggle"><button type="button" class="is-active" data-fit-mode="template">{{ __('Template') }}</button><button
+                            type="button" data-fit-mode="custom">{{ __('Custom') }}</button></div>
                 </div>
+                <ol class="method-flow" id="method-flow-list" aria-live="polite"></ol>
+                <p class="method-fit-score" id="method-fit-score-line"></p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 px-8 lg:px-0">
-            <div class="hidden lg:flex items-center justify-center p-14 border-r border-light/10">
-                <div class="flex flex-col gap-3 w-full max-w-xs opacity-25">
-                    @foreach ([85, 100, 72, 100, 91, 100] as $w)
-                        <div class="flex items-center gap-3">
-                            <div class="h-px bg-light/60 flex-1" style="width: {{ $w }}%"></div>
-                            <span class="text-light/50 text-xs font-mono">{{ $w }}%</span>
-                        </div>
-                    @endforeach
-                </div>
+        <div class="method-principle">
+            <div>
+                <h3 class="reveal">{!! __('It works.<br><em style="font-style: italic; font-weight: 400; font-stretch: 82%">It keeps working. Safely.</em>') !!}</h3>
+                <p class="reveal">{{ __('Automated tests run on every change and flag problems before they reach you. I do not hope it works: I verify it.') }}</p>
+                <p class="reveal">{!! __('<b style="color: var(--site-color-text)">And it has to be secure.</b> In the AI era, generated code and external dependencies widen the attack surface. That is why I run in-depth security audits: an SBOM for every project, dependency audits straight from the package managers, no known vulnerability let through to production.') !!}</p>
             </div>
-            <div class="flex flex-col justify-center py-16 lg:py-24 lg:pl-20 lg:pr-14 gap-6">
-                <h2 class="font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-6xl">
-                    {{ __('It works.') }}<br>
-                    <span class="text-light/30">{{ __('And it keeps working.') }}</span>
-                </h2>
-                <p class="text-light/55 text-sm lg:text-base leading-relaxed font-light">
-                    {{ __('Every feature is covered by automated tests that run continuously. When something changes, the system immediately signals any problem — before it ever reaches you. Less bugs, fewer surprises, more peace of mind.') }}
-                </p>
-                <x-chip-list size="xs" :entries="[
-                    __('Unit Testing'),
-                    __('End-to-end Testing'),
-                    __('Static Analysis'),
-                    __('Code Coverage'),
-                    __('Mutation Testing'),
-                ]" />
+            <div class="method-demo" id="method-tests-section">
+                <span class="eyebrow">{{ __('Before every release · Quality') }}</span>
+                @foreach (['Unit tests', 'End-to-end tests', 'Static analysis', 'Code coverage and mutation testing'] as $check)
+                    <div class="method-check"><i></i><span>{{ __($check) }}</span><b>{{ __('pending') }}</b></div>
+                @endforeach
+                <span class="eyebrow" style="margin-top: 10px; color: var(--site-color-accent)">{{ __('Security') }}</span>
+                @foreach (['Dependency audit · Composer, npm', 'SBOM generated and verified', 'Known vulnerabilities'] as $check)
+                    <div class="method-check section"><i></i><span>{{ __($check) }}</span><b>{{ __('pending') }}</b></div>
+                @endforeach
+                <div class="method-meter"><i></i></div>
+                <button type="button" class="button-outline-link" id="rerun-tests-button" style="align-self: flex-start">{{ __('Run the tests again') }}
+                    <span>↻</span></button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 px-8 lg:px-0">
-            <div
-                class="flex flex-col justify-center py-16 lg:py-24 lg:pl-14 lg:pr-20 lg:border-r lg:border-light/10 gap-6">
-                <h2 class="font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-6xl">
-                    {!! __('Built to grow <br> :tag with you. :close_tag', [
-                        'tag' => '<span class="text-light/30">',
-                        'close_tag' => '</span>',
-                    ]) !!}
-                </h2>
-                <p class="text-light/55 text-sm lg:text-base leading-relaxed font-light">
-                    {{ __('A good database is invisible — until you need it to scale. I design data structures that are flexible and extensible. When your business grows, adds products, changes processes: the software adapts without being rewritten from scratch.') }}
-                </p>
-                <p class="text-light/55 text-sm lg:text-base leading-relaxed font-light">
-                    {{ __("And when your needs evolve — new markets, new processes, new integrations — I'm there. Not just as a developer, but as a technical partner who already knows your system inside out and knows how to take it further.") }}
-                </p>
-                <x-chip-list size="xs" :entries="[
-                    __('Task Automation'),
-                    __('Zero Manual Errors'),
-                    __('Time Saved'),
-                    __('Scheduled Reports'),
-                    __('Auto Notifications'),
-                    __('Seamless Sync'),
-                ]" />
+        <div class="method-principle">
+            <div>
+                <h3 class="reveal">{!! __('Grows<br>with you<span class="text-accent">.</span>') !!}</h3>
+                <p class="reveal">{{ __('Flexible, extensible data structures: the software expands as your business grows, without rewrites. And I stay by your side as a technical partner.') }}</p>
             </div>
-            <div class="hidden lg:flex items-center justify-center p-14">
-                <div class="relative w-48 h-48 opacity-15">
-                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-8 border border-light/60"></div>
-                    <div class="absolute top-1/2 left-0 -translate-y-1/2 w-20 h-8 border border-light/60"></div>
-                    <div class="absolute top-1/2 right-0 -translate-y-1/2 w-20 h-8 border border-light/60"></div>
-                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-8 border border-light/60"></div>
-                    <div class="absolute top-8 left-1/2 -translate-x-1/2 w-px h-32 bg-light/40">
-                    </div>
-                    <div class="absolute top-1/2 left-20 -translate-y-1/2 w-8 h-px bg-light/40"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="px-8 lg:px-14 py-20 lg:py-28 overflow-hidden">
-            <div class="z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <div class="space-y-6">
-                    <x-ping-dot>
-                        <span
-                            class="text-emerald-400/70 text-xs tracking-widest uppercase">{{ __('AI-Assisted') }}</span>
-                    </x-ping-dot>
-
-                    <h2 class="font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-6xl">
-                        {{ __('The best of tech,') }}<br>
-                        <span class="text-light/30">{{ __('in your service.') }}</span>
-                    </h2>
-                    <p class="text-light/55 text-sm lg:text-base leading-relaxed font-light">
-                        {{ __('I use specialized AI tools to write better code, faster. Not to replace judgment — to amplify it. Higher quality in less time, fewer oversights, more focus on what actually matters for your project. AI as a precision tool, not a shortcut.') }}
-                    </p>
-                    <x-chip-list size="xs" :entries="[__('AI'), __('Claude')]" />
-                </div>
-                <div
-                    class="relative text-light/25 font-black uppercase text-8xl lg:text-9xl leading-none tracking-tighter text-right select-none">
-                    AI
-                    <div
-                        class="absolute right-8 lg:right-14 top-1/2 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none">
+            <div class="method-demo">
+                <span class="eyebrow">{{ __('Your company grows. So does the software.') }}</span>
+                <div class="method-app" aria-live="polite">
+                    <div class="method-app-top"><i></i><i></i><i></i><span>{{ __('Your management system') }}</span></div>
+                    <div class="method-app-body">
+                        <ul class="method-app-nav" id="method-app-nav"></ul>
+                        <div class="method-app-grid" id="method-app-grid"></div>
                     </div>
                 </div>
+                <div class="method-app-foot"><button type="button" class="button-primary magnetic-hover" id="add-module-button"><span>{{ __('Add a module') }}</span><span
+                            class="button-arrow">+</span></button><span class="eyebrow" id="module-count"></span></div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 px-8 lg:px-0">
-            <div class="hidden lg:flex items-center justify-center p-14 border-r border-light/10">
-                <div class="w-full max-w-xs space-y-3 opacity-20">
-                    <div class="h-10 bg-light/20 w-full"></div>
-                    <div class="flex gap-3">
-                        <div class="h-20 bg-light/10 flex-1"></div>
-                        <div class="h-20 bg-light/10 flex-1"></div>
-                        <div class="h-20 bg-light/10 flex-1"></div>
-                    </div>
-                    <div class="h-6 bg-light/10 w-3/4"></div>
-                    <div class="h-6 bg-light/10 w-1/2"></div>
-                    <div class="h-10 bg-light/20 w-2/5"></div>
+        <div class="method-principle">
+            <div>
+                <h3 class="reveal">{!! __('I automate<br>repetition<span class="text-accent">.</span>') !!}</h3>
+                <p class="reveal">{{ __('Reports, syncs, documents, notifications: everything that repeats I spot and take off your hands.') }}</p>
+            </div>
+            <div class="method-demo">
+                <span class="eyebrow">{{ __('Today\'s problem. Turn it on, and it disappears.') }}</span>
+                <div class="method-autos" id="automation-list"></div>
+                <div class="method-auto-log">
+                    <div class="method-auto-log-head"><span class="eyebrow">{{ __('Today\'s log') }}</span><span class="eyebrow" id="manual-counter"></span></div>
+                    <ul id="automation-log"></ul>
                 </div>
             </div>
-            <div class="flex flex-col justify-center py-16 lg:py-24 lg:pl-20 lg:pr-14 gap-6">
-                <h2 class="font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-6xl">
-                    {{ __('Interfaces people') }}<br>
-                    <span class="text-light/30">{{ __('actually enjoy.') }}</span>
-                </h2>
-                <p class="text-light/55 text-sm lg:text-base leading-relaxed font-light">
-                    {{ __('The best software is the one nobody notices — because it works exactly as expected, immediately. Clean, modern, intuitive interfaces: your team learns them in minutes, not weeks. Less training, less frustration, more productivity from day one.') }}
-                </p>
-                <x-chip-list size="xs" :entries="[__('Tailwind'), __('Livewire'), __('Vue'), __('Filament')]" />
+        </div>
+
+        <div class="method-principle">
+            <div>
+                <h3 class="reveal">{!! __('Data<br>always intact<span class="text-accent">.</span>') !!}</h3>
+                <p class="reveal">{{ __('Every piece of data is validated, cleaned and verified before it gets in. That way the database, the reports and your decisions stay reliable.') }}</p>
+            </div>
+            <div class="method-demo">
+                <div class="method-field" id="field-email"><label for="validation-email">{{ __('Try getting an email wrong') }}</label><input
+                        id="validation-email" type="text" placeholder="{{ __('name@company') }}" autocomplete="off"><span
+                        class="method-field-message">{{ __('Write something.') }}</span></div>
+                <div class="method-field" id="field-vat-number"><label for="validation-vat-number">{{ __('And a VAT number') }}</label><input id="validation-vat-number"
+                        type="text" inputmode="numeric" placeholder="{{ __('11 digits') }}" autocomplete="off"><span
+                        class="method-field-message">{{ __('Write something.') }}</span></div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 px-8 lg:px-0">
-            <div
-                class="flex flex-col justify-center py-16 lg:py-24 lg:pl-14 lg:pr-20 lg:border-r lg:border-light/10 gap-6">
-                <h2 class="font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-6xl">
-                    {!! __('Your time is <br> :tag too valuable for repetition. :close_tag', [
-                        'tag' => '<span class="text-light/30">',
-                        'close_tag' => '</span>',
-                    ]) !!}
-
-                </h2>
-                <p class="text-light/55 text-sm lg:text-base leading-relaxed font-light">
-                    {{ __('Sending reports, syncing data, generating documents, sending notifications — anything that repeats can be automated. I identify these friction points and eliminate them. The software works for you, not the other way around.') }}
-                </p>
-                <x-chip-list size="xs" :entries="[
-                    __('Scalable'),
-                    __('Extensible'),
-                    __('Future-Proof'),
-                    __('Modular'),
-                    __('API-Ready'),
-                    __('No Rewrites'),
-                ]" />
+        <div class="method-principle">
+            <div>
+                <h3 class="reveal">{!! __('Interfaces<br>people like<span class="text-accent">.</span>') !!}</h3>
+                <p class="reveal">{{ __('Clean, modern, intuitive. Your team learns them in minutes, not weeks. And likes using them.') }}</p>
+                <p class="reveal">{{ __('With custom software the interface is not a table with fields: it is designed around the gesture you make every day. Dragging a job, signing on the phone, configuring a product. Try them here.') }}</p>
             </div>
-            <div class="hidden lg:flex items-center justify-center p-14">
-                <div class="w-full max-w-xs opacity-15 space-y-4">
-                    @foreach ([1, 2, 3] as $row)
-                        <div class="flex items-center gap-4">
-                            <div class="w-8 h-8 border border-light/60 flex items-center justify-center">
-                                <div class="w-2 h-2 bg-light/60"></div>
+            <div class="method-demo method-ui">
+                <div class="method-ui-tabs" role="tablist" aria-label="{{ __('Interface examples') }}">
+                    <button type="button" role="tab" class="is-active" data-tab-index="0">{{ __('Planning') }}</button>
+                    <button type="button" role="tab" data-tab-index="1">{{ __('Field app') }}</button>
+                    <button type="button" role="tab" data-tab-index="2">{{ __('Configurator') }}</button>
+                </div>
+                <div class="method-ui-stage">
+                    <div class="method-ui-pane is-active" data-pane-index="0">
+                        <p class="method-ui-hint">{{ __('Drag a job into the right column. Or tap it to move it forward.') }}</p>
+                        <div class="method-kanban">
+                            <div class="method-kanban-column" data-column-index="0"><span class="method-kanban-column-title">{{ __('To do') }}</span>
+                                <div class="method-kanban-card" draggable="true"><b>#1043 Studio Riva</b><small>{{ __('Shelving · 3 days') }}</small></div>
+                                <div class="method-kanban-card" draggable="true"><b>#1044 Hotel Lago</b><small>{{ __('Lobby furnishing · 6 days') }}</small></div>
                             </div>
-                            <div class="h-px flex-1 bg-light/40"></div>
-                            <div class="w-8 h-8 border border-light/60"></div>
+                            <div class="method-kanban-column" data-column-index="1"><span class="method-kanban-column-title">{{ __('In progress') }}</span>
+                                <div class="method-kanban-card" draggable="true"><b>#1042 Bottega Sardi</b><small>{{ __('Counter · today') }}</small></div>
+                            </div>
+                            <div class="method-kanban-column" data-column-index="2"><span class="method-kanban-column-title">{{ __('Ready') }}</span>
+                                <div class="method-kanban-card is-done" draggable="true"><b>#1041 Caffè Centrale</b><small>{{ __('Delivered') }}</small></div>
+                            </div>
                         </div>
-                    @endforeach
+                    </div>
+                    <div class="method-ui-pane" data-pane-index="1">
+                        <div class="method-phone">
+                            <div class="method-phone-top"><b>{{ __('Job #318') }}</b><small>{{ __('Boiler · Rossi, 12 Garibaldi St') }}</small></div>
+                            <div class="method-phone-list">
+                                @foreach (['Pressure check', 'Burner cleaning', 'Flue gas test'] as $step)
+                                    <button type="button" class="method-phone-check"><i></i>{{ __($step) }}</button>
+                                @endforeach
+                            </div>
+                            <span class="method-phone-label">{{ __('Customer signature') }}</span>
+                            <canvas class="method-phone-signature" width="460" height="120" aria-label="{{ __('Signature area') }}"></canvas>
+                            <button type="button" class="method-phone-send" disabled>{{ __('Close job') }}</button>
+                        </div>
+                        <p class="method-ui-hint">{{ __('Tick the checks and sign with your finger or mouse. The report goes to the office by itself.') }}</p>
+                    </div>
+                    <div class="method-ui-pane" data-pane-index="2">
+                        <div class="method-config">
+                            <div class="method-config-preview">
+                                <div class="method-config-object" id="configurator-object"></div><span class="method-config-dimensions" id="configurator-dimensions">160 cm</span>
+                            </div>
+                            <div class="method-config-options">
+                                <div><span class="eyebrow">{{ __('Material') }}</span>
+                                    <div class="method-config-row" data-option-group="material"><button type="button" class="is-active" data-option-value="rovere">{{ __('Oak') }}</button><button type="button" data-option-value="noce">{{ __('Walnut') }}</button><button type="button" data-option-value="nero">{{ __('Matte black') }}</button></div>
+                                </div>
+                                <div><span class="eyebrow">{{ __('Length') }}</span>
+                                    <div class="method-config-row" data-option-group="length"><button type="button" data-option-value="120">120</button><button type="button" class="is-active" data-option-value="160">160</button><button type="button" data-option-value="200">200</button></div>
+                                </div>
+                                <div><span class="eyebrow">{{ __('Delivery') }}</span>
+                                    <div class="method-config-row" data-option-group="delivery"><button type="button" class="is-active" data-option-value="std">{{ __('Standard') }}</button><button type="button" data-option-value="exp">{{ __('Express') }}</button></div>
+                                </div>
+                                <p class="method-config-price">{{ __('Price') }} <b id="configurator-price">€ 1,240</b><small>{{ __('Example prices') }}</small></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-light/10">
-            <div class="px-8 lg:px-14 py-16 lg:py-24 space-y-6">
-                <h2 class="font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-5xl">
-                    {{ __('Clean data in.') }}<br>
-                    <span class="text-light/30">{{ __('Clean data out.') }}</span>
-                </h2>
-                <p class="text-light/55 text-sm lg:text-base leading-relaxed font-light">
-                    {{ __('Incorrect data is more dangerous than missing data. Every input is validated, sanitized, and verified before being processed. This protects your database, your reports, and your decisions.') }}
-                </p>
-                <x-chip-list size="xs" :entries="[
-                    __('No Corrupted Data'),
-                    __('Input Validation'),
-                    __('Error Prevention'),
-                    __('Trusted Reports'),
-                    __('Consistent Data'),
-                ]" />
+        <div class="method-principle">
+            <div>
+                <h3 class="reveal">{!! __('AI-assisted.<br><em style="font-style: italic; font-weight: 400; font-stretch: 82%">Never AI-dependent.</em>') !!}</h3>
+                <p class="reveal">{{ __('I use specialized AI tools to write better code. But the judgment stays human: every line is read, understood and verified before it gets to you.') }}</p>
             </div>
-            <div class="px-8 lg:px-14 py-16 lg:py-24 space-y-6">
-                <h2 class="font-black uppercase leading-none tracking-tighter text-light text-4xl lg:text-5xl mb-6">
-                    {{ __('Modern.') }}<br>
-                    <span class="text-light/30">{{ __('Proven. Reliable.') }}</span>
-                </h2>
-                <p class="text-light/55 text-sm lg:text-base leading-relaxed font-light">
-                    {{ __('Mature, well-documented technologies actively maintained by large communities. No experiments on your product. Everything containerized and deployable anywhere — today as in three years.') }}
-                </p>
-                <x-chip-list size="xs" :entries="[
-                    __('Laravel'),
-                    __('Livewire'),
-                    __('Filament'),
-                    __('Tailwind'),
-                    __('Vue'),
-                    __('Docker'),
-                    __('TypeScript'),
-                    __('PHP'),
-                    __('Nightwatch'),
-                    __('Sentry'),
-                    __('StatusCake'),
-                ]" />
+            <div class="method-demo"><span class="eyebrow">{{ __('Mature, documented technologies with active communities') }}</span>
+                <div class="tech-cloud" id="tech-cloud-canvas" data-effect="tech-cloud">
+                    @foreach (['Laravel', 'Livewire', 'Filament', 'Tailwind', 'Vue', 'Docker', 'TypeScript', 'PHP', 'Sentry'] as $tech)
+                        <span>{{ $tech }}</span>
+                    @endforeach
+                </div>
             </div>
         </div>
-
     </section>
 
-    <x-cta-section centered>
-        <x-slot:title>{{ __("You don't need faster software.") }}</x-slot:title>
-        <x-slot:subtitle>{{ __('You need software that actually works.') }}</x-slot:subtitle>
+    <section class="section scroll-lit">
+        <p data-accent-pattern="{{ __('really\\.') }}">{{ __('You do not need faster software. You need software that really works.') }}</p>
+        <div class="button-group" style="justify-content: flex-start; margin-top: 40px">
+            <a class="button-primary button-large magnetic-hover" href="{{ route('contacts') }}" wire:navigate
+                data-pan="cta-method-contacts"><span>{{ __('Let us talk') }}</span><span class="button-arrow">→</span></a>
+            <a class="button-outline-link" href="{{ route('services') }}" wire:navigate data-pan="cta-method-services">{{ __('Explore services') }}
+                <span>→</span></a>
+            <a class="button-outline-link" href="{{ route('projects') }}" wire:navigate data-pan="cta-method-projects">{{ __('See works') }}
+                <span>→</span></a>
+        </div>
+    </section>
 
-        <x-button :href="route('contacts')" data-pan="cta-method-contacts">{{ __("Let's talk") }}</x-button>
-        <x-button :href="route('services')" variant="secondary" data-pan="cta-method-services">{{ __('Explore services') }}</x-button>
-        <x-button :href="route('projects')" variant="secondary" data-pan="cta-method-projects">{{ __('See projects') }}</x-button>
-    </x-cta-section>
+    <x-contact-band />
 </div>

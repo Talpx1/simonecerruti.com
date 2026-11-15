@@ -11,6 +11,10 @@ return [
         'label' => 'Progetto',
         'plural_label' => 'Progetti',
     ],
+    'client' => [
+        'label' => 'Cliente',
+        'plural_label' => 'Clienti',
+    ],
     'tag' => [
         'label' => 'Tag',
         'plural_label' => 'Tags',

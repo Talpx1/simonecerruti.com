@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Enums\ServiceAreas;
+use App\Enums\TagTypes;
 use App\Livewire\Pages\ServicesConsultingAndSeo;
 use App\Models\Project;
+use App\Models\Tag;
 use Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter;
 use Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect;
 
@@ -11,76 +14,46 @@ use function Pest\Livewire\livewire;
 
 beforeEach(fn () => $this->withoutVite());
 
-it('renders the hero with the area eyebrow and sub-service pills', function () {
+it('lays out the hero, pains, offers and FAQ sections', function () {
     livewire(ServicesConsultingAndSeo::class)
         ->assertOk()
         ->assertSeeHtml('data-pan="section-impression-services-consulting-and-seo"')
-        ->assertSee(__('Area 03 — Consulting · SEO'))
+        ->assertSeeHtml('data-pan="cta-services-consulting-and-seo-consultation"')
+        ->assertSeeHtml('data-pan="cta-services-consulting-and-seo-back"')
+        ->assertSee(__('You know you need digital, but not where to start.'))
         ->assertSee(__('Strategic consulting'))
-        ->assertSee(__('SEO & positioning'))
-        ->assertSee(__('Support for your team'))
-        ->assertSeeHtml('data-pan="cta-services-consulting-and-seo-consultation"');
+        ->assertSee(__('How does a consultation work?'))
+        ->assertSeeHtml('application/ld+json');
 });
 
-it('lays out the pains, sub-services, process and FAQ sections', function () {
+it('uses the rank animation for the hero', function () {
     livewire(ServicesConsultingAndSeo::class)
         ->assertOk()
-        ->assertSee(__('This is for you if…'))
-        ->assertSee(__('You have an idea but don\'t know where to start.'))
-        ->assertSee(__('What I offer<br>in this area'), escape: false)
-        ->assertSee(__('Support & audit'))
-        ->assertSee(__('From the problem<br>to the right path, in 5 steps'), escape: false)
-        ->assertSee(__('Listening'))
-        ->assertSee(__('Frequently asked questions'))
-        ->assertSee(__('How does a consultation work?'));
+        ->assertSeeHtml('data-effect="service-landing-hero" data-mode="rank"');
 });
 
-it('lists the method toolkit and the strategy-first values', function () {
-    livewire(ServicesConsultingAndSeo::class)
-        ->assertOk()
-        ->assertSee(__('Tools & method'))
-        ->assertSee(__('SEO audit'))
-        ->assertSee(__('Why start from strategy'))
-        ->assertSee(__('Found on Google'));
-});
-
-it('frames the AI band around quality, never speed', function () {
-    // AI copy must stay tied to quality and never promise speed (persistent project rule).
-    livewire(ServicesConsultingAndSeo::class)
-        ->assertOk()
-        ->assertSee(__('Deeper analysis.'))
-        ->assertSee(__('AI suggests, I weigh in: every recommendation stays carefully vetted, for the utmost quality of what I hand over.'));
-});
-
-it('hides the case study when there is no published project', function () {
-    livewire(ServicesConsultingAndSeo::class)
-        ->assertOk()
-        ->assertDontSeeHtml('id="case"')
-        ->assertDontSeeHtml('data-pan="cta-services-consulting-and-seo-case"')
-        ->assertDontSeeHtml('data-pan="cta-services-consulting-and-seo-project"');
-});
-
-it('surfaces a featured project as the case study and the hero project link', function () {
-    $project = Project::factory()->published()->featured()->create();
+it('hides the projects showcase when no project is tagged with this service', function () {
+    $other_area_project = Project::factory()->published()->create();
+    $tag = Tag::findOrCreate('Website', TagTypes::TAG->value);
+    $tag->update(['service' => ServiceAreas::WEB_ECOMMERCE_PLATFORMS]);
+    $other_area_project->attachTag($tag);
 
     livewire(ServicesConsultingAndSeo::class)
         ->assertOk()
-        ->assertSeeHtml('id="case"')
+        ->assertDontSee(__('Already<br>in use'), escape: false)
+        ->assertDontSee($other_area_project->title);
+});
+
+it('showcases published projects tagged with this service', function () {
+    $tag = Tag::findOrCreate('SEO', TagTypes::TAG->value);
+    $tag->update(['service' => ServiceAreas::CONSULTING_AND_SEO]);
+    $project = Project::factory()->published()->create();
+    $project->attachTag($tag);
+
+    livewire(ServicesConsultingAndSeo::class)
+        ->assertOk()
         ->assertSee($project->title)
-        ->assertSee(__('Real case — Strategy & SEO'))
-        ->assertSeeHtml(route('project.show', $project->slug))
-        ->assertSeeHtml('data-pan="cta-services-consulting-and-seo-case"')
-        ->assertSeeHtml('data-pan="cta-services-consulting-and-seo-project"');
-});
-
-it('closes with the final call to action', function () {
-    livewire(ServicesConsultingAndSeo::class)
-        ->assertOk()
-        ->assertSee(__('Let\'s figure out together<br>where to start?'), escape: false)
-        ->assertSee(__('Book a call'))
-        ->assertSee(__('Back to services'))
-        ->assertSeeHtml('data-pan="cta-services-consulting-and-seo-contacts"')
-        ->assertSeeHtml('data-pan="cta-services-consulting-and-seo-back"');
+        ->assertSeeHtml(route('project.show', $project->slug));
 });
 
 it('is reachable at its localized route and emits a meta description', function () {

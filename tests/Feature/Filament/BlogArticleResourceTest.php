@@ -68,6 +68,17 @@ it('validates the required fields on create', function () {
         ->assertHasFormErrors(['title', 'slug', 'summary', 'content', 'status']);
 });
 
+it('saves an article whose content registers the gallery block', function () {
+    $article = BlogArticle::factory()->create();
+
+    livewire(EditBlogArticle::class, ['record' => $article->id])
+        ->fillForm(['content' => '<p>Updated with gallery support.</p>'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($article->refresh()->content)->toContain('Updated with gallery support.');
+});
+
 describe('SEO overrides', function () {
     it('saves translatable SEO overrides to the active locale, preserving the other', function () {
         $article = BlogArticle::factory()->create();

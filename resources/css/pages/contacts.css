@@ -1,0 +1,16 @@
+.contact-layout .contact-fields .fi-sc { gap: 30px 32px; }
+.contact-layout .contact-fields .fi-fo-field { gap: 10px; }
+.contact-layout .contact-fields .fi-fo-field-label-content { color: var(--site-color-text-muted) !important; font-size: 12px; letter-spacing: .16em; font-weight: 700; }
+.contact-layout .contact-fields .fi-input-wrp { background: transparent; border: 0; border-bottom: 2px solid var(--site-color-border); box-shadow: none; --tw-ring-shadow: 0 0 #0000; border-radius: 0; transition: border-color .3s; }
+.contact-layout .contact-fields .fi-input-wrp:focus-within { background: transparent; border-bottom-color: var(--site-color-text); box-shadow: none; --tw-ring-shadow: 0 0 #0000; }
+.contact-layout .contact-fields .fi-input-wrp:has([aria-invalid="true"]),
+.contact-layout .contact-fields .fi-input-wrp[data-invalid] { border-bottom-color: var(--site-color-accent); }
+.contact-layout .contact-fields .fi-input { color: var(--site-color-text); font: inherit; font-size: clamp(20px, 2vw, 28px); font-weight: 650; padding: 8px 0 12px; }
+.contact-layout .contact-fields textarea.fi-input { font-size: 19px; min-height: 120px; }
+.contact-layout .contact-fields .fi-input::placeholder { color: var(--site-color-text-muted); opacity: .6; font-weight: 500; }
+.contact-layout .contact-fields .fi-fo-field-wrp-error-message { color: var(--site-color-accent); font-size: 14px; }
+.contact-layout .contact-fields .fi-checkbox-input { accent-color: #FF4A1C; }
+.contact-layout .contact-fields .fi-fo-checkbox .fi-fo-field-label-content { text-transform: none; letter-spacing: 0; font-size: 15px; font-weight: 500; }
+.contact-layout .contact-fields .fi-fo-field-wrp-hint,
+.contact-layout .contact-fields .fi-sc-text { color: var(--site-color-text-muted); font-size: 15px; line-height: 1.5; }
+.contact-layout .contact-fields a { color: var(--site-color-text); text-decoration-color: var(--site-color-accent); }

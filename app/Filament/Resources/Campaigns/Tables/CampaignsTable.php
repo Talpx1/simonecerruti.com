@@ -7,6 +7,7 @@ namespace App\Filament\Resources\Campaigns\Tables;
 use App\Enums\TagTypes;
 use App\Enums\VisitMediumType;
 use App\Models\Campaign;
+use App\Models\Tag;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -18,7 +19,6 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Spatie\Tags\Tag;
 
 class CampaignsTable {
     public static function configure(Table $table): Table {

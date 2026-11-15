@@ -4,20 +4,24 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\BlogArticle;
 
+use App\Actions\GetFeaturedBlogArticles;
 use App\Enums\TagTypes;
-use App\Livewire\Concerns\HasLoadMore;
 use App\Models\BlogArticle;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use App\Models\Tag;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\App;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
-use Spatie\Tags\Tag;
+use Livewire\WithPagination;
 
 class BlogArticleList extends Component {
-    use HasLoadMore;
+    use WithPagination;
+
+    public const int ARTICLES_PER_PAGE = 6;
 
     #[Url(as: 'category')]
     public ?string $active_category = null;
@@ -29,29 +33,31 @@ class BlogArticleList extends Component {
     public function categories(): Collection {
         return Tag::query()
             ->where('type', TagTypes::BLOG_CATEGORY->value)
-            ->whereNotNull('name->'.app()->getLocale())
-            ->orderBy('name->'.app()->getLocale())
+            ->whereNotNull('name->'.App::getLocale())
+            ->orderBy('name->'.App::getLocale())
             ->get();
     }
 
+    /**
+     * @return Collection<int, BlogArticle>
+     */
     #[Computed]
-    public function featured(): ?BlogArticle {
-        if ($this->active_category !== null) {
-            return null;
-        }
+    public function featured(): Collection {
+        return GetFeaturedBlogArticles::run();
+    }
 
-        return BlogArticle::query()
-            ->wherePublished()
-            ->where('featured', true)
-            ->with(['tags', 'media'])
-            ->latest('published_at')
-            ->first();
+    /**
+     * @return LengthAwarePaginator<int, BlogArticle>
+     */
+    #[Computed]
+    public function articles(): LengthAwarePaginator {
+        return $this->articlesBaseQuery()->paginate(self::ARTICLES_PER_PAGE);
     }
 
     public function filterByCategory(?string $slug): void {
         $this->active_category = $slug;
 
-        $this->resetLoadMore('articles');
+        $this->resetPage();
     }
 
     private function resolveActiveTag(): ?Tag {
@@ -63,26 +69,25 @@ class BlogArticleList extends Component {
             ->where('type', TagTypes::BLOG_CATEGORY->value)
             ->where(function (Builder $query): void {
                 foreach (array_keys(App::supportedLocales()) as $locale) {
-                    $query->orWhere("slug->{$locale}", $this->active_category);
+                    $query->orWhereJsonContains("slug->{$locale}", $this->active_category);
                 }
             })
             ->first();
     }
 
+    /**
+     * @return Builder<BlogArticle>
+     */
     private function articlesBaseQuery(): Builder {
         $tag = $this->resolveActiveTag();
-        $featured = $this->featured();
 
         $query = BlogArticle::query()
             ->wherePublished()
-            ->with(['tags', 'media']);
+            ->whereNotIn('id', $this->featured()->modelKeys())
+            ->with(['tags', 'media', 'author']);
 
         if ($tag instanceof Tag) {
             $query->withAnyTags([$tag], TagTypes::BLOG_CATEGORY->value);
-        }
-
-        if (! $tag instanceof Tag && $featured instanceof BlogArticle) {
-            $query->where('id', '!=', $featured->id);
         }
 
         return $query->latest('published_at');
@@ -90,12 +95,6 @@ class BlogArticleList extends Component {
 
     public function mount(): void {
         $this->active_category = $this->resolveActiveTag()?->slug;
-
-        $this->useLoadMore([
-            'articles' => ['per_page' => 6, 'query_method' => 'articlesBaseQuery'],
-        ]);
-
-        $this->fetchLoadMoreData('articles');
     }
 
     public function render(): View {

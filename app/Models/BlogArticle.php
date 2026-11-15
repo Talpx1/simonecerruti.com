@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Actions\CalculateReadingTime;
 use App\DataTransferObjects\SeoConfig;
 use App\Enums\BlogArticleStatuses;
 use App\Enums\SchemaType;
@@ -49,6 +50,7 @@ use Spatie\Translatable\HasTranslations;
  * @property-read bool $can_be_crawled
  * @property-read string $featured_image_url
  * @property-read string $summary_or_excerpt
+ * @property-read int $reading_time
  * @property-read User $author
  * @property-read Seo|null $seo
  */
@@ -138,6 +140,11 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
         );
     }
 
+    /** @return Attribute<int, never> */
+    protected function readingTime(): Attribute {
+        return Attribute::get(fn (): int => CalculateReadingTime::run($this->content));
+    }
+
     /** @return Attribute<bool, never> */
     protected function canBeCrawled(): Attribute {
         return Attribute::get(fn () => $this->status->allowsCrawling() && ($this->published_at?->isNowOrPast() ?? false));
@@ -220,27 +227,40 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
     }
 
     public function previous(): ?self {
-        if (! $this->published_at) {
-            return null;
-        }
-
-        return self::query()
-            ->wherePublished()
-            ->where('published_at', '<', $this->published_at)
-            ->orderByDesc('published_at')
-            ->first();
+        return $this->getAdjacentPublishedArticle(-1);
     }
 
     public function next(): ?self {
+        return $this->getAdjacentPublishedArticle(1);
+    }
+
+    private function getAdjacentPublishedArticle(int $direction): ?self {
         if (! $this->published_at) {
             return null;
         }
 
-        return self::query()
+        /** @var list<int> $ordered_ids */
+        $ordered_ids = self::query()
             ->wherePublished()
-            ->where('published_at', '>', $this->published_at)
             ->orderBy('published_at')
-            ->first();
+            ->orderBy('id')
+            ->pluck('id')
+            ->all();
+
+        $position = \array_search($this->id, $ordered_ids, true);
+        $total = \count($ordered_ids);
+
+        if ($position === false || $total < 2) {
+            return null;
+        }
+
+        $target_position = $position + $direction;
+
+        if ($total === 2 && ($target_position < 0 || $target_position >= $total)) {
+            return null;
+        }
+
+        return self::query()->find($ordered_ids[($target_position + $total) % $total]);
     }
 
     /**
@@ -255,6 +275,7 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
             return self::query()
                 ->wherePublished()
                 ->where('id', '!=', $this->id)
+                ->with(['tags', 'media', 'author'])
                 ->orderByDesc('published_at')
                 ->limit($limit)
                 ->get();
@@ -264,6 +285,7 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
             ->wherePublished()
             ->where('id', '!=', $this->id)
             ->withCount(['tags as shared_tags_count' => fn (Builder $query) => $query->whereIn('tags.id', $tag_ids)])
+            ->with(['tags', 'media', 'author'])
             ->orderByDesc('shared_tags_count')
             ->orderByDesc('published_at')
             ->limit($limit)

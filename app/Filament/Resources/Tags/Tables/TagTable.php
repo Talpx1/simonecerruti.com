@@ -24,6 +24,10 @@ class TagTable {
                     ->searchable()
                     ->limit(50),
 
+                TextColumn::make('service')
+                    ->label('Servizio')
+                    ->badge(),
+
                 TextColumn::make('created_at')
                     ->label('Creato il')
                     ->dateTime('d/m/Y')

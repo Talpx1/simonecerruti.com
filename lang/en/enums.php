@@ -22,6 +22,12 @@ return [
         ],
     ],
 
+    'service_areas' => [
+        'management_erp_crm' => ['label' => 'Management software, ERP & CRM'],
+        'web_ecommerce_platforms' => ['label' => 'Websites & e-commerce platforms'],
+        'consulting_and_seo' => ['label' => 'Consulting & SEO'],
+    ],
+
     'lead_read_status' => [
         'read' => ['label' => 'Letto'],
         'unread' => ['label' => 'Non letto'],

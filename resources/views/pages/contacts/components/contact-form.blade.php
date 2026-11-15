@@ -12,14 +12,13 @@
                 'formSubmitted.{{ $this->getName() }}', { form_params: formParams }
             );
         },
-    }" class="flex flex-col gap-7">
+    }" class="flex flex-col gap-8">
         <div class="contact-fields">
             {{ $this->form }}
         </div>
 
-        <div class="flex flex-wrap items-center gap-x-6 gap-y-4">
-            <x-button as="button" type="submit" data-pan="cta-contacts-submit">{{ __('Let\'s talk') }}</x-button>
-            <span class="text-xs uppercase tracking-[0.18em] text-light/40">{{ __('Reply within 24 hours') }}</span>
+        <div>
+            <button class="button-primary button-large magnetic-hover" type="submit" data-cursor="{{ __('Let\'s talk') }}" data-pan="cta-contacts-submit"><span>{{ __('Let\'s talk') }}</span><span class="button-arrow">→</span></button>
         </div>
     </form>
 
