@@ -22,8 +22,8 @@ describe('neighbours', function () {
 
         $result = withLocale('en', fn () => GetAdjacentProjects::run($newest));
 
-        expect($result['previous'])->toBe($featured)
-            ->and($result['next'])->toBe($oldest);
+        expect($result->previous)->toBe($featured)
+            ->and($result->next)->toBe($oldest);
     });
 
     it('wraps around at both ends', function () {
@@ -32,19 +32,53 @@ describe('neighbours', function () {
         $first = withLocale('en', fn () => GetAdjacentProjects::run($featured));
         $last = withLocale('en', fn () => GetAdjacentProjects::run($oldest));
 
-        expect($first['previous'])->toBe($oldest)
-            ->and($first['next'])->toBe($newest)
-            ->and($last['previous'])->toBe($newest)
-            ->and($last['next'])->toBe($featured);
+        expect($first->previous)->toBe($oldest)
+            ->and($first->next)->toBe($newest)
+            ->and($last->previous)->toBe($newest)
+            ->and($last->next)->toBe($featured);
     });
 
-    it('returns the same project as previous and next when it is the only one', function () {
+    it('never returns the current project with three or more projects', function () {
+        foreach (createRankedProjects() as $project) {
+            $result = withLocale('en', fn () => GetAdjacentProjects::run($project));
+
+            expect($result->previous)->not->toBeNull()
+                ->and($result->next)->not->toBeNull()
+                ->and($result->previous->is($project))->toBeFalse()
+                ->and($result->next->is($project))->toBeFalse();
+        }
+    });
+
+    it('returns null on both sides when it is the only project', function () {
         $project = Project::factory()->create();
 
         $result = withLocale('en', fn () => GetAdjacentProjects::run($project));
 
-        expect($result['previous'])->toBe($project)
-            ->and($result['next'])->toBe($project);
+        expect($result->previous)->toBeNull()
+            ->and($result->next)->toBeNull();
+    });
+
+    it('returns null on both sides when the project is not in the ranked list', function () {
+        createRankedProjects();
+        $unpublished = Project::factory()->unpublished()->create();
+
+        $result = withLocale('en', fn () => GetAdjacentProjects::run($unpublished));
+
+        expect($result->previous)->toBeNull()
+            ->and($result->next)->toBeNull();
+    });
+
+    it('does not wrap around when there are only two projects', function () {
+        $first = Project::factory()->featured()->create();
+        $last = Project::factory()->create(['created_at' => now()->subDay()]);
+
+        $first_result = withLocale('en', fn () => GetAdjacentProjects::run($first));
+        $last_result = withLocale('en', fn () => GetAdjacentProjects::run($last));
+
+        expect($first_result->previous)->toBeNull()
+            ->and($first_result->next->is($last))->toBeTrue()
+            ->and($last_result->previous->is($first))->toBeTrue()
+            ->and($last_result->next)->toBeNull();
     });
 
     it('ignores unpublished projects', function () {
@@ -53,7 +87,7 @@ describe('neighbours', function () {
 
         $result = withLocale('en', fn () => GetAdjacentProjects::run($newest));
 
-        expect($result['previous'])->toBe($featured);
+        expect($result->previous)->toBe($featured);
     });
 
     it('eager loads tags and media on the neighbours', function () {
@@ -61,9 +95,9 @@ describe('neighbours', function () {
 
         $result = withLocale('en', fn () => GetAdjacentProjects::run($newest));
 
-        expect($result['previous']->relationLoaded('tags'))->toBeTrue()
-            ->and($result['previous']->relationLoaded('media'))->toBeTrue()
-            ->and($result['next']->relationLoaded('tags'))->toBeTrue()
-            ->and($result['next']->relationLoaded('media'))->toBeTrue();
+        expect($result->previous->relationLoaded('tags'))->toBeTrue()
+            ->and($result->previous->relationLoaded('media'))->toBeTrue()
+            ->and($result->next->relationLoaded('tags'))->toBeTrue()
+            ->and($result->next->relationLoaded('media'))->toBeTrue();
     });
 });

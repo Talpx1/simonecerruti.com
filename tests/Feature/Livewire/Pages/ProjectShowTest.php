@@ -26,6 +26,27 @@ it('renders a project', function () {
     expect($component->instance()->project->id)->toBe($project->id);
 });
 
+it('renders no previous and next navigation when there is only one project', function () {
+    $project = Project::factory()->published()->create();
+
+    livewire(ProjectShow::class, ['project' => $project])
+        ->assertDontSeeHtml('previous-next-navigation');
+});
+
+it('links only the other project in the previous and next navigation', function () {
+    $project = Project::factory()->published()->create(['title' => 'Current Unique Title']);
+    Project::factory()->published()->create(['title' => 'Other Project']);
+
+    $html = livewire(ProjectShow::class, ['project' => $project])->html();
+
+    \preg_match('/<nav class="previous-next-navigation".*?<\/nav>/s', $html, $navigation);
+
+    expect($html)->toContain('Other Project')
+        ->and($navigation)->not->toBeEmpty()
+        ->and($navigation[0])->toContain('Other Project')
+        ->and($navigation[0])->not->toContain('Current Unique Title');
+});
+
 it('renders the full SEO head, including the sitewide schema nodes', function () {
     $project = Project::factory()->published()->create(['title' => 'My SEO Project']);
     $url = route('project.show', $project->getTranslation('slug', app()->getLocale()));

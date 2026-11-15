@@ -227,27 +227,40 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
     }
 
     public function previous(): ?self {
-        if (! $this->published_at) {
-            return null;
-        }
-
-        return self::query()
-            ->wherePublished()
-            ->where('published_at', '<', $this->published_at)
-            ->orderByDesc('published_at')
-            ->first();
+        return $this->getAdjacentPublishedArticle(-1);
     }
 
     public function next(): ?self {
+        return $this->getAdjacentPublishedArticle(1);
+    }
+
+    private function getAdjacentPublishedArticle(int $direction): ?self {
         if (! $this->published_at) {
             return null;
         }
 
-        return self::query()
+        /** @var list<int> $ordered_ids */
+        $ordered_ids = self::query()
             ->wherePublished()
-            ->where('published_at', '>', $this->published_at)
             ->orderBy('published_at')
-            ->first();
+            ->orderBy('id')
+            ->pluck('id')
+            ->all();
+
+        $position = \array_search($this->id, $ordered_ids, true);
+        $total = \count($ordered_ids);
+
+        if ($position === false || $total < 2) {
+            return null;
+        }
+
+        $target_position = $position + $direction;
+
+        if ($total === 2 && ($target_position < 0 || $target_position >= $total)) {
+            return null;
+        }
+
+        return self::query()->find($ordered_ids[($target_position + $total) % $total]);
     }
 
     /**

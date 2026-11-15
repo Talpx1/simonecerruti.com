@@ -42,6 +42,9 @@
             <div class="project-detail-facts">
                 @if ($project->client)
                     <div><span class="eyebrow">{{ __('Client') }}</span>
+                        @if ($project->client->image_url)
+                            <img src="{{ $project->client->image_url }}" alt="{{ $project->client->name }}" width="48" height="48" loading="lazy" decoding="async">
+                        @endif
                         <p>
                             @if ($project->client->description)
                                 {{ $project->client->description }}
@@ -147,14 +150,18 @@
         </section>
     @endif
 
-    @if (! $adjacent_projects['previous']->is($project))
+    @if ($adjacent_projects->previous || $adjacent_projects->next)
         <nav class="previous-next-navigation" aria-label="{{ __('Other work') }}">
-            <a class="previous-next-navigation-previous" wire:navigate href="{{ route('project.show', $adjacent_projects['previous']->slug) }}"
-                data-cursor="{{ __('Back') }}" data-pan="cta-project-previous"><span class="eyebrow">← {{ __('Previous work') }}</span>
-                <h3>{{ $adjacent_projects['previous']->title }}</h3></a>
-            <a class="previous-next-navigation-next" wire:navigate href="{{ route('project.show', $adjacent_projects['next']->slug) }}"
-                data-cursor="{{ __('Forward') }}" data-pan="cta-project-next"><span class="eyebrow">{{ __('Next work') }} →</span>
-                <h3>{{ $adjacent_projects['next']->title }}</h3></a>
+            @if ($adjacent_projects->previous)
+                <a class="previous-next-navigation-previous" wire:navigate href="{{ route('project.show', $adjacent_projects->previous->slug) }}"
+                    data-cursor="{{ __('Back') }}" data-pan="cta-project-previous"><span class="eyebrow">← {{ __('Previous work') }}</span>
+                    <h3>{{ $adjacent_projects->previous->title }}</h3></a>
+            @endif
+            @if ($adjacent_projects->next)
+                <a class="previous-next-navigation-next" wire:navigate href="{{ route('project.show', $adjacent_projects->next->slug) }}"
+                    data-cursor="{{ __('Forward') }}" data-pan="cta-project-next"><span class="eyebrow">{{ __('Next work') }} →</span>
+                    <h3>{{ $adjacent_projects->next->title }}</h3></a>
+            @endif
         </nav>
     @endif
 

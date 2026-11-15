@@ -129,15 +129,41 @@ describe('relationships', function () {
 });
 
 describe('previous and next', function () {
-    it('navigates published articles by publish date', function () {
-        $older = BlogArticle::factory()->published()->create(['published_at' => now()->subDays(3)]);
+    it('navigates published articles circularly by publish date', function () {
+        $oldest = BlogArticle::factory()->published()->create(['published_at' => now()->subDays(3)]);
         $mid = BlogArticle::factory()->published()->create(['published_at' => now()->subDays(2)]);
+        $newest = BlogArticle::factory()->published()->create(['published_at' => now()->subDay()]);
+
+        expect($mid->previous()->id)->toBe($oldest->id)
+            ->and($mid->next()->id)->toBe($newest->id)
+            ->and($newest->next()->id)->toBe($oldest->id)
+            ->and($oldest->previous()->id)->toBe($newest->id);
+    });
+
+    it('does not wrap around with only two published articles', function () {
+        $older = BlogArticle::factory()->published()->create(['published_at' => now()->subDays(2)]);
         $newer = BlogArticle::factory()->published()->create(['published_at' => now()->subDay()]);
 
-        expect($mid->previous()->id)->toBe($older->id)
-            ->and($mid->next()->id)->toBe($newer->id)
-            ->and($newer->next())->toBeNull()
-            ->and($older->previous())->toBeNull();
+        expect($older->previous())->toBeNull()
+            ->and($older->next()->id)->toBe($newer->id)
+            ->and($newer->previous()->id)->toBe($older->id)
+            ->and($newer->next())->toBeNull();
+    });
+
+    it('returns null on both sides when it is the only published article', function () {
+        $article = BlogArticle::factory()->published()->create();
+
+        expect($article->previous())->toBeNull()
+            ->and($article->next())->toBeNull();
+    });
+
+    it('breaks publish date ties by id', function () {
+        $articles = BlogArticle::factory()->published()->count(3)->create(['published_at' => now()->subDay()])->sortBy('id')->values();
+
+        expect($articles[1]->previous()->id)->toBe($articles[0]->id)
+            ->and($articles[1]->next()->id)->toBe($articles[2]->id)
+            ->and($articles[0]->previous()->id)->toBe($articles[2]->id)
+            ->and($articles[2]->next()->id)->toBe($articles[0]->id);
     });
 
     it('returns null for an article without a publish date', function () {
