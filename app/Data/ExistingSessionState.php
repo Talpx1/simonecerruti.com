@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use Spatie\LaravelData\Data;
+
 /**
  * Tracking state for a request that arrived with a session cookie already
  * pointing at a session. Carried from TrackVisit::handle() to ::terminate().
  */
-readonly class ExistingSessionState {
+class ExistingSessionState extends Data {
     public function __construct(
-        public bool $consent,
-        public string $existing_session_id,
+        public readonly bool $consent,
+        public readonly string $existing_session_id,
     ) {}
 }
