@@ -91,6 +91,13 @@ class AppServiceProvider extends ServiceProvider {
         RouteServiceProvider::loadCachedRoutesUsing(fn () => $this->loadCachedRoutes());
 
         App::macro('supportedLocales', fn (): array => LaravelLocalization::getSupportedLocales());
+
+        App::macro('supportedLocaleCodes',
+            /** @return list<string> */
+            function (): array {
+                return \array_map(\strval(...), \array_keys(App::supportedLocales()));
+            });
+
         $localizedUri = function (
             string|bool|null $locale = null,
             string|false|null $url = null,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\Tag;
+use Illuminate\Support\Facades\App;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class UpdateTagTranslations {
@@ -14,7 +15,7 @@ final class UpdateTagTranslations {
      * @param  array<string, string|null>  $names_by_locale
      */
     public function handle(Tag $tag, array $names_by_locale): Tag {
-        foreach (FillMissingTagTranslations::getSupportedLocales() as $locale) {
+        foreach (App::supportedLocaleCodes() as $locale) {
             $name = $names_by_locale[$locale] ?? null;
 
             if (\filled($name)) {

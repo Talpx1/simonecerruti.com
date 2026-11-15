@@ -74,6 +74,24 @@ parameters:
                 - app/Filament/Resources/BlogArticles/Schemas/BlogArticleForm.php
                 - app/Filament/Resources/Projects/Schemas/ProjectForm.php
                 - app/Filament/Resources/Tags/Schemas/TagForm.php
+        # The App::supportedLocaleCodes() macro returns list<string>, but PHPStan reads a macro
+        # closure's native return type only, so its items are seen as mixed.
+        -
+            identifier: argument.type
+            paths:
+                - app/Actions/FillMissingTagTranslations.php
+                - app/Actions/UpdateTagTranslations.php
+                - app/Filament/Components/TranslateTagsAction.php
+        -
+            identifier: offsetAccess.invalidOffset
+            paths:
+                - app/Actions/UpdateTagTranslations.php
+                - app/Filament/Components/TranslateTagsAction.php
+        -
+            identifiers:
+                - encapsedStringPart.nonString
+                - return.type
+            path: app/Filament/Components/TranslateTagsAction.php
         # collect(static::cases()) yields Collection<int, case-union>; the invariant Collection
         # generic does not match Collection<int, static> even though every case is an instance.
         -
