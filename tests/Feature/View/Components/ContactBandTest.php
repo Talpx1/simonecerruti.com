@@ -17,11 +17,11 @@ it('renders the closing band with the configured company email', function () {
 });
 
 it('renders the page hero rows as split headings with a canvas effect', function () {
-    $html = Blade::render('<x-page-hero fx="pix" label="Hero label" :rows="[\'First row\', \'Second row\']">Intro</x-page-hero>');
+    $html = Blade::render('<x-page-hero effect="pixel-paint" label="Hero label" :rows="[\'First row\', \'Second row\']">Intro</x-page-hero>');
 
     expect($html)
         ->toContain('aria-label="Hero label"')
-        ->toContain('data-fx="pix"')
+        ->toContain('data-effect="pixel-paint"')
         ->toContain('First row')
         ->toContain('Second row')
         ->toContain('Intro');

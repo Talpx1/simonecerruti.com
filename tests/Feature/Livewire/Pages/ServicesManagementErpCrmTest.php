@@ -31,7 +31,7 @@ it('marks the current service in the services navigation', function () {
         ->assertOk()
         ->assertSeeHtml('href="'.route('services.web_ecommerce_platforms').'"')
         ->assertSeeHtml('href="'.route('services.consulting_and_seo').'"')
-        ->assertSeeHtml('class="here" aria-current="page"');
+        ->assertSeeHtml('class="is-current" aria-current="page"');
 });
 
 it('lists a commercial stack: PostgreSQL only, no React or MySQL', function () {

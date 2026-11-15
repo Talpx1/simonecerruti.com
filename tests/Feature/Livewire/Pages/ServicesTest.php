@@ -17,8 +17,8 @@ it('renders the hero, the goals and the three service cards', function () {
         ->assertOk()
         ->assertSeeHtml('data-pan="section-impression-services-hero"')
         ->assertSeeHtml('data-pan="cta-services-contacts"')
-        ->assertSeeHtml('data-fx="routes"')
-        ->assertSeeHtml('data-fx="services-hub"')
+        ->assertSeeHtml('data-effect="services-routes"')
+        ->assertSeeHtml('data-effect="services-hub"')
         ->assertSeeHtml('id="area-management"')
         ->assertSeeHtml('id="area-web"')
         ->assertSeeHtml('id="area-consulting"')
@@ -37,7 +37,7 @@ it('shows no example project when nothing is tagged with a service', function ()
 
     livewire(Services::class)
         ->assertOk()
-        ->assertDontSeeHtml('class="sex"');
+        ->assertDontSeeHtml('class="services-example"');
 });
 
 it('shows the example project of each area from its service tag', function () {

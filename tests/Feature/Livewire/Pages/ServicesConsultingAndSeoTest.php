@@ -29,7 +29,7 @@ it('lays out the hero, pains, offers and FAQ sections', function () {
 it('uses the rank animation for the hero', function () {
     livewire(ServicesConsultingAndSeo::class)
         ->assertOk()
-        ->assertSeeHtml('data-fx="svc" data-mode="rank"');
+        ->assertSeeHtml('data-effect="service-landing-hero" data-mode="rank"');
 });
 
 it('hides the projects showcase when no project is tagged with this service', function () {

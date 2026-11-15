@@ -30,7 +30,7 @@ it('lays out the hero, pains, offers and FAQ sections', function () {
 it('uses the flow animation for the hero', function () {
     livewire(ServicesWebEcommercePlatforms::class)
         ->assertOk()
-        ->assertSeeHtml('data-fx="svc" data-mode="flow"');
+        ->assertSeeHtml('data-effect="service-landing-hero" data-mode="flow"');
 });
 
 it('hides the projects showcase when no project is tagged with this service', function () {

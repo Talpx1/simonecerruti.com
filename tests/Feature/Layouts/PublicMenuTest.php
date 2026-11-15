@@ -55,7 +55,7 @@ it('links the services navigation entry to the services page', function () {
 it('marks the current page in the primary navigation', function () {
     getPageWithoutLocaleRedirects('about')
         ->assertOk()
-        ->assertSee('class="here" aria-current="page"', escape: false);
+        ->assertSee('class="is-current" aria-current="page"', escape: false);
 });
 
 it('offers every supported locale in the language switcher', function () {

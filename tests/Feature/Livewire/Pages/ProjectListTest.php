@@ -44,7 +44,7 @@ it('renders featured projects as features and every project in the rail with its
     $plain->attachTag($tag);
 
     livewire(ProjectList::class)
-        ->assertSeeHtml('class="feat"')
+        ->assertSeeHtml('class="project-feature"')
         ->assertSee('Featured Work')
         ->assertSee('Plain Work')
         ->assertSeeHtml('data-types="CRM"')
@@ -52,5 +52,5 @@ it('renders featured projects as features and every project in the rail with its
 });
 
 it('shows the empty message when there are no projects', function () {
-    livewire(ProjectList::class)->assertSee('No projects yet.')->assertDontSeeHtml('id="rail"');
+    livewire(ProjectList::class)->assertSee('No projects yet.')->assertDontSeeHtml('id="projects-rail"');
 });

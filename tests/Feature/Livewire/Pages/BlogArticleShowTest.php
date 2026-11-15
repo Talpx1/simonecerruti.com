@@ -68,7 +68,7 @@ it('renders reading time, table of contents with heading ids and author bio', fu
         ->assertSeeHtml('href="#first-section"')
         ->assertSeeHtml('href="#nested-part"')
         ->assertSee(__(':minutes min read', ['minutes' => 1]))
-        ->assertSeeHtml('data-fx="lightbox"')
+        ->assertSeeHtml('data-effect="lightbox"')
         ->assertSee('Author bio text');
 });
 
@@ -78,7 +78,7 @@ it('hides the author box when the bio is empty', function () {
     $settings->save();
     $article = BlogArticle::factory()->published()->create();
 
-    livewire(BlogArticleShow::class, ['blog_article' => $article])->assertDontSeeHtml('class="author');
+    livewire(BlogArticleShow::class, ['blog_article' => $article])->assertDontSeeHtml('class="article-author');
 });
 
 it('renders the gallery block with the gallery wrapper', function () {
@@ -87,7 +87,7 @@ it('renders the gallery block with the gallery wrapper', function () {
         ['url' => '/b.jpg', 'caption' => null],
     ]])->render();
 
-    expect($html)->toContain('class="gallery"')
+    expect($html)->toContain('class="article-gallery"')
         ->toContain('<figcaption>First</figcaption>')
         ->and(substr_count($html, '<figure>'))->toBe(2);
 });
@@ -97,7 +97,7 @@ it('renders related articles and the previous and next navigation', function () 
     BlogArticle::factory()->published()->count(4)->create();
 
     livewire(BlogArticleShow::class, ['blog_article' => $article])
-        ->assertSeeHtml('class="rels"')
-        ->assertSeeHtml('class="pn"')
-        ->assertSeeHtml('pn-next');
+        ->assertSeeHtml('class="article-related"')
+        ->assertSeeHtml('class="previous-next-navigation"')
+        ->assertSeeHtml('previous-next-navigation-next');
 });

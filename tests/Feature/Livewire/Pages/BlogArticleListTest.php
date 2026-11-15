@@ -85,18 +85,18 @@ it('renders featured articles, rows and the numbered pager', function () {
 
     livewire(BlogArticleList::class)
         ->assertSee('Featured One')
-        ->assertSeeHtml('class="bfeats"')
-        ->assertSeeHtml('class="prow"')
-        ->assertSeeHtml('class="pager"')
+        ->assertSeeHtml('class="blog-featured"')
+        ->assertSeeHtml('class="blog-list-item"')
+        ->assertSeeHtml('class="blog-pager"')
         ->assertSeeHtml('aria-current="page"')
         ->assertSeeHtml("wire:click.prevent=\"gotoPage(2, 'page')\"");
 });
 
 it('renders the empty state when there are no articles', function () {
     livewire(BlogArticleList::class)
-        ->assertSeeHtml('class="empty"')
-        ->assertDontSeeHtml('class="pager"')
-        ->assertDontSeeHtml('class="bfeats"');
+        ->assertSeeHtml('class="blog-empty"')
+        ->assertDontSeeHtml('class="blog-pager"')
+        ->assertDontSeeHtml('class="blog-featured"');
 });
 
 it('marks the active category filter', function () {
@@ -104,7 +104,7 @@ it('marks the active category filter', function () {
     $category = Tag::query()->where('type', TagTypes::BLOG_CATEGORY->value)->firstOrFail();
 
     livewire(BlogArticleList::class)
-        ->assertSeeHtml('wire:click="filterByCategory(null)" class="on"')
+        ->assertSeeHtml('wire:click="filterByCategory(null)" class="is-active"')
         ->call('filterByCategory', $category->slug)
-        ->assertDontSeeHtml('wire:click="filterByCategory(null)" class="on"');
+        ->assertDontSeeHtml('wire:click="filterByCategory(null)" class="is-active"');
 });

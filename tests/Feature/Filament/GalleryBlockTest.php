@@ -27,7 +27,7 @@ it('renders the gallery block as figures inside the gallery wrapper', function (
         ->toHtml();
 
     expect($html)
-        ->toContain('class="gallery"')
+        ->toContain('class="article-gallery"')
         ->toContain('<figure>')
         ->toContain('blog/gallery/a.jpg')
         ->toContain('loading="lazy"')

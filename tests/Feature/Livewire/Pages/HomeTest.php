@@ -19,8 +19,8 @@ it('renders the home page', function () {
 
     livewire(Home::class)
         ->assertOk()
-        ->assertSee('data-fx="home"', escape: false)
-        ->assertSee('id="gl"', escape: false);
+        ->assertSee('data-effect="home"', escape: false)
+        ->assertSee('id="home-webgl-canvas"', escape: false);
 });
 
 it('links the services to their landing pages', function () {
@@ -48,7 +48,7 @@ it('shows only the three most relevant published projects, featured first', func
 it('hides the works section when there are no projects', function () {
     livewire(Home::class)
         ->assertViewHas('works', [])
-        ->assertDontSee('class="works"', escape: false);
+        ->assertDontSee('class="home-works"', escape: false);
 });
 
 it('shows the project kind and home summary when filled', function () {

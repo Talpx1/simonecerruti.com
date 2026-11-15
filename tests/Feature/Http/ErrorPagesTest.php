@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Route;
 it('renders the designed 404 page with the pixel canvas and the way back', function () {
     $this->get('/this-page-does-not-exist')
         ->assertNotFound()
-        ->assertSee('data-fx="nf"', escape: false)
+        ->assertSee('data-effect="not-found-particles"', escape: false)
         ->assertSee('data-code="404"', escape: false)
-        ->assertSee('class="tagcloud"', escape: false)
+        ->assertSee('class="tag-cloud"', escape: false)
         ->assertSee('href="'.route('contacts').'"', escape: false);
 });
 

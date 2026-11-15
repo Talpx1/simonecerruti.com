@@ -14,8 +14,8 @@ it('renders the hero with the ping effect and the embedded contact form', functi
     livewire(Contacts::class)
         ->assertOk()
         ->assertSeeHtml('data-pan="section-impression-contacts"')
-        ->assertSeeHtml('data-fx="ping"')
-        ->assertSeeHtml('class="ct-grid"')
+        ->assertSeeHtml('data-effect="contact-network-ping"')
+        ->assertSeeHtml('class="contact-layout"')
         ->assertSee(__('Let\'s talk.'))
         ->assertSeeHtml('data-pan="cta-contacts-submit"');
 });

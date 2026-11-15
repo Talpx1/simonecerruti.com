@@ -50,18 +50,18 @@ it('withdraws consent', function () {
 
 it('renders the summary banner with the artifact classes and the three actions', function () {
     livewire(CookieConsent::class)
-        ->assertSeeHtml('class="ck show"')
+        ->assertSeeHtml('class="cookie-banner is-visible"')
         ->assertSeeHtml('wire:click="acceptAll"')
         ->assertSeeHtml('wire:click="rejectAll"')
         ->assertSeeHtml('wire:click="openPreferences"')
-        ->assertDontSeeHtml('class="ck-prefs"');
+        ->assertDontSeeHtml('class="cookie-banner-preferences"');
 });
 
 it('renders the four categories with switches in the preferences panel', function () {
     livewire(CookieConsent::class)
         ->call('openPreferences')
-        ->assertSeeHtml('class="ck show open"')
-        ->assertSeeHtml('class="ck-prefs"')
+        ->assertSeeHtml('class="cookie-banner is-visible is-open"')
+        ->assertSeeHtml('class="cookie-banner-preferences"')
         ->assertSeeHtml('id="toggle-analytics"')
         ->assertSeeHtml('id="toggle-functional"')
         ->assertSeeHtml('id="toggle-marketing"')
