@@ -17,7 +17,7 @@ final class UpdateTagTranslations {
     public function handle(Tag $tag, array $names_by_locale): Tag {
         Gate::authorize('translateTags');
 
-        foreach (Tag::getTranslatableLocales() as $locale) {
+        foreach (FillMissingTagTranslations::getSupportedLocales() as $locale) {
             $name = $names_by_locale[$locale] ?? null;
 
             if (\filled($name)) {

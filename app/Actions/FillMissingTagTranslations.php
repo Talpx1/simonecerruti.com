@@ -20,7 +20,7 @@ final class FillMissingTagTranslations {
             return $tag;
         }
 
-        foreach (Tag::getTranslatableLocales() as $locale) {
+        foreach (self::getSupportedLocales() as $locale) {
             if (! \array_key_exists($locale, $names)) {
                 $tag->setTranslation('name', $locale, $names[$source_locale]);
             }
@@ -31,5 +31,12 @@ final class FillMissingTagTranslations {
         }
 
         return $tag;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function getSupportedLocales(): array {
+        return \array_map(\strval(...), \array_keys(App::supportedLocales()));
     }
 }

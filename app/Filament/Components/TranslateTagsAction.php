@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Components;
 
+use App\Actions\FillMissingTagTranslations;
 use App\Actions\UpdateTagTranslations;
 use App\Models\Tag;
 use Filament\Actions\Action;
@@ -59,7 +60,7 @@ final class TranslateTagsAction {
     private static function getNameInputs(): array {
         $inputs = [];
 
-        foreach (Tag::getTranslatableLocales() as $locale) {
+        foreach (FillMissingTagTranslations::getSupportedLocales() as $locale) {
             $inputs[] = TextInput::make("names.{$locale}")
                 ->label(Str::upper($locale))
                 ->maxLength(255)
@@ -78,7 +79,7 @@ final class TranslateTagsAction {
         foreach (self::resolveTags($component) as $tag) {
             $names = [];
 
-            foreach (Tag::getTranslatableLocales() as $locale) {
+            foreach (FillMissingTagTranslations::getSupportedLocales() as $locale) {
                 $names[$locale] = $tag->getTranslationWithoutFallback('name', $locale);
             }
 

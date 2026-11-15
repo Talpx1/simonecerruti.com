@@ -8,7 +8,6 @@ use App\Actions\FillMissingTagTranslations;
 use App\Enums\ServiceAreas;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\App;
 use Spatie\Tags\Tag as BaseTag;
 
 /**
@@ -25,13 +24,6 @@ use Spatie\Tags\Tag as BaseTag;
 class Tag extends BaseTag {
     /** @var list<string> */
     public array $translatable = ['name', 'slug', 'description'];
-
-    /**
-     * @return list<string>
-     */
-    public static function getTranslatableLocales(): array {
-        return \array_map(\strval(...), \array_keys(App::supportedLocales()));
-    }
 
     /**
      * @param  string|array<int, string|\ArrayAccess<int, mixed>>|\ArrayAccess<int, mixed>  $values
