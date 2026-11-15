@@ -83,11 +83,6 @@ class ProjectForm {
                             ->helperText('Risultato in una frase breve, mostrato come affermazione durante lo scroll.')
                             ->maxLength(255),
 
-                        TextInput::make('kind')
-                            ->label('Tipologia')
-                            ->helperText('Etichetta breve, ad esempio "Piattaforma web". Se vuota, vengono usati i nomi dei tag uniti da " + ".')
-                            ->maxLength(255),
-
                         Repeater::make('features')
                             ->label('Funzionalità')
                             ->schema([
@@ -142,6 +137,12 @@ class ProjectForm {
                             ->type(TagTypes::TECHNOLOGY->value)
                             ->label('Tecnologie')
                             ->splitKeys(['Tab', ','])
+                            ->columnSpanFull(),
+
+                        SpatieTagsInput::make('kinds')
+                            ->type(TagTypes::PROJECT_KIND->value)
+                            ->label('Tipologia')
+                            ->helperText('Etichette brevi, ad esempio "Piattaforma web". Se più di una, vengono unite da " + ".')
                             ->columnSpanFull(),
 
                         SpatieTagsInput::make('tags')

@@ -34,7 +34,7 @@ class Home extends Component {
         return \array_values($projects
             ->map(fn (Project $project): WorkCardData => new WorkCardData(
                 title: $project->title,
-                kind: $project->kind_or_tag_names,
+                kind: $project->kind_names,
                 image_url: $project->hasMedia('featured_image') ? $project->featured_image_url : null,
                 summary_html: \filled($project->home_summary) ? RichContentRenderer::make($project->home_summary)->toHtml() : null,
                 url: route('project.show', $project->slug),

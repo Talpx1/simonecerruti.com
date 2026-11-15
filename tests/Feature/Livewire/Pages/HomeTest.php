@@ -52,8 +52,7 @@ it('hides the works section when there are no projects', function () {
 });
 
 it('shows the project kind and home summary when filled', function () {
-    Project::factory()->published()->create([
-        'kind' => ['en' => 'Custom CRM', 'it' => 'CRM su misura'],
+    Project::factory()->published()->withKind()->create([
         'home_summary' => ['en' => '<p>Before it was chaos. <strong>Now it is one tool.</strong></p>', 'it' => '<p>Prima caos.</p>'],
     ]);
 
@@ -63,13 +62,12 @@ it('shows the project kind and home summary when filled', function () {
         ->assertSee('<strong>Now it is one tool.</strong>', escape: false);
 });
 
-it('falls back to the tag names as kind and hides the summary when empty', function () {
+it('does not use the tag names as kind and hides the summary when empty', function () {
     $project = Project::factory()->published()->create();
     $project->attachTag('Laravel', TagTypes::TAG->value);
 
     livewire(Home::class)
-        ->assertSee('Laravel')
-        ->assertViewHas('works', fn (array $works): bool => $works[0]->summary_html === null);
+        ->assertViewHas('works', fn (array $works): bool => $works[0]->kind === '' && $works[0]->summary_html === null);
 });
 
 it('renders the Italian version of the home page', function () {

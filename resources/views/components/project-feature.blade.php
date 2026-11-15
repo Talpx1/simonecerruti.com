@@ -15,8 +15,8 @@
     <div>
         <h2><a wire:navigate href="{{ route('project.show', $project->slug) }}">{{ $project->title }}</a></h2>
 
-        @if ($project->kind_or_tag_names)
-            <div class="project-feature-kind">{{ $project->kind_or_tag_names }}</div>
+        @if ($project->kind_names)
+            <div class="project-feature-kind">{{ $project->kind_names }}</div>
         @endif
 
         <p class="project-feature-summary">{{ $project->short_description }}</p>

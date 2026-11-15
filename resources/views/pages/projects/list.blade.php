@@ -1,8 +1,9 @@
 @php
     $projects = collect($this->getLoadMoreData('projects'));
     $featured_projects = $projects->where('featured', true)->take(2);
+    $filter_tag_types = [\App\Enums\TagTypes::TAG->value, \App\Enums\TagTypes::PROJECT_KIND->value];
     $filter_tags = $projects
-        ->flatMap(fn ($project) => $project->tags->where('type', \App\Enums\TagTypes::TAG->value))
+        ->flatMap(fn ($project) => $project->tags->whereIn('type', $filter_tag_types))
         ->groupBy('name')
         ->map->count()
         ->sortDesc();
@@ -48,14 +49,14 @@
             <div class="projects-rail" id="projects-rail" data-cursor="{{ __('Drag') }}">
                 @foreach ($projects as $project)
                     <a class="projects-rail-card" wire:navigate wire:key="rail-{{ $project->id }}" href="{{ route('project.show', $project->slug) }}"
-                        data-types="{{ $project->tags->where('type', \App\Enums\TagTypes::TAG->value)->pluck('name')->implode('|') }}"
+                        data-types="{{ $project->tags->whereIn('type', $filter_tag_types)->pluck('name')->unique()->implode('|') }}"
                         data-cursor="{{ __('Open work') }}">
                         <x-project-cover :project="$project" />
 
                         <div>
                             <h3>{{ $project->title }}</h3>
-                            @if ($project->kind_or_tag_names)
-                                <span class="project-feature-kind">{{ $project->kind_or_tag_names }}</span>
+                            @if ($project->kind_names)
+                                <span class="project-feature-kind">{{ $project->kind_names }}</span>
                             @endif
                         </div>
 

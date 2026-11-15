@@ -2,7 +2,7 @@
 
 @php
     $url = route('project.show', $project->slug);
-    $kind = $project->kind_or_tag_names;
+    $kind = $project->kind_names;
     $topic_tags = $project->tags->where('type', \App\Enums\TagTypes::TAG->value);
     $stack_tags = $project->tags->where('type', \App\Enums\TagTypes::TECHNOLOGY->value);
 @endphp

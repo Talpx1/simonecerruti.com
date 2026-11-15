@@ -85,7 +85,6 @@ describe('story attributes', function () {
         expect($project->starting_point)->toBeNull()
             ->and($project->goal)->toBeNull()
             ->and($project->outcome)->toBeNull()
-            ->and($project->kind)->toBeNull()
             ->and($project->features)->toBeNull()
             ->and($project->home_summary)->toBeNull();
     });
@@ -113,34 +112,38 @@ describe('story attributes', function () {
     });
 });
 
-describe('kind_or_tag_names attribute', function () {
-    it('returns the kind when set', function () {
-        $project = Project::factory()->withStory()->create();
-        $project->attachTag('Laravel', TagTypes::TAG->value);
-        $project->setTranslation('kind', 'en', 'Custom ERP')->save();
-
-        expect(withLocale('en', fn () => $project->refresh()->load('tags')->kind_or_tag_names))->toBe('Custom ERP');
-    });
-
-    it('falls back to the tag names joined with a plus', function () {
+describe('kind_names attribute', function () {
+    it('joins the project kind tags with a plus', function () {
         $project = Project::factory()->create();
         $names = withLocale('en', function () use ($project): string {
-            $project->attachTags(['Laravel', 'Vue'], TagTypes::TAG->value);
-            $project->attachTag('Ignored', TagTypes::BLOG_CATEGORY->value);
+            $project->attachTags(['Custom CRM', 'Web platform'], TagTypes::PROJECT_KIND->value);
 
-            return $project->refresh()->load('tags')->kind_or_tag_names;
+            return $project->refresh()->load('tags')->kind_names;
         });
 
         expect($names)->toContain(' + ')
-            ->and($names)->toContain('Laravel')
-            ->and($names)->toContain('Vue')
-            ->and($names)->not->toContain('Ignored');
+            ->and($names)->toContain('Custom CRM')
+            ->and($names)->toContain('Web platform');
     });
 
-    it('is empty without kind and tags', function () {
-        $project = Project::factory()->create()->load('tags');
+    it('ignores tags of other types', function () {
+        $project = Project::factory()->create();
+        $names = withLocale('en', function () use ($project): string {
+            $project->attachTag('Laravel', TagTypes::TAG->value);
+            $project->attachTag('Vue', TagTypes::TECHNOLOGY->value);
+            $project->attachTag('Custom CRM', TagTypes::PROJECT_KIND->value);
 
-        expect(withLocale('en', fn () => $project->kind_or_tag_names))->toBeEmpty();
+            return $project->refresh()->load('tags')->kind_names;
+        });
+
+        expect($names)->toBe('Custom CRM');
+    });
+
+    it('is an empty string without kind tags', function () {
+        $project = Project::factory()->create();
+        $project->attachTag('Laravel', TagTypes::TAG->value);
+
+        expect(withLocale('en', fn () => $project->refresh()->load('tags')->kind_names))->toBeEmpty();
     });
 });
 
@@ -163,9 +166,14 @@ describe('factory', function () {
         expect($project->getTranslation('starting_point', 'en'))->not->toBeEmpty()
             ->and($project->getTranslation('goal', 'it'))->not->toBeEmpty()
             ->and($project->getTranslation('outcome', 'en'))->not->toBeEmpty()
-            ->and($project->getTranslation('kind', 'it'))->not->toBeEmpty()
             ->and($project->getTranslation('home_summary', 'en'))->not->toBeEmpty()
             ->and($project->getTranslation('features', 'en'))->toBeArray()->not->toBeEmpty();
+    });
+
+    it('tags the project with kinds through the withKind state', function () {
+        $project = Project::factory()->withKind(['Custom CRM'])->create()->load('tags');
+
+        expect($project->kind_names)->toBe('Custom CRM');
     });
 
     it('removes the client with the withoutClient state', function () {

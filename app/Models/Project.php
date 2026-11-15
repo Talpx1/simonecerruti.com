@@ -43,7 +43,6 @@ use Spatie\Translatable\HasTranslations;
  * @property string|null $starting_point
  * @property string|null $goal
  * @property string|null $outcome
- * @property string|null $kind
  * @property list<array{title: string, description: string}>|null $features
  * @property string|null $home_summary
  * @property Collection<int, array{url: string}> $links
@@ -52,7 +51,7 @@ use Spatie\Translatable\HasTranslations;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read string $featured_image_url
- * @property-read string $kind_or_tag_names
+ * @property-read string $kind_names
  * @property-read string $short_description_or_excerpt
  * @property-read Client|null $client
  * @property-read Seo|null $seo
@@ -71,7 +70,6 @@ class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapab
         'starting_point',
         'goal',
         'outcome',
-        'kind',
         'features',
         'home_summary',
     ];
@@ -189,10 +187,9 @@ class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapab
     }
 
     /** @return Attribute<string, never> */
-    protected function kindOrTagNames(): Attribute {
+    protected function kindNames(): Attribute {
         return Attribute::get(
-            fn (): string => $this->kind
-                ?? $this->tags->where('type', TagTypes::TAG->value)->pluck('name')->implode(' + ')
+            fn (): string => $this->tags->where('type', TagTypes::PROJECT_KIND->value)->pluck('name')->implode(' + ')
         );
     }
 

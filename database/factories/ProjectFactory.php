@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\TagTypes;
 use App\Models\Client;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -55,13 +56,23 @@ class ProjectFactory extends Factory {
             'starting_point' => ['it' => fake('it')->paragraph(), 'en' => fake('en')->paragraph()],
             'goal' => ['it' => fake('it')->paragraph(), 'en' => fake('en')->paragraph()],
             'outcome' => ['it' => fake('it')->sentence(), 'en' => fake('en')->sentence()],
-            'kind' => ['it' => fake('it')->words(3, asText: true), 'en' => fake('en')->words(3, asText: true)],
             'features' => [
                 'it' => [['title' => fake('it')->words(2, asText: true), 'description' => fake('it')->sentence()]],
                 'en' => [['title' => fake('en')->words(2, asText: true), 'description' => fake('en')->sentence()]],
             ],
             'home_summary' => ['it' => fake('it')->sentence(), 'en' => fake('en')->sentence()],
         ]);
+    }
+
+    /**
+     * A project tagged with the given kinds.
+     *
+     * @param  list<string>  $kind_names
+     */
+    public function withKind(array $kind_names = ['Custom CRM']): static {
+        return $this->afterCreating(function (Project $project) use ($kind_names): void {
+            $project->attachTags($kind_names, TagTypes::PROJECT_KIND->value);
+        });
     }
 
     /**

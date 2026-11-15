@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\SchemaType;
+use App\Enums\TagTypes;
 use App\Filament\Resources\Projects\Pages\CreateProject;
 use App\Filament\Resources\Projects\Pages\EditProject;
 use App\Filament\Resources\Projects\Pages\ListProjects;
@@ -76,7 +77,7 @@ it('saves the story fields of a project', function () {
             'starting_point' => 'Un gestionale obsoleto',
             'goal' => 'Unificare i processi',
             'outcome' => 'Meno tempo perso',
-            'kind' => 'Piattaforma web',
+            'kinds' => ['Piattaforma web'],
             'features' => [
                 ['title' => 'Dashboard', 'description' => 'Metriche in tempo reale'],
             ],
@@ -90,9 +91,9 @@ it('saves the story fields of a project', function () {
     expect($project->getTranslation('starting_point', 'it'))->toBe('Un gestionale obsoleto')
         ->and($project->getTranslation('goal', 'it'))->toBe('Unificare i processi')
         ->and($project->getTranslation('outcome', 'it'))->toBe('Meno tempo perso')
-        ->and($project->getTranslation('kind', 'it'))->toBe('Piattaforma web')
         ->and($project->getTranslation('features', 'it'))->toHaveCount(1)
-        ->and($project->getTranslation('home_summary', 'it'))->toContain('<strong>risultato</strong>');
+        ->and($project->getTranslation('home_summary', 'it'))->toContain('<strong>risultato</strong>')
+        ->and($project->tagsWithType(TagTypes::PROJECT_KIND->value)->pluck('name')->all())->toBe(['Piattaforma web']);
 });
 
 it('saves SEO overrides for a project per locale', function () {

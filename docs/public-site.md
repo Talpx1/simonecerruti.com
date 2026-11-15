@@ -83,7 +83,7 @@ On top of the usual fields, the Project form has the case-study fields shown on 
 |---|---|
 | `client_id` | Relation to `Client` (replaces the old free-text client name; a migration moved the existing names into `clients`). |
 | `starting_point`, `goal`, `outcome` | The three narrative blocks of the case study. |
-| `kind` | Short label ("Management software"). If empty, `kind_or_tag_names` falls back to the project's tag names joined with ` + `. |
+| Kinds | Short labels such as "Management software", stored as tags of type `project_kind` (`TagTypes::PROJECT_KIND`) and edited in the "Tipologia" tags input. `kind_names` joins them with ` + `, or returns an empty string when there are none. There is no fallback to the other tags. On the public projects list the kinds are also filter options and are part of each card's `data-types`. |
 | `features` | Repeater of `{title, description}`. |
 | `home_summary` | Short text for the home page. |
 
