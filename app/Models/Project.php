@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\DataTransferObjects\SeoConfig;
+use App\Data\SeoConfig;
 use App\Enums\SchemaType;
 use App\Enums\TagTypes;
 use App\Models\Concerns\HasRoutableSlug;

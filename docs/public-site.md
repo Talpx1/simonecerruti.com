@@ -87,7 +87,7 @@ On top of the usual fields, the Project form has the case-study fields shown on 
 | `features` | Repeater of `{title, description}`. |
 | `home_summary` | Short text for the home page. |
 
-Related actions: `GetAdjacentProjects` and `GetServiceAreaProjects`. Actions return DTOs from `App\DataTransferObjects`, never arrays with PHPDoc shapes.
+Related actions: `GetAdjacentProjects` and `GetServiceAreaProjects`. Actions return DTOs, never arrays with PHPDoc shapes. Every DTO lives in `App\Data` and extends `Spatie\LaravelData\Data` (`spatie/laravel-data`), with `public readonly` promoted properties. Classes cannot be `readonly` as a whole, because the `Data` base class is not.
 
 `GetAdjacentProjects` returns an `AdjacentProjectsData` with a nullable `previous` and `next` project. Navigation is circular, so a side is null only when there is no other content. With exactly two items, the first has only `next` and the last only `previous`. The current item is never returned as its own neighbour. The navigation is hidden when both are null. Articles follow the same previous/next rule.
 

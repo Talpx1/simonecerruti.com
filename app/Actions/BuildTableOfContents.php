@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\DataTransferObjects\TableOfContentsEntryData;
+use App\Data\TableOfContentsEntryData;
 use Dom\HTMLDocument;
 use Lorisleiva\Actions\Concerns\AsAction;
 

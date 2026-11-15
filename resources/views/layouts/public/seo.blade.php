@@ -1,6 +1,6 @@
 {{-- Renders the resolved SEO metadata. Only the sections present on $seo_data are emitted. --}}
 @php
-    /** @var \App\DataTransferObjects\SeoData|null $seo_data */
+    /** @var \App\Data\SeoData|null $seo_data */
 @endphp
 @if ($seo_data)
     {{-- A page must always carry a title: fall back to the app name when none was resolved. --}}

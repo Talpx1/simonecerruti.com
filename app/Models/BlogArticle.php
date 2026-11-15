@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Actions\CalculateReadingTime;
-use App\DataTransferObjects\SeoConfig;
+use App\Data\SeoConfig;
 use App\Enums\BlogArticleStatuses;
 use App\Enums\SchemaType;
 use App\Enums\TagTypes;
