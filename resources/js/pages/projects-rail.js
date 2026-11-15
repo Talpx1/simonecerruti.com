@@ -1,121 +1,121 @@
-export default function (root, SC) {
-    const { reduce, $, $$ } = SC;
-    const rail = $('#rail', root);
-    const covers = $$('.feat .cover .in', root);
+export default function (root, siteRuntime) {
+    const { prefersReducedMotion, queryOne, queryAll } = siteRuntime;
+    const rail = queryOne('#projects-rail', root);
+    const covers = queryAll('.project-feature .project-cover .project-cover-inner', root);
     const driftCovers = () => {
-        if (reduce) {
+        if (prefersReducedMotion) {
             return;
         }
-        covers.forEach((el) => {
-            const b = el.parentElement.getBoundingClientRect();
-            const p = (b.top + b.height / 2 - innerHeight / 2) / innerHeight;
-            el.style.setProperty('--py', (p * -40).toFixed(1) + 'px');
+        covers.forEach((cover) => {
+            const parentBounds = cover.parentElement.getBoundingClientRect();
+            const viewportOffset = (parentBounds.top + parentBounds.height / 2 - innerHeight / 2) / innerHeight;
+            cover.style.setProperty('--cover-parallax-offset', (viewportOffset * -40).toFixed(1) + 'px');
         });
     };
 
     if (!rail) {
-        SC.onFrame.push(driftCovers);
+        siteRuntime.frameCallbacks.push(driftCovers);
         return undefined;
     }
 
-    const bar = $('#railbar', root);
-    const empty = $('#rail-empty', root);
-    let down = false;
-    let start_x = 0;
-    let start_left = 0;
-    let moved = 0;
+    const scrollbar = queryOne('#projects-rail-progress', root);
+    const emptyMessage = queryOne('#projects-rail-empty', root);
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartScrollLeft = 0;
+    let draggedDistance = 0;
 
-    const onDown = (e) => {
-        if (e.pointerType !== 'mouse') {
+    const onPointerDown = (event) => {
+        if (event.pointerType !== 'mouse') {
             return;
         }
-        down = true;
-        moved = 0;
-        start_x = e.clientX;
-        start_left = rail.scrollLeft;
+        isDragging = true;
+        draggedDistance = 0;
+        dragStartX = event.clientX;
+        dragStartScrollLeft = rail.scrollLeft;
     };
-    const onMove = (e) => {
-        if (!down) {
+    const onPointerMove = (event) => {
+        if (!isDragging) {
             return;
         }
-        const dx = e.clientX - start_x;
-        moved = Math.max(moved, Math.abs(dx));
-        if (moved > 6) {
-            rail.classList.add('drag');
+        const dragDeltaX = event.clientX - dragStartX;
+        draggedDistance = Math.max(draggedDistance, Math.abs(dragDeltaX));
+        if (draggedDistance > 6) {
+            rail.classList.add('is-dragging');
         }
-        rail.scrollLeft = start_left - dx;
+        rail.scrollLeft = dragStartScrollLeft - dragDeltaX;
     };
-    const onUp = () => {
-        if (!down) {
+    const onPointerUp = () => {
+        if (!isDragging) {
             return;
         }
-        down = false;
-        setTimeout(() => rail.classList.remove('drag'), 0);
+        isDragging = false;
+        setTimeout(() => rail.classList.remove('is-dragging'), 0);
     };
-    const onClick = (e) => {
-        if (moved > 6) {
-            e.preventDefault();
-            moved = 0;
+    const onRailClick = (event) => {
+        if (draggedDistance > 6) {
+            event.preventDefault();
+            draggedDistance = 0;
         }
     };
-    const onWheel = (e) => {
-        if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && rail.scrollWidth > rail.clientWidth) {
-            const max = rail.scrollWidth - rail.clientWidth;
-            if ((e.deltaY > 0 && rail.scrollLeft < max - 2) || (e.deltaY < 0 && rail.scrollLeft > 2)) {
-                e.preventDefault();
-                rail.scrollLeft += e.deltaY;
+    const onWheel = (event) => {
+        if (Math.abs(event.deltaY) > Math.abs(event.deltaX) && rail.scrollWidth > rail.clientWidth) {
+            const maxScrollLeft = rail.scrollWidth - rail.clientWidth;
+            if ((event.deltaY > 0 && rail.scrollLeft < maxScrollLeft - 2) || (event.deltaY < 0 && rail.scrollLeft > 2)) {
+                event.preventDefault();
+                rail.scrollLeft += event.deltaY;
             }
         }
     };
-    const step = () => {
-        const card = rail.querySelector('.rcard:not(.out)');
-        return card ? card.getBoundingClientRect().width + 20 : 400;
+    const getScrollStepWidth = () => {
+        const firstVisibleCard = rail.querySelector('.projects-rail-card:not(.is-filtered-out)');
+        return firstVisibleCard ? firstVisibleCard.getBoundingClientRect().width + 20 : 400;
     };
-    const onRootClick = (e) => {
-        const control = e.target.closest('[data-rail-step], .filters button');
+    const onRootClick = (event) => {
+        const control = event.target.closest('[data-rail-step], .filter-bar button');
         if (!control || !root.contains(control)) {
             return;
         }
         if (control.dataset.railStep) {
-            rail.scrollBy({ left: step() * Number(control.dataset.railStep), behavior: reduce ? 'auto' : 'smooth' });
+            rail.scrollBy({ left: getScrollStepWidth() * Number(control.dataset.railStep), behavior: prefersReducedMotion ? 'auto' : 'smooth' });
             return;
         }
-        $$('.rail-head .filters button', root).forEach((x) => x.classList.toggle('on', x === control));
-        const filter = control.dataset.f;
-        let visible = 0;
-        $$('.rcard', root).forEach((card) => {
-            const show = filter === '*' || card.dataset.types.split('|').includes(filter);
-            card.classList.toggle('out', !show);
-            if (show) {
-                visible++;
+        queryAll('.projects-rail-head .filter-bar button', root).forEach((filterButton) => filterButton.classList.toggle('is-active', filterButton === control));
+        const activeFilter = control.dataset.f;
+        let visibleCardCount = 0;
+        queryAll('.projects-rail-card', root).forEach((card) => {
+            const isShown = activeFilter === '*' || card.dataset.types.split('|').includes(activeFilter);
+            card.classList.toggle('is-filtered-out', !isShown);
+            if (isShown) {
+                visibleCardCount++;
             }
         });
-        if (empty) {
-            empty.classList.toggle('on', visible === 0);
+        if (emptyMessage) {
+            emptyMessage.classList.toggle('is-active', visibleCardCount === 0);
         }
         rail.scrollTo({ left: 0 });
     };
 
-    rail.addEventListener('pointerdown', onDown);
-    addEventListener('pointermove', onMove);
-    addEventListener('pointerup', onUp);
-    rail.addEventListener('click', onClick, true);
+    rail.addEventListener('pointerdown', onPointerDown);
+    addEventListener('pointermove', onPointerMove);
+    addEventListener('pointerup', onPointerUp);
+    rail.addEventListener('click', onRailClick, true);
     rail.addEventListener('wheel', onWheel, { passive: false });
     root.addEventListener('click', onRootClick);
 
-    SC.onFrame.push(() => {
-        if (bar) {
-            const max = rail.scrollWidth - rail.clientWidth;
-            const vis = rail.clientWidth / Math.max(1, rail.scrollWidth);
-            bar.style.width = vis * 100 + '%';
-            bar.style.left = (max > 0 ? (rail.scrollLeft / max) * (1 - vis) * 100 : 0) + '%';
+    siteRuntime.frameCallbacks.push(() => {
+        if (scrollbar) {
+            const maxScrollLeft = rail.scrollWidth - rail.clientWidth;
+            const visibleRatio = rail.clientWidth / Math.max(1, rail.scrollWidth);
+            scrollbar.style.width = visibleRatio * 100 + '%';
+            scrollbar.style.left = (maxScrollLeft > 0 ? (rail.scrollLeft / maxScrollLeft) * (1 - visibleRatio) * 100 : 0) + '%';
         }
         driftCovers();
     });
 
     return () => {
-        removeEventListener('pointermove', onMove);
-        removeEventListener('pointerup', onUp);
+        removeEventListener('pointermove', onPointerMove);
+        removeEventListener('pointerup', onPointerUp);
         root.removeEventListener('click', onRootClick);
     };
 }

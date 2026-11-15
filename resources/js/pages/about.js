@@ -1,80 +1,91 @@
-export default function (el, SC) {
-    const { $, $$, reduce, clamp } = SC;
-    const cv = $('#paint', el);
-    const cx = cv.getContext('2d');
-    const portrait = $('.portrait');
-    const hello = cv.dataset.hello;
-    const controller = new AbortController();
-    const { signal } = controller;
+export default function (rootElement, siteRuntime) {
+    const { queryOne, queryAll, prefersReducedMotion, clamp } = siteRuntime;
+    const paintCanvas = queryOne('#pixel-paint-canvas', rootElement);
+    const canvasContext = paintCanvas.getContext('2d');
+    const portraitElement = queryOne('.portrait-frame');
+    const helloText = paintCanvas.dataset.hello;
+    const abortController = new AbortController();
+    const { signal } = abortController;
 
-    const reset = () => {
-        cx.fillStyle = '#F1F0EC';
-        cx.fillRect(0, 0, cv.width, cv.height);
-        cx.fillStyle = '#0A0A0A';
-        cx.font = '700 15px Archivo, Arial';
-        cx.fillText(hello, 14, 26);
+    const resetCanvas = () => {
+        canvasContext.fillStyle = '#F1F0EC';
+        canvasContext.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+        canvasContext.fillStyle = '#0A0A0A';
+        canvasContext.font = '700 15px Archivo, Arial';
+        canvasContext.fillText(helloText, 14, 26);
     };
-    reset();
+    resetCanvas();
 
-    let col = '#0A0A0A';
-    let drawing = false;
-    let last = null;
-    const swatches = $$('.crt-tools [data-col]', el);
-    swatches.forEach((b) =>
-        b.addEventListener(
+    let brushColor = '#0A0A0A';
+    let isDrawing = false;
+    let lastPoint = null;
+    const colorSwatches = queryAll('.about-paint-screen-tools [data-col]', rootElement);
+    colorSwatches.forEach((swatchButton) =>
+        swatchButton.addEventListener(
             'click',
             () => {
-                col = b.dataset.col;
-                swatches.forEach((x) => x.classList.toggle('on', x === b));
+                brushColor = swatchButton.dataset.col;
+                colorSwatches.forEach((otherSwatch) => otherSwatch.classList.toggle('is-active', otherSwatch === swatchButton));
             },
             { signal },
         ),
     );
-    $('#clear', el).addEventListener('click', reset, { signal });
+    queryOne('#paint-clear-button', rootElement).addEventListener('click', resetCanvas, { signal });
 
-    const pt = (e) => {
-        const r = cv.getBoundingClientRect();
-        return [((e.clientX - r.left) / r.width) * cv.width, ((e.clientY - r.top) / r.height) * cv.height];
+    const getCanvasPoint = (event) => {
+        const canvasRect = paintCanvas.getBoundingClientRect();
+        return [
+            ((event.clientX - canvasRect.left) / canvasRect.width) * paintCanvas.width,
+            ((event.clientY - canvasRect.top) / canvasRect.height) * paintCanvas.height,
+        ];
     };
-    const dot = (x, y) => {
-        cx.fillStyle = col;
-        cx.fillRect(Math.round(x) - 2, Math.round(y) - 2, 4, 4);
+    const drawDot = (pointX, pointY) => {
+        canvasContext.fillStyle = brushColor;
+        canvasContext.fillRect(Math.round(pointX) - 2, Math.round(pointY) - 2, 4, 4);
     };
-    cv.addEventListener(
+    paintCanvas.addEventListener(
         'pointerdown',
-        (e) => {
-            drawing = true;
-            last = pt(e);
-            dot(...last);
-            cv.setPointerCapture(e.pointerId);
+        (event) => {
+            isDrawing = true;
+            lastPoint = getCanvasPoint(event);
+            drawDot(...lastPoint);
+            paintCanvas.setPointerCapture(event.pointerId);
         },
         { signal },
     );
-    cv.addEventListener(
+    paintCanvas.addEventListener(
         'pointermove',
-        (e) => {
-            if (!drawing) {
+        (event) => {
+            if (!isDrawing) {
                 return;
             }
-            const p = pt(e);
-            const n = Math.ceil(Math.hypot(p[0] - last[0], p[1] - last[1]) / 2);
-            for (let i = 0; i <= n; i++) {
-                dot(last[0] + ((p[0] - last[0]) * i) / n, last[1] + ((p[1] - last[1]) * i) / n);
+            const currentPoint = getCanvasPoint(event);
+            const stepCount = Math.ceil(Math.hypot(currentPoint[0] - lastPoint[0], currentPoint[1] - lastPoint[1]) / 2);
+            for (let i = 0; i <= stepCount; i++) {
+                drawDot(
+                    lastPoint[0] + ((currentPoint[0] - lastPoint[0]) * i) / stepCount,
+                    lastPoint[1] + ((currentPoint[1] - lastPoint[1]) * i) / stepCount,
+                );
             }
-            last = p;
+            lastPoint = currentPoint;
         },
         { signal },
     );
-    addEventListener('pointerup', () => (drawing = false), { signal });
+    addEventListener('pointerup', () => (isDrawing = false), { signal });
 
-    $$('.xrow').forEach((r) => r.addEventListener('click', () => r.classList.toggle('open'), { signal }));
+    queryAll('.accordion-item').forEach((expandableRow) =>
+        expandableRow.addEventListener('click', () => expandableRow.classList.toggle('is-open'), { signal }),
+    );
 
-    SC.onFrame.push(() => {
-        if (!reduce && portrait) {
-            const t = portrait.getBoundingClientRect().top;
-            portrait.style.setProperty('--rev', clamp((innerHeight - t) / (innerHeight * 0.55), 0, 1).toFixed(3));
+    siteRuntime.frameCallbacks.push(() => {
+        if (!prefersReducedMotion && portraitElement) {
+            const portraitTop = portraitElement.getBoundingClientRect().top;
+            portraitElement.style.setProperty(
+                '--portrait-reveal-progress',
+                clamp((innerHeight - portraitTop) / (innerHeight * 0.55), 0, 1).toFixed(3),
+            );
         }
     });
 
-    return () => controller.abort();
+    return () => abortController.abort();
 }

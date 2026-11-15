@@ -1,514 +1,517 @@
-const SW = 4.4;
-const SH = 2.75;
-const GU = 44;
-const GV = 27.5;
+const SCREEN_WORLD_WIDTH = 4.4;
+const SCREEN_WORLD_HEIGHT = 2.75;
+const SCREEN_UNITS_WIDTH = 44;
+const SCREEN_UNITS_HEIGHT = 27.5;
 const FONT = '"Archivo", "Helvetica Neue", Arial, sans-serif';
-const toW = (u, v) => [(u / GU) * SW - SW / 2, SH / 2 - (v / GV) * SH];
-
-const UIR = [[0, 0, 44, 27.5], [0, 0, 8, 27.5], [8, 0, 36, 3.4], [9.5, 4.4, 7.6, 5.4], [18.3, 4.4, 7.6, 5.4], [27.1, 4.4, 7.6, 5.4], [35.9, 4.4, 7.6, 5.4], [9.5, 11, 21.5, 15.3], [32.3, 11, 11.2, 15.3], [35.5, 0.9, 7, 1.6], [24, 0.9, 10.5, 1.6]];
-const CORE = [15.5, 10.9, 13, 5.7];
-const MODS = [[3, 2.6, 9, 3.2], [17.5, 1.6, 9, 3.2], [32, 2.6, 9, 3.2], [1, 12.15, 8, 3.2, 1], [34.5, 12.15, 8.5, 3.2], [3, 21.7, 9, 3.2, 1], [17.5, 22.7, 9, 3.2], [32, 21.7, 9, 3.2]];
-const BARS = [6, 8, 5, 9, 7, 4, 3, 7, 9, 6, 10, 8, 9, 11];
-
-function exitPoint(r, cx, cy, dx, dy) {
-    const hw = r[2] / 2;
-    const hh = r[3] / 2;
-    const tx = dx ? hw / Math.abs(dx) : 1e9;
-    const ty = dy ? hh / Math.abs(dy) : 1e9;
-    const t = Math.min(tx, ty);
-    return [cx + dx * t, cy + dy * t];
-}
-
-const CONN = MODS.map((m) => {
-    const mc = [m[0] + m[2] / 2, m[1] + m[3] / 2];
-    const cc = [CORE[0] + CORE[2] / 2, CORE[1] + CORE[3] / 2];
-    const dx = cc[0] - mc[0];
-    const dy = cc[1] - mc[1];
-    const l = Math.hypot(dx, dy);
-    const a = exitPoint(m, mc[0], mc[1], dx / l, dy / l);
-    const b = exitPoint(CORE, cc[0], cc[1], -dx / l, -dy / l);
-    return [a[0], a[1], b[0], b[1], m[4] ? 1 : 0];
-});
-
-const rectSegs = (r) => [
-    [r[0], r[1], r[0] + r[2], r[1]],
-    [r[0] + r[2], r[1], r[0] + r[2], r[1] + r[3]],
-    [r[0] + r[2], r[1] + r[3], r[0], r[1] + r[3]],
-    [r[0], r[1] + r[3], r[0], r[1]],
+const convertUnitsToWorld = (unitX, unitY) => [
+    (unitX / SCREEN_UNITS_WIDTH) * SCREEN_WORLD_WIDTH - SCREEN_WORLD_WIDTH / 2,
+    SCREEN_WORLD_HEIGHT / 2 - (unitY / SCREEN_UNITS_HEIGHT) * SCREEN_WORLD_HEIGHT,
 ];
 
-function roundRect(x, X, Y, W, H, R) {
-    x.beginPath();
-    x.moveTo(X + R, Y);
-    x.arcTo(X + W, Y, X + W, Y + H, R);
-    x.arcTo(X + W, Y + H, X, Y + H, R);
-    x.arcTo(X, Y + H, X, Y, R);
-    x.arcTo(X, Y, X + W, Y, R);
-    x.closePath();
+const UI_WIREFRAME_RECTANGLES = [[0, 0, 44, 27.5], [0, 0, 8, 27.5], [8, 0, 36, 3.4], [9.5, 4.4, 7.6, 5.4], [18.3, 4.4, 7.6, 5.4], [27.1, 4.4, 7.6, 5.4], [35.9, 4.4, 7.6, 5.4], [9.5, 11, 21.5, 15.3], [32.3, 11, 11.2, 15.3], [35.5, 0.9, 7, 1.6], [24, 0.9, 10.5, 1.6]];
+const CORE_RECTANGLE = [15.5, 10.9, 13, 5.7];
+const MODULE_RECTANGLES = [[3, 2.6, 9, 3.2], [17.5, 1.6, 9, 3.2], [32, 2.6, 9, 3.2], [1, 12.15, 8, 3.2, 1], [34.5, 12.15, 8.5, 3.2], [3, 21.7, 9, 3.2, 1], [17.5, 22.7, 9, 3.2], [32, 21.7, 9, 3.2]];
+const CHART_BAR_VALUES = [6, 8, 5, 9, 7, 4, 3, 7, 9, 6, 10, 8, 9, 11];
+
+function getRectangleExitPoint(rectangle, centerX, centerY, directionX, directionY) {
+    const halfWidth = rectangle[2] / 2;
+    const halfHeight = rectangle[3] / 2;
+    const horizontalDistance = directionX ? halfWidth / Math.abs(directionX) : 1e9;
+    const verticalDistance = directionY ? halfHeight / Math.abs(directionY) : 1e9;
+    const exitDistance = Math.min(horizontalDistance, verticalDistance);
+    return [centerX + directionX * exitDistance, centerY + directionY * exitDistance];
 }
 
-export default function (el, SC) {
-    const { reduce, fine, clamp, lerp, smooth, $, $$, mouse } = SC;
-    const cfg = JSON.parse(el.dataset.config || '{}');
-    const doc = document.documentElement;
-    const ease = (t) => 1 - Math.pow(1 - clamp(t, 0, 1), 3);
+const MODULE_CONNECTIONS = MODULE_RECTANGLES.map((moduleRectangle) => {
+    const moduleCenter = [moduleRectangle[0] + moduleRectangle[2] / 2, moduleRectangle[1] + moduleRectangle[3] / 2];
+    const coreCenter = [CORE_RECTANGLE[0] + CORE_RECTANGLE[2] / 2, CORE_RECTANGLE[1] + CORE_RECTANGLE[3] / 2];
+    const deltaX = coreCenter[0] - moduleCenter[0];
+    const deltaY = coreCenter[1] - moduleCenter[1];
+    const distance = Math.hypot(deltaX, deltaY);
+    const startPoint = getRectangleExitPoint(moduleRectangle, moduleCenter[0], moduleCenter[1], deltaX / distance, deltaY / distance);
+    const endPoint = getRectangleExitPoint(CORE_RECTANGLE, coreCenter[0], coreCenter[1], -deltaX / distance, -deltaY / distance);
+    return [startPoint[0], startPoint[1], endPoint[0], endPoint[1], moduleRectangle[4] ? 1 : 0];
+});
 
-    let disposed = false;
-    let vw = innerWidth;
-    let vh = innerHeight;
-    let sy = scrollY;
-    let horizontal = vw > 900;
-    let gl = null;
-    let mqT = 0;
-    let lastChap = -1;
-    const secs = {};
-    const cleanups = [];
-    const on = (target, type, fn, opts) => {
-        target.addEventListener(type, fn, opts);
-        cleanups.push(() => target.removeEventListener(type, fn, opts));
+const getRectangleSegments = (rectangle) => [
+    [rectangle[0], rectangle[1], rectangle[0] + rectangle[2], rectangle[1]],
+    [rectangle[0] + rectangle[2], rectangle[1], rectangle[0] + rectangle[2], rectangle[1] + rectangle[3]],
+    [rectangle[0] + rectangle[2], rectangle[1] + rectangle[3], rectangle[0], rectangle[1] + rectangle[3]],
+    [rectangle[0], rectangle[1] + rectangle[3], rectangle[0], rectangle[1]],
+];
+
+function drawRoundedRectanglePath(context, rectangleX, rectangleY, rectangleWidth, rectangleHeight, cornerRadius) {
+    context.beginPath();
+    context.moveTo(rectangleX + cornerRadius, rectangleY);
+    context.arcTo(rectangleX + rectangleWidth, rectangleY, rectangleX + rectangleWidth, rectangleY + rectangleHeight, cornerRadius);
+    context.arcTo(rectangleX + rectangleWidth, rectangleY + rectangleHeight, rectangleX, rectangleY + rectangleHeight, cornerRadius);
+    context.arcTo(rectangleX, rectangleY + rectangleHeight, rectangleX, rectangleY, cornerRadius);
+    context.arcTo(rectangleX, rectangleY, rectangleX + rectangleWidth, rectangleY, cornerRadius);
+    context.closePath();
+}
+
+export default function (element, siteRuntime) {
+    const { prefersReducedMotion, hasFinePointer, clamp, linearInterpolate, smoothStep, queryOne, queryAll, pointer } = siteRuntime;
+    const config = JSON.parse(element.dataset.config || '{}');
+    const documentRoot = document.documentElement;
+    const easeOutCubic = (progress) => 1 - Math.pow(1 - clamp(progress, 0, 1), 3);
+
+    let isDisposed = false;
+    let viewportWidth = innerWidth;
+    let viewportHeight = innerHeight;
+    let scrollPosition = scrollY;
+    let isHorizontalLayout = viewportWidth > 900;
+    let threeState = null;
+    let marqueeOffset = 0;
+    let lastChapterIndex = -1;
+    const sectionBounds = {};
+    const cleanupCallbacks = [];
+    const addListener = (target, eventType, handler, options) => {
+        target.addEventListener(eventType, handler, options);
+        cleanupCallbacks.push(() => target.removeEventListener(eventType, handler, options));
     };
 
-    const mqRows = $$('.mq-in', el).map((e) => ({ e, dir: Number(e.parentElement.dataset.dir) }));
-    const screen = $('.screen', el);
-    const wItems = $$('.w-it', el);
-    const wShots = $$('.shot', el);
-    const wNows = $$('.w-now', el);
-    const giants = $$('.giant span', el);
-    const chs = $$('.ch', el);
-    const idxBtns = $$('.ch-index button', el);
-    const portrait = $('.portrait', el);
-    let wActive = -1;
-    let scT = 1;
-    let scV = 1;
-    let scHover = false;
-    let scSince = 0;
+    const marqueeRows = queryAll('.home-marquee-track', element).map((rowElement) => ({ element: rowElement, direction: Number(rowElement.parentElement.dataset.direction) }));
+    const screenElement = queryOne('.before-after-screen', element);
+    const workItems = queryAll('.home-works-item', element);
+    const workShots = queryAll('.home-works-shot', element);
+    const workNowLabels = queryAll('.home-works-caption', element);
+    const giantLetters = queryAll('.home-story-word span', element);
+    const chapterElements = queryAll('.home-story-chapter', element);
+    const indexButtons = queryAll('.home-story-nav button', element);
+    const portraitElement = queryOne('.portrait-frame', element);
+    let activeWorkIndex = -1;
+    let screenTargetProgress = 1;
+    let screenCurrentProgress = 1;
+    let isScreenHovered = false;
+    let screenWorkChangedAt = 0;
 
-    const setWork = (i) => {
-        if (i === wActive) {
+    const activateWork = (workIndex) => {
+        if (workIndex === activeWorkIndex) {
             return;
         }
-        wActive = i;
-        wItems.forEach((e, j) => e.classList.toggle('on', j === i));
-        wShots.forEach((e, j) => e.classList.toggle('on', j === i));
-        wNows.forEach((e, j) => e.classList.toggle('on', j === i));
-        scV = 0;
-        scSince = performance.now();
+        activeWorkIndex = workIndex;
+        workItems.forEach((workItem, index) => workItem.classList.toggle('is-active', index === workIndex));
+        workShots.forEach((workShot, index) => workShot.classList.toggle('is-active', index === workIndex));
+        workNowLabels.forEach((workNowLabel, index) => workNowLabel.classList.toggle('is-active', index === workIndex));
+        screenCurrentProgress = 0;
+        screenWorkChangedAt = performance.now();
     };
 
-    if (screen) {
-        on(screen, 'pointermove', (e) => {
-            const b = screen.getBoundingClientRect();
-            scHover = true;
-            scT = clamp((e.clientX - b.left) / b.width, 0, 1);
+    if (screenElement) {
+        addListener(screenElement, 'pointermove', (event) => {
+            const screenBounds = screenElement.getBoundingClientRect();
+            isScreenHovered = true;
+            screenTargetProgress = clamp((event.clientX - screenBounds.left) / screenBounds.width, 0, 1);
         });
-        on(screen, 'pointerleave', () => {
-            scHover = false;
-            scT = 1;
+        addListener(screenElement, 'pointerleave', () => {
+            isScreenHovered = false;
+            screenTargetProgress = 1;
         });
     }
 
-    wItems.forEach((b, i) =>
-        on(b, 'click', () => {
-            const s = secs.works;
-            if (horizontal && s) {
-                scrollTo({ top: s.top + ((i + 0.5) / wItems.length) * (s.h - vh), behavior: reduce ? 'auto' : 'smooth' });
+    workItems.forEach((workItem, workIndex) =>
+        addListener(workItem, 'click', () => {
+            const worksSection = sectionBounds.works;
+            if (isHorizontalLayout && worksSection) {
+                scrollTo({ top: worksSection.top + ((workIndex + 0.5) / workItems.length) * (worksSection.height - viewportHeight), behavior: prefersReducedMotion ? 'auto' : 'smooth' });
             } else {
-                setWork(i);
+                activateWork(workIndex);
             }
         }),
     );
 
-    idxBtns.forEach((b) =>
-        on(b, 'click', () => {
-            const s = secs.story;
-            if (!s) {
+    indexButtons.forEach((indexButton) =>
+        addListener(indexButton, 'click', () => {
+            const storySection = sectionBounds.story;
+            if (!storySection) {
                 return;
             }
-            scrollTo({ top: s.top + ((Number(b.dataset.go) + 0.6) / 6) * (s.h - vh), behavior: reduce ? 'auto' : 'smooth' });
+            scrollTo({ top: storySection.top + ((Number(indexButton.dataset.chapterIndex) + 0.6) / 6) * (storySection.height - viewportHeight), behavior: prefersReducedMotion ? 'auto' : 'smooth' });
         }),
     );
 
-    function layout() {
-        vw = innerWidth;
-        vh = innerHeight;
-        horizontal = vw > 900;
-        $$('[data-sec]', el).forEach((s) => {
-            const r = s.getBoundingClientRect();
-            secs[s.dataset.sec] = { top: r.top + scrollY, h: s.offsetHeight };
+    function updateLayout() {
+        viewportWidth = innerWidth;
+        viewportHeight = innerHeight;
+        isHorizontalLayout = viewportWidth > 900;
+        queryAll('[data-section]', element).forEach((sectionElement) => {
+            const sectionRect = sectionElement.getBoundingClientRect();
+            sectionBounds[sectionElement.dataset.section] = { top: sectionRect.top + scrollY, height: sectionElement.offsetHeight };
         });
-        if (gl) {
-            gl.renderer.setSize(vw, vh, false);
-            gl.camera.aspect = vw / vh;
-            gl.camera.updateProjectionMatrix();
+        if (threeState) {
+            threeState.renderer.setSize(viewportWidth, viewportHeight, false);
+            threeState.camera.aspect = viewportWidth / viewportHeight;
+            threeState.camera.updateProjectionMatrix();
         }
     }
 
-    on(window, 'resize', layout);
-    on(window, 'load', layout);
-    const ro = new ResizeObserver(layout);
-    ro.observe(el);
-    cleanups.push(() => ro.disconnect());
-    layout();
+    addListener(window, 'resize', updateLayout);
+    addListener(window, 'load', updateLayout);
+    const resizeObserver = new ResizeObserver(updateLayout);
+    resizeObserver.observe(element);
+    cleanupCallbacks.push(() => resizeObserver.disconnect());
+    updateLayout();
 
-    const anchors = {
-        hero: { x: 0, y: 0, s: 1, g: 1 },
-        mq: { x: 0, y: 0, s: 1, g: 0.6 },
-        story: { x: 0, y: 0.15, s: 1, g: 1 },
-        works: { x: 0, y: 0.15, s: 1, g: 0 },
-        svc: { x: 0, y: 0, s: 1, g: 0 },
-        man: { x: 0, y: 0, s: 1, g: 0 },
-        about: { x: 0, y: 0, s: 1, g: 0 },
-        contact: { x: 0, y: 0, s: 1, g: 0 },
+    const sectionAnchors = {
+        hero: { x: 0, y: 0, scale: 1, visibility: 1 },
+        mq: { x: 0, y: 0, scale: 1, visibility: 0.6 },
+        story: { x: 0, y: 0.15, scale: 1, visibility: 1 },
+        works: { x: 0, y: 0.15, scale: 1, visibility: 0 },
+        svc: { x: 0, y: 0, scale: 1, visibility: 0 },
+        man: { x: 0, y: 0, scale: 1, visibility: 0 },
+        about: { x: 0, y: 0, scale: 1, visibility: 0 },
+        contact: { x: 0, y: 0, scale: 1, visibility: 0 },
     };
 
-    const archLabels = cfg.arch?.modules || [];
-    const ui = cfg.ui || {};
+    const archLabels = config.arch?.modules || [];
+    const uiConfig = config.ui || {};
 
-    function drawArch(cv, p) {
-        const x = cv.getContext('2d');
-        const k = cv.width / GU;
-        x.clearRect(0, 0, cv.width, cv.height);
-        x.lineCap = 'round';
-        const elp = (i) => clamp((p - 0.12 - i * 0.075) / 0.22, 0, 1);
-        x.globalAlpha = clamp(p / 0.2, 0, 1);
-        x.strokeStyle = 'rgba(241,240,236,.55)';
-        x.lineWidth = 1.6;
-        x.setLineDash([]);
-        x.strokeRect(CORE[0] * k, CORE[1] * k, CORE[2] * k, CORE[3] * k);
-        x.fillStyle = 'rgba(241,240,236,.9)';
-        x.font = `800 ${0.62 * k}px ${FONT}`;
-        x.textAlign = 'center';
-        x.fillText(cfg.arch?.core || '', (CORE[0] + CORE[2] / 2) * k, (CORE[1] + 2.75) * k);
-        x.fillStyle = 'rgba(241,240,236,.4)';
-        x.font = `500 ${0.42 * k}px ${FONT}`;
-        x.fillText(cfg.arch?.core_sub || '', (CORE[0] + CORE[2] / 2) * k, (CORE[1] + 3.75) * k);
-        MODS.forEach((m, i) => {
-            const e = elp(i);
-            if (e <= 0) {
+    function drawArchitecture(canvas, progress) {
+        const context = canvas.getContext('2d');
+        const unitScale = canvas.width / SCREEN_UNITS_WIDTH;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.lineCap = 'round';
+        const getModuleProgress = (moduleIndex) => clamp((progress - 0.12 - moduleIndex * 0.075) / 0.22, 0, 1);
+        context.globalAlpha = clamp(progress / 0.2, 0, 1);
+        context.strokeStyle = 'rgba(241,240,236,.55)';
+        context.lineWidth = 1.6;
+        context.setLineDash([]);
+        context.strokeRect(CORE_RECTANGLE[0] * unitScale, CORE_RECTANGLE[1] * unitScale, CORE_RECTANGLE[2] * unitScale, CORE_RECTANGLE[3] * unitScale);
+        context.fillStyle = 'rgba(241,240,236,.9)';
+        context.font = `800 ${0.62 * unitScale}px ${FONT}`;
+        context.textAlign = 'center';
+        context.fillText(config.arch?.core || '', (CORE_RECTANGLE[0] + CORE_RECTANGLE[2] / 2) * unitScale, (CORE_RECTANGLE[1] + 2.75) * unitScale);
+        context.fillStyle = 'rgba(241,240,236,.4)';
+        context.font = `500 ${0.42 * unitScale}px ${FONT}`;
+        context.fillText(config.arch?.core_sub || '', (CORE_RECTANGLE[0] + CORE_RECTANGLE[2] / 2) * unitScale, (CORE_RECTANGLE[1] + 3.75) * unitScale);
+        MODULE_RECTANGLES.forEach((moduleRectangle, moduleIndex) => {
+            const moduleProgress = getModuleProgress(moduleIndex);
+            if (moduleProgress <= 0) {
                 return;
             }
-            x.globalAlpha = Math.min(1, e * 1.6) * 0.9;
-            x.strokeStyle = 'rgba(241,240,236,.32)';
-            x.lineWidth = 1.3;
-            x.setLineDash([]);
-            x.strokeRect(m[0] * k, m[1] * k, m[2] * k, m[3] * k);
-            x.fillStyle = 'rgba(241,240,236,.7)';
-            x.font = `650 ${0.46 * k}px ${FONT}`;
-            x.textAlign = 'center';
-            x.fillText(archLabels[i] || '', (m[0] + m[2] / 2) * k, (m[1] + m[3] / 2 + 0.17) * k);
-            const c = CONN[i];
-            const d = clamp((e - 0.35) / 0.65, 0, 1);
-            if (d > 0) {
-                x.strokeStyle = 'rgba(241,240,236,.3)';
-                x.lineWidth = 1.3;
-                x.setLineDash([2, 7]);
-                x.beginPath();
-                x.moveTo(c[0] * k, c[1] * k);
-                x.lineTo((c[0] + (c[2] - c[0]) * d) * k, (c[1] + (c[3] - c[1]) * d) * k);
-                x.stroke();
-                if (d >= 1) {
-                    x.fillStyle = 'rgba(241,240,236,.6)';
-                    x.beginPath();
-                    x.arc(c[2] * k, c[3] * k, 4, 0, Math.PI * 2);
-                    x.fill();
+            context.globalAlpha = Math.min(1, moduleProgress * 1.6) * 0.9;
+            context.strokeStyle = 'rgba(241,240,236,.32)';
+            context.lineWidth = 1.3;
+            context.setLineDash([]);
+            context.strokeRect(moduleRectangle[0] * unitScale, moduleRectangle[1] * unitScale, moduleRectangle[2] * unitScale, moduleRectangle[3] * unitScale);
+            context.fillStyle = 'rgba(241,240,236,.7)';
+            context.font = `650 ${0.46 * unitScale}px ${FONT}`;
+            context.textAlign = 'center';
+            context.fillText(archLabels[moduleIndex] || '', (moduleRectangle[0] + moduleRectangle[2] / 2) * unitScale, (moduleRectangle[1] + moduleRectangle[3] / 2 + 0.17) * unitScale);
+            const connection = MODULE_CONNECTIONS[moduleIndex];
+            const connectionProgress = clamp((moduleProgress - 0.35) / 0.65, 0, 1);
+            if (connectionProgress > 0) {
+                context.strokeStyle = 'rgba(241,240,236,.3)';
+                context.lineWidth = 1.3;
+                context.setLineDash([2, 7]);
+                context.beginPath();
+                context.moveTo(connection[0] * unitScale, connection[1] * unitScale);
+                context.lineTo((connection[0] + (connection[2] - connection[0]) * connectionProgress) * unitScale, (connection[1] + (connection[3] - connection[1]) * connectionProgress) * unitScale);
+                context.stroke();
+                if (connectionProgress >= 1) {
+                    context.fillStyle = 'rgba(241,240,236,.6)';
+                    context.beginPath();
+                    context.arc(connection[2] * unitScale, connection[3] * unitScale, 4, 0, Math.PI * 2);
+                    context.fill();
                 }
             }
         });
-        x.setLineDash([]);
-        x.globalAlpha = 1;
+        context.setLineDash([]);
+        context.globalAlpha = 1;
     }
 
     const formatNumber = (value, digits) =>
-        value.toLocaleString(cfg.locale || undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+        value.toLocaleString(config.locale || undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
-    function drawUI(cv, a) {
-        const x = cv.getContext('2d');
-        const k = cv.width / GU;
-        const S = (u) => u * k;
-        const txt = (t, u, v, size, weight, color, align) => {
-            x.font = `${weight} ${S(size)}px ${FONT}`;
-            x.fillStyle = color;
-            x.textAlign = align || 'left';
-            x.fillText(t, S(u), S(v));
+    function drawUserInterface(canvas, aliveProgress) {
+        const context = canvas.getContext('2d');
+        const unitScale = canvas.width / SCREEN_UNITS_WIDTH;
+        const toPixels = (units) => units * unitScale;
+        const drawText = (text, unitX, unitY, size, weight, color, align) => {
+            context.font = `${weight} ${toPixels(size)}px ${FONT}`;
+            context.fillStyle = color;
+            context.textAlign = align || 'left';
+            context.fillText(text, toPixels(unitX), toPixels(unitY));
         };
-        const skel = (u, v, w, h) => {
-            x.fillStyle = '#222';
-            roundRect(x, S(u), S(v), S(w), S(h), S(Math.min(h / 2, 0.3)));
-            x.fill();
+        const drawSkeleton = (unitX, unitY, skeletonWidth, skeletonHeight) => {
+            context.fillStyle = '#222';
+            drawRoundedRectanglePath(context, toPixels(unitX), toPixels(unitY), toPixels(skeletonWidth), toPixels(skeletonHeight), toPixels(Math.min(skeletonHeight / 2, 0.3)));
+            context.fill();
         };
-        const data = ease(a / 0.42);
-        const arrived = ease((a - 0.5) / 0.28);
-        x.clearRect(0, 0, cv.width, cv.height);
-        x.fillStyle = '#0F0F0F';
-        x.fillRect(0, 0, cv.width, cv.height);
-        x.fillStyle = '#0A0A0A';
-        x.fillRect(0, 0, S(8), cv.height);
-        x.fillStyle = '#FF4A1C';
-        x.fillRect(S(1), S(1.05), S(0.9), S(0.9));
-        txt(ui.app || '', 2.3, 1.82, 0.62, 800, '#F1F0EC');
-        (ui.nav || []).forEach((n, i) => {
-            const v = 5.2 + i * 2.05;
-            if (i === 0) {
-                x.fillStyle = '#1C1C1C';
-                roundRect(x, S(0.6), S(v - 1.0), S(6.8), S(1.5), S(0.25));
-                x.fill();
-                x.fillStyle = '#FF4A1C';
-                x.fillRect(0, S(v - 0.9), S(0.18), S(1.3));
+        const dataProgress = easeOutCubic(aliveProgress / 0.42);
+        const arrivedProgress = easeOutCubic((aliveProgress - 0.5) / 0.28);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = '#0F0F0F';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = '#0A0A0A';
+        context.fillRect(0, 0, toPixels(8), canvas.height);
+        context.fillStyle = '#FF4A1C';
+        context.fillRect(toPixels(1), toPixels(1.05), toPixels(0.9), toPixels(0.9));
+        drawText(uiConfig.app || '', 2.3, 1.82, 0.62, 800, '#F1F0EC');
+        (uiConfig.nav || []).forEach((navLabel, navIndex) => {
+            const unitY = 5.2 + navIndex * 2.05;
+            if (navIndex === 0) {
+                context.fillStyle = '#1C1C1C';
+                drawRoundedRectanglePath(context, toPixels(0.6), toPixels(unitY - 1.0), toPixels(6.8), toPixels(1.5), toPixels(0.25));
+                context.fill();
+                context.fillStyle = '#FF4A1C';
+                context.fillRect(0, toPixels(unitY - 0.9), toPixels(0.18), toPixels(1.3));
             }
-            txt(n, 1.4, v, 0.58, i === 0 ? 750 : 550, i === 0 ? '#F1F0EC' : '#8C8B86');
+            drawText(navLabel, 1.4, unitY, 0.58, navIndex === 0 ? 750 : 550, navIndex === 0 ? '#F1F0EC' : '#8C8B86');
         });
-        x.fillStyle = '#262626';
-        x.beginPath();
-        x.arc(S(1.9), S(25.6), S(0.7), 0, Math.PI * 2);
-        x.fill();
-        txt(ui.user || '', 3, 25.8, 0.52, 650, '#BDBCB7');
-        txt(ui.greeting || '', 9.5, 2.05, 0.95, 850, '#F1F0EC');
-        const nameU = 9.5 + x.measureText(`${ui.greeting || ''} `).width / k;
-        if (data > 0.02) {
-            x.globalAlpha = data;
-            txt(ui.first_name || '', nameU, 2.05, 0.95, 850, '#F1F0EC');
-            x.globalAlpha = 1;
+        context.fillStyle = '#262626';
+        context.beginPath();
+        context.arc(toPixels(1.9), toPixels(25.6), toPixels(0.7), 0, Math.PI * 2);
+        context.fill();
+        drawText(uiConfig.user || '', 3, 25.8, 0.52, 650, '#BDBCB7');
+        drawText(uiConfig.greeting || '', 9.5, 2.05, 0.95, 850, '#F1F0EC');
+        const nameUnitX = 9.5 + context.measureText(`${uiConfig.greeting || ''} `).width / unitScale;
+        if (dataProgress > 0.02) {
+            context.globalAlpha = dataProgress;
+            drawText(uiConfig.first_name || '', nameUnitX, 2.05, 0.95, 850, '#F1F0EC');
+            context.globalAlpha = 1;
         } else {
-            skel(nameU, 1.25, 4.2, 0.95);
+            drawSkeleton(nameUnitX, 1.25, 4.2, 0.95);
         }
-        txt(data > 0.5 ? ui.all_good : ui.loading, 9.5, 2.95, 0.46, 550, '#8C8B86');
-        x.strokeStyle = '#2A2A2A';
-        x.lineWidth = 2;
-        roundRect(x, S(24), S(0.9), S(10.5), S(1.6), S(0.3));
-        x.stroke();
-        txt(ui.search || '', 24.6, 1.92, 0.5, 500, '#6E6D69');
-        x.fillStyle = '#FF4A1C';
-        roundRect(x, S(35.5), S(0.9), S(7), S(1.6), S(0.3));
-        x.fill();
-        txt(ui.new_order || '', 39, 1.93, 0.55, 800, '#0A0A0A', 'center');
-        const kpis = ui.kpis || [];
-        const values = [
-            () => String(Math.round(128 * data) + (arrived > 0.5 ? 1 : 0)),
-            () => String(Math.round(36 * data) + (arrived > 0.5 ? 1 : 0)),
-            () => `${ui.currency || ''} ${formatNumber(84.2 * data, 1)}k`,
-            () => String(Math.round(4 * data)),
+        drawText(dataProgress > 0.5 ? uiConfig.all_good : uiConfig.loading, 9.5, 2.95, 0.46, 550, '#8C8B86');
+        context.strokeStyle = '#2A2A2A';
+        context.lineWidth = 2;
+        drawRoundedRectanglePath(context, toPixels(24), toPixels(0.9), toPixels(10.5), toPixels(1.6), toPixels(0.3));
+        context.stroke();
+        drawText(uiConfig.search || '', 24.6, 1.92, 0.5, 500, '#6E6D69');
+        context.fillStyle = '#FF4A1C';
+        drawRoundedRectanglePath(context, toPixels(35.5), toPixels(0.9), toPixels(7), toPixels(1.6), toPixels(0.3));
+        context.fill();
+        drawText(uiConfig.new_order || '', 39, 1.93, 0.55, 800, '#0A0A0A', 'center');
+        const kpis = uiConfig.kpis || [];
+        const kpiValueFormatters = [
+            () => String(Math.round(128 * dataProgress) + (arrivedProgress > 0.5 ? 1 : 0)),
+            () => String(Math.round(36 * dataProgress) + (arrivedProgress > 0.5 ? 1 : 0)),
+            () => `${uiConfig.currency || ''} ${formatNumber(84.2 * dataProgress, 1)}k`,
+            () => String(Math.round(4 * dataProgress)),
         ];
-        kpis.forEach((c, i) => {
-            const u = 9.5 + i * 8.8;
-            x.fillStyle = '#161616';
-            roundRect(x, S(u), S(4.4), S(7.6), S(5.4), S(0.35));
-            x.fill();
-            txt(c.label, u + 0.6, 5.6, 0.48, 600, '#8C8B86');
-            if (data < 0.02) {
-                skel(u + 0.6, 6.6, 3.6, 1.5);
-                skel(u + 0.6, 8.55, 5, 0.45);
+        kpis.forEach((kpi, kpiIndex) => {
+            const unitX = 9.5 + kpiIndex * 8.8;
+            context.fillStyle = '#161616';
+            drawRoundedRectanglePath(context, toPixels(unitX), toPixels(4.4), toPixels(7.6), toPixels(5.4), toPixels(0.35));
+            context.fill();
+            drawText(kpi.label, unitX + 0.6, 5.6, 0.48, 600, '#8C8B86');
+            if (dataProgress < 0.02) {
+                drawSkeleton(unitX + 0.6, 6.6, 3.6, 1.5);
+                drawSkeleton(unitX + 0.6, 8.55, 5, 0.45);
             } else {
-                x.globalAlpha = Math.min(1, data * 2);
-                txt(values[i](), u + 0.6, 7.95, 1.55, 850, i === 3 ? '#FF4A1C' : '#F1F0EC');
-                txt(c.sub, u + 0.6, 9.05, 0.42, 550, i === 3 ? '#FF4A1C' : '#6E6D69');
-                x.globalAlpha = 1;
+                context.globalAlpha = Math.min(1, dataProgress * 2);
+                drawText(kpiValueFormatters[kpiIndex](), unitX + 0.6, 7.95, 1.55, 850, kpiIndex === 3 ? '#FF4A1C' : '#F1F0EC');
+                drawText(kpi.sub, unitX + 0.6, 9.05, 0.42, 550, kpiIndex === 3 ? '#FF4A1C' : '#6E6D69');
+                context.globalAlpha = 1;
             }
         });
-        x.fillStyle = '#141414';
-        roundRect(x, S(9.5), S(11), S(21.5), S(15.3), S(0.35));
-        x.fill();
-        txt(ui.chart_title || '', 10.2, 12.4, 0.55, 750, '#F1F0EC');
-        BARS.forEach((b, i) => {
-            const local = ease(clamp((data - i * 0.03) / 0.6, 0, 1));
-            const h = Math.max(0.25, b * 0.85 * local);
-            const u = 10.6 + i * 1.42;
-            x.fillStyle = data < 0.02 ? '#202020' : i === 13 ? '#FF4A1C' : 'rgba(241,240,236,.82)';
-            x.fillRect(S(u), S(24.6 - h), S(0.82), S(h));
+        context.fillStyle = '#141414';
+        drawRoundedRectanglePath(context, toPixels(9.5), toPixels(11), toPixels(21.5), toPixels(15.3), toPixels(0.35));
+        context.fill();
+        drawText(uiConfig.chart_title || '', 10.2, 12.4, 0.55, 750, '#F1F0EC');
+        CHART_BAR_VALUES.forEach((barValue, barIndex) => {
+            const barProgress = easeOutCubic(clamp((dataProgress - barIndex * 0.03) / 0.6, 0, 1));
+            const barHeight = Math.max(0.25, barValue * 0.85 * barProgress);
+            const unitX = 10.6 + barIndex * 1.42;
+            context.fillStyle = dataProgress < 0.02 ? '#202020' : barIndex === 13 ? '#FF4A1C' : 'rgba(241,240,236,.82)';
+            context.fillRect(toPixels(unitX), toPixels(24.6 - barHeight), toPixels(0.82), toPixels(barHeight));
         });
-        x.strokeStyle = '#2A2A2A';
-        x.lineWidth = 2;
-        x.beginPath();
-        x.moveTo(S(10.2), S(24.6));
-        x.lineTo(S(30.3), S(24.6));
-        x.stroke();
-        x.fillStyle = '#141414';
-        roundRect(x, S(32.3), S(11), S(11.2), S(15.3), S(0.35));
-        x.fill();
-        txt(ui.orders_title || '', 33, 12.4, 0.55, 750, '#F1F0EC');
-        const tones = [['#2A2A2A', '#F1F0EC'], ['#1F1F1F', '#BDBCB7'], ['#1F1F1F', '#BDBCB7'], ['#1F1F1F', '#8C8B86'], ['#1F1F1F', '#8C8B86']];
-        const rows = (ui.rows || []).map((r, i) => [r.id, r.who, r.status, tones[i][0], tones[i][1]]);
-        const shift = arrived * 2.55;
-        x.save();
-        x.beginPath();
-        x.rect(S(32.3), S(13), S(11.2), S(13));
-        x.clip();
-        const row = (r, v, alpha, hl) => {
-            x.globalAlpha = alpha;
-            if (hl) {
-                x.fillStyle = 'rgba(255,74,28,.14)';
-                x.fillRect(S(32.6), S(v - 1.2), S(10.6), S(2.2));
-                x.fillStyle = '#FF4A1C';
-                x.fillRect(S(32.6), S(v - 1.2), S(0.14), S(2.2));
+        context.strokeStyle = '#2A2A2A';
+        context.lineWidth = 2;
+        context.beginPath();
+        context.moveTo(toPixels(10.2), toPixels(24.6));
+        context.lineTo(toPixels(30.3), toPixels(24.6));
+        context.stroke();
+        context.fillStyle = '#141414';
+        drawRoundedRectanglePath(context, toPixels(32.3), toPixels(11), toPixels(11.2), toPixels(15.3), toPixels(0.35));
+        context.fill();
+        drawText(uiConfig.orders_title || '', 33, 12.4, 0.55, 750, '#F1F0EC');
+        const rowTones = [['#2A2A2A', '#F1F0EC'], ['#1F1F1F', '#BDBCB7'], ['#1F1F1F', '#BDBCB7'], ['#1F1F1F', '#8C8B86'], ['#1F1F1F', '#8C8B86']];
+        const orderRows = (uiConfig.rows || []).map((orderRow, rowIndex) => [orderRow.id, orderRow.who, orderRow.status, rowTones[rowIndex][0], rowTones[rowIndex][1]]);
+        const rowShift = arrivedProgress * 2.55;
+        context.save();
+        context.beginPath();
+        context.rect(toPixels(32.3), toPixels(13), toPixels(11.2), toPixels(13));
+        context.clip();
+        const drawOrderRow = (orderRow, unitY, alpha, isHighlighted) => {
+            context.globalAlpha = alpha;
+            if (isHighlighted) {
+                context.fillStyle = 'rgba(255,74,28,.14)';
+                context.fillRect(toPixels(32.6), toPixels(unitY - 1.2), toPixels(10.6), toPixels(2.2));
+                context.fillStyle = '#FF4A1C';
+                context.fillRect(toPixels(32.6), toPixels(unitY - 1.2), toPixels(0.14), toPixels(2.2));
             }
-            txt(r[0], 33.1, v - 0.2, 0.46, 800, hl ? '#FF4A1C' : '#F1F0EC');
-            txt(r[1], 33.1, v + 0.55, 0.42, 550, '#8C8B86');
-            x.fillStyle = r[3];
-            roundRect(x, S(38.6), S(v - 0.75), S(4.3), S(1.05), S(0.5));
-            x.fill();
-            txt(r[2], 40.75, v - 0.02, 0.36, 700, r[4], 'center');
-            x.globalAlpha = 1;
+            drawText(orderRow[0], 33.1, unitY - 0.2, 0.46, 800, isHighlighted ? '#FF4A1C' : '#F1F0EC');
+            drawText(orderRow[1], 33.1, unitY + 0.55, 0.42, 550, '#8C8B86');
+            context.fillStyle = orderRow[3];
+            drawRoundedRectanglePath(context, toPixels(38.6), toPixels(unitY - 0.75), toPixels(4.3), toPixels(1.05), toPixels(0.5));
+            context.fill();
+            drawText(orderRow[2], 40.75, unitY - 0.02, 0.36, 700, orderRow[4], 'center');
+            context.globalAlpha = 1;
         };
-        if (arrived > 0 && ui.incoming) {
-            row([ui.incoming.id, ui.incoming.who, ui.incoming.status, 'rgba(255,74,28,.25)', '#FF4A1C'], 14.6 - (1 - arrived) * 2.55, arrived, true);
+        if (arrivedProgress > 0 && uiConfig.incoming) {
+            drawOrderRow([uiConfig.incoming.id, uiConfig.incoming.who, uiConfig.incoming.status, 'rgba(255,74,28,.25)', '#FF4A1C'], 14.6 - (1 - arrivedProgress) * 2.55, arrivedProgress, true);
         }
-        rows.forEach((r, i) => {
-            const v = 14.6 + i * 2.55 + shift;
-            const al = clamp((data - i * 0.08) / 0.4, 0, 1);
-            if (al <= 0) {
-                skel(33.1, v - 0.75, 4 + (i % 2), 0.45);
-                skel(33.1, v + 0.15, 2.8, 0.35);
-                skel(38.6, v - 0.75, 4.3, 1.05);
+        orderRows.forEach((orderRow, rowIndex) => {
+            const unitY = 14.6 + rowIndex * 2.55 + rowShift;
+            const rowAlpha = clamp((dataProgress - rowIndex * 0.08) / 0.4, 0, 1);
+            if (rowAlpha <= 0) {
+                drawSkeleton(33.1, unitY - 0.75, 4 + (rowIndex % 2), 0.45);
+                drawSkeleton(33.1, unitY + 0.15, 2.8, 0.35);
+                drawSkeleton(38.6, unitY - 0.75, 4.3, 1.05);
             } else {
-                row(r, v, al, false);
+                drawOrderRow(orderRow, unitY, rowAlpha, false);
             }
         });
-        x.restore();
-        x.strokeStyle = '#2E2E2E';
-        x.lineWidth = 3;
-        x.strokeRect(1.5, 1.5, cv.width - 3, cv.height - 3);
-        x.strokeStyle = '#1F1F1F';
-        x.lineWidth = 2;
-        x.beginPath();
-        x.moveTo(S(8), 0);
-        x.lineTo(S(8), cv.height);
-        x.stroke();
+        context.restore();
+        context.strokeStyle = '#2E2E2E';
+        context.lineWidth = 3;
+        context.strokeRect(1.5, 1.5, canvas.width - 3, canvas.height - 3);
+        context.strokeStyle = '#1F1F1F';
+        context.lineWidth = 2;
+        context.beginPath();
+        context.moveTo(toPixels(8), 0);
+        context.lineTo(toPixels(8), canvas.height);
+        context.stroke();
     }
 
-    function drawToast(cv) {
-        const x = cv.getContext('2d');
-        const W = cv.width;
-        const H = cv.height;
-        x.clearRect(0, 0, W, H);
-        x.fillStyle = '#1B1B1B';
-        roundRect(x, 2, 2, W - 4, H - 4, 22);
-        x.fill();
-        x.strokeStyle = '#333';
-        x.lineWidth = 2;
-        x.stroke();
-        x.fillStyle = '#FF4A1C';
-        x.beginPath();
-        x.arc(70, H / 2, 30, 0, Math.PI * 2);
-        x.fill();
-        x.strokeStyle = '#0A0A0A';
-        x.lineWidth = 7;
-        x.lineCap = 'round';
-        x.beginPath();
-        x.moveTo(56, H / 2);
-        x.lineTo(66, H / 2 + 11);
-        x.lineTo(86, H / 2 - 12);
-        x.stroke();
-        x.fillStyle = '#F1F0EC';
-        x.font = `800 38px ${FONT}`;
-        x.textAlign = 'left';
-        x.fillText(cfg.toast?.title || '', 124, H / 2 - 8);
-        x.fillStyle = '#8C8B86';
-        x.font = `550 28px ${FONT}`;
-        x.fillText(cfg.toast?.sub || '', 124, H / 2 + 34);
+    function drawToast(canvas) {
+        const context = canvas.getContext('2d');
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        context.clearRect(0, 0, canvasWidth, canvasHeight);
+        context.fillStyle = '#1B1B1B';
+        drawRoundedRectanglePath(context, 2, 2, canvasWidth - 4, canvasHeight - 4, 22);
+        context.fill();
+        context.strokeStyle = '#333';
+        context.lineWidth = 2;
+        context.stroke();
+        context.fillStyle = '#FF4A1C';
+        context.beginPath();
+        context.arc(70, canvasHeight / 2, 30, 0, Math.PI * 2);
+        context.fill();
+        context.strokeStyle = '#0A0A0A';
+        context.lineWidth = 7;
+        context.lineCap = 'round';
+        context.beginPath();
+        context.moveTo(56, canvasHeight / 2);
+        context.lineTo(66, canvasHeight / 2 + 11);
+        context.lineTo(86, canvasHeight / 2 - 12);
+        context.stroke();
+        context.fillStyle = '#F1F0EC';
+        context.font = `800 38px ${FONT}`;
+        context.textAlign = 'left';
+        context.fillText(config.toast?.title || '', 124, canvasHeight / 2 - 8);
+        context.fillStyle = '#8C8B86';
+        context.font = `550 28px ${FONT}`;
+        context.fillText(config.toast?.sub || '', 124, canvasHeight / 2 + 34);
     }
 
-    function makeAtlas() {
-        const c = document.createElement('canvas');
-        c.width = 512;
-        c.height = 64;
-        const x = c.getContext('2d');
-        x.fillStyle = '#fff';
-        x.textAlign = 'center';
-        x.textBaseline = 'middle';
-        ['{', '}', '<', '/>', ';', '=', '(', ')'].forEach((g, i) => {
-            x.font = `700 ${g.length > 1 ? 34 : 46}px ${FONT}`;
-            x.fillText(g, i * 64 + 32, 34);
+    function createGlyphAtlas() {
+        const atlasCanvas = document.createElement('canvas');
+        atlasCanvas.width = 512;
+        atlasCanvas.height = 64;
+        const context = atlasCanvas.getContext('2d');
+        context.fillStyle = '#fff';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        ['{', '}', '<', '/>', ';', '=', '(', ')'].forEach((glyph, glyphIndex) => {
+            context.font = `700 ${glyph.length > 1 ? 34 : 46}px ${FONT}`;
+            context.fillText(glyph, glyphIndex * 64 + 32, 34);
         });
-        return c;
+        return atlasCanvas;
     }
 
-    function init3D(THREE) {
-        const canvas = $('#gl', el);
+    function initThreeScene(THREE) {
+        const glCanvas = queryOne('#home-webgl-canvas', element);
         let renderer;
         try {
-            renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-        } catch (e) {
+            renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+        } catch (error) {
             return null;
         }
         THREE.ColorManagement.enabled = false;
         renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
         renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-        renderer.setSize(vw, vh, false);
+        renderer.setSize(viewportWidth, viewportHeight, false);
         renderer.localClippingEnabled = true;
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(35, vw / vh, 0.1, 100);
+        const camera = new THREE.PerspectiveCamera(35, viewportWidth / viewportHeight, 0.1, 100);
         camera.position.set(0, 0, 9);
         const group = new THREE.Group();
         scene.add(group);
-        const maxAniso = renderer.capabilities.getMaxAnisotropy();
-        const canvasTex = (cv) => {
-            const t = new THREE.CanvasTexture(cv);
-            t.anisotropy = maxAniso;
-            t.minFilter = THREE.LinearFilter;
-            t.generateMipmaps = false;
-            return t;
+        const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+        const createCanvasTexture = (sourceCanvas) => {
+            const texture = new THREE.CanvasTexture(sourceCanvas);
+            texture.anisotropy = maxAnisotropy;
+            texture.minFilter = THREE.LinearFilter;
+            texture.generateMipmaps = false;
+            return texture;
         };
 
-        const sCluster = () => {
-            const m = MODS[Math.floor(Math.random() * MODS.length)];
-            return toW(m[0] + 0.5 + Math.random() * (m[2] - 1), m[1] + 0.5 + Math.random() * (m[3] - 1));
+        const pickClusterPoint = () => {
+            const moduleRectangle = MODULE_RECTANGLES[Math.floor(Math.random() * MODULE_RECTANGLES.length)];
+            return convertUnitsToWorld(moduleRectangle[0] + 0.5 + Math.random() * (moduleRectangle[2] - 1), moduleRectangle[1] + 0.5 + Math.random() * (moduleRectangle[3] - 1));
         };
-        const archSegs = [];
-        rectSegs(CORE).forEach((s) => archSegs.push(s));
-        MODS.forEach((m) => rectSegs(m).forEach((s) => archSegs.push(s)));
-        CONN.forEach((c) => archSegs.push(c.slice(0, 4)));
-        const sampler = (segs) => {
-            const len = segs.map((s) => Math.hypot(s[2] - s[0], s[3] - s[1]));
-            const tot = len.reduce((a, b) => a + b, 0);
+        const architectureSegments = [];
+        getRectangleSegments(CORE_RECTANGLE).forEach((segment) => architectureSegments.push(segment));
+        MODULE_RECTANGLES.forEach((moduleRectangle) => getRectangleSegments(moduleRectangle).forEach((segment) => architectureSegments.push(segment)));
+        MODULE_CONNECTIONS.forEach((connection) => architectureSegments.push(connection.slice(0, 4)));
+        const createSegmentSampler = (segments) => {
+            const segmentLengths = segments.map((segment) => Math.hypot(segment[2] - segment[0], segment[3] - segment[1]));
+            const totalLength = segmentLengths.reduce((sum, length) => sum + length, 0);
             return () => {
-                let d = Math.random() * tot;
-                let k = 0;
-                while (k < segs.length - 1 && d > len[k]) {
-                    d -= len[k];
-                    k++;
+                let remainingDistance = Math.random() * totalLength;
+                let segmentIndex = 0;
+                while (segmentIndex < segments.length - 1 && remainingDistance > segmentLengths[segmentIndex]) {
+                    remainingDistance -= segmentLengths[segmentIndex];
+                    segmentIndex++;
                 }
-                const s = segs[k];
-                const f = len[k] ? d / len[k] : 0;
-                return toW(s[0] + (s[2] - s[0]) * f, s[1] + (s[3] - s[1]) * f);
+                const segment = segments[segmentIndex];
+                const fraction = segmentLengths[segmentIndex] ? remainingDistance / segmentLengths[segmentIndex] : 0;
+                return convertUnitsToWorld(segment[0] + (segment[2] - segment[0]) * fraction, segment[1] + (segment[3] - segment[1]) * fraction);
             };
         };
-        const sArch = sampler(archSegs);
+        const sampleArchitecturePoint = createSegmentSampler(architectureSegments);
 
-        const COUNT = vw < 900 ? 2600 : 6000;
-        const pos = new Float32Array(COUNT * 3);
-        const aW = new Float32Array(COUNT * 4);
-        const aR = new Float32Array(COUNT * 3);
-        const aQ = new Float32Array(COUNT * 3);
-        const seed = new Float32Array(COUNT);
-        for (let i = 0; i < COUNT; i++) {
-            const r = 2.4 + Math.pow(Math.random(), 0.7) * 6.2;
-            const th = Math.random() * Math.PI * 2;
-            const ph = Math.acos(2 * Math.random() - 1);
-            pos[i * 3] = r * Math.sin(ph) * Math.cos(th) * 1.5;
-            pos[i * 3 + 1] = r * Math.cos(ph) * 0.85;
-            pos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th) * 0.9;
-            const perLine = Math.floor(COUNT / 30);
-            aW[i * 4] = ((i % perLine) / perLine) * 18 - 9 + (Math.random() - 0.5) * 0.015;
-            aW[i * 4 + 1] = Math.floor(i / perLine) % 30;
-            aW[i * 4 + 2] = (Math.floor(i / perLine) % 7) / 7;
-            aW[i * 4 + 3] = -1;
-            const a = sCluster();
-            aR[i * 3] = a[0] + (Math.random() - 0.5) * 0.01;
-            aR[i * 3 + 1] = a[1] + (Math.random() - 0.5) * 0.01;
-            aR[i * 3 + 2] = 0.02;
-            const b = sArch();
-            aQ[i * 3] = b[0];
-            aQ[i * 3 + 1] = b[1];
-            aQ[i * 3 + 2] = 0.03;
-            seed[i] = Math.random();
+        const PARTICLE_COUNT = viewportWidth < 900 ? 2600 : 6000;
+        const positions = new Float32Array(PARTICLE_COUNT * 3);
+        const waveAttributes = new Float32Array(PARTICLE_COUNT * 4);
+        const clusterTargets = new Float32Array(PARTICLE_COUNT * 3);
+        const architectureTargets = new Float32Array(PARTICLE_COUNT * 3);
+        const seeds = new Float32Array(PARTICLE_COUNT);
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            const radius = 2.4 + Math.pow(Math.random(), 0.7) * 6.2;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta) * 1.5;
+            positions[i * 3 + 1] = radius * Math.cos(phi) * 0.85;
+            positions[i * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta) * 0.9;
+            const particlesPerLine = Math.floor(PARTICLE_COUNT / 30);
+            waveAttributes[i * 4] = ((i % particlesPerLine) / particlesPerLine) * 18 - 9 + (Math.random() - 0.5) * 0.015;
+            waveAttributes[i * 4 + 1] = Math.floor(i / particlesPerLine) % 30;
+            waveAttributes[i * 4 + 2] = (Math.floor(i / particlesPerLine) % 7) / 7;
+            waveAttributes[i * 4 + 3] = -1;
+            const clusterPoint = pickClusterPoint();
+            clusterTargets[i * 3] = clusterPoint[0] + (Math.random() - 0.5) * 0.01;
+            clusterTargets[i * 3 + 1] = clusterPoint[1] + (Math.random() - 0.5) * 0.01;
+            clusterTargets[i * 3 + 2] = 0.02;
+            const architecturePoint = sampleArchitecturePoint();
+            architectureTargets[i * 3] = architecturePoint[0];
+            architectureTargets[i * 3 + 1] = architecturePoint[1];
+            architectureTargets[i * 3 + 2] = 0.03;
+            seeds[i] = Math.random();
         }
-        const pg = new THREE.BufferGeometry();
-        pg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-        pg.setAttribute('aW', new THREE.BufferAttribute(aW, 4));
-        pg.setAttribute('aR', new THREE.BufferAttribute(aR, 3));
-        pg.setAttribute('aQ', new THREE.BufferAttribute(aQ, 3));
-        pg.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
-        const atlas = new THREE.CanvasTexture(makeAtlas());
-        const pm = new THREE.ShaderMaterial({
+        const particleGeometry = new THREE.BufferGeometry();
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particleGeometry.setAttribute('aW', new THREE.BufferAttribute(waveAttributes, 4));
+        particleGeometry.setAttribute('aR', new THREE.BufferAttribute(clusterTargets, 3));
+        particleGeometry.setAttribute('aQ', new THREE.BufferAttribute(architectureTargets, 3));
+        particleGeometry.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
+        const atlasTexture = new THREE.CanvasTexture(createGlyphAtlas());
+        const particleMaterial = new THREE.ShaderMaterial({
             transparent: true,
             depthWrite: false,
             blending: THREE.AdditiveBlending,
@@ -524,7 +527,7 @@ export default function (el, SC) {
                 uRepel: { value: 1 },
                 uPix: { value: renderer.getPixelRatio() },
                 uAcc: { value: new THREE.Color(0xff4a1c) },
-                uAtlas: { value: atlas },
+                uAtlas: { value: atlasTexture },
             },
             vertexShader: `
         uniform float uTime, uPre, uT1, uT2, uFade, uIntro, uRepel, uPix, uGlobal; uniform vec3 uMouse;
@@ -576,178 +579,178 @@ export default function (el, SC) {
           gl_FragColor = vec4(col, vA * s);
         }`,
         });
-        group.add(new THREE.Points(pg, pm));
+        group.add(new THREE.Points(particleGeometry, particleMaterial));
 
-        const fragG = new THREE.Group();
-        scene.add(fragG);
-        const fragMat = new THREE.LineBasicMaterial({ color: 0xf1f0ec, transparent: true, opacity: 0 });
-        const shapes = {
+        const fragmentGroup = new THREE.Group();
+        scene.add(fragmentGroup);
+        const fragmentMaterial = new THREE.LineBasicMaterial({ color: 0xf1f0ec, transparent: true, opacity: 0 });
+        const shapeBuilders = {
             sheet() {
-                const s = [];
-                const w = 1.6;
-                const h = 1.1;
+                const vertices = [];
+                const shapeWidth = 1.6;
+                const shapeHeight = 1.1;
                 for (let i = 0; i <= 6; i++) {
-                    s.push(-w / 2 + (i * w) / 6, -h / 2, -w / 2 + (i * w) / 6, h / 2);
+                    vertices.push(-shapeWidth / 2 + (i * shapeWidth) / 6, -shapeHeight / 2, -shapeWidth / 2 + (i * shapeWidth) / 6, shapeHeight / 2);
                 }
                 for (let j = 0; j <= 5; j++) {
-                    s.push(-w / 2, -h / 2 + (j * h) / 5, w / 2, -h / 2 + (j * h) / 5);
+                    vertices.push(-shapeWidth / 2, -shapeHeight / 2 + (j * shapeHeight) / 5, shapeWidth / 2, -shapeHeight / 2 + (j * shapeHeight) / 5);
                 }
-                return s;
+                return vertices;
             },
             mail() {
-                const w = 1.4;
-                const h = 0.9;
-                return [-w / 2, -h / 2, w / 2, -h / 2, w / 2, -h / 2, w / 2, h / 2, w / 2, h / 2, -w / 2, h / 2, -w / 2, h / 2, -w / 2, -h / 2, -w / 2, h / 2, 0, 0, 0, 0, w / 2, h / 2];
+                const shapeWidth = 1.4;
+                const shapeHeight = 0.9;
+                return [-shapeWidth / 2, -shapeHeight / 2, shapeWidth / 2, -shapeHeight / 2, shapeWidth / 2, -shapeHeight / 2, shapeWidth / 2, shapeHeight / 2, shapeWidth / 2, shapeHeight / 2, -shapeWidth / 2, shapeHeight / 2, -shapeWidth / 2, shapeHeight / 2, -shapeWidth / 2, -shapeHeight / 2, -shapeWidth / 2, shapeHeight / 2, 0, 0, 0, 0, shapeWidth / 2, shapeHeight / 2];
             },
             doc() {
-                const w = 1.0;
-                const h = 1.3;
-                const s = [-w / 2, -h / 2, w / 2, -h / 2, w / 2, -h / 2, w / 2, h / 2, w / 2, h / 2, -w / 2, h / 2, -w / 2, h / 2, -w / 2, -h / 2];
+                const shapeWidth = 1.0;
+                const shapeHeight = 1.3;
+                const vertices = [-shapeWidth / 2, -shapeHeight / 2, shapeWidth / 2, -shapeHeight / 2, shapeWidth / 2, -shapeHeight / 2, shapeWidth / 2, shapeHeight / 2, shapeWidth / 2, shapeHeight / 2, -shapeWidth / 2, shapeHeight / 2, -shapeWidth / 2, shapeHeight / 2, -shapeWidth / 2, -shapeHeight / 2];
                 for (let i = 0; i < 7; i++) {
-                    const y = h / 2 - 0.22 - i * 0.15;
-                    s.push(-w / 2 + 0.12, y, w / 2 - 0.12 - (i % 3) * 0.15, y);
+                    const lineY = shapeHeight / 2 - 0.22 - i * 0.15;
+                    vertices.push(-shapeWidth / 2 + 0.12, lineY, shapeWidth / 2 - 0.12 - (i % 3) * 0.15, lineY);
                 }
-                return s;
+                return vertices;
             },
             note() {
-                const w = 0.8;
-                const s = [-w / 2, -w / 2, w / 2, -w / 2, w / 2, -w / 2, w / 2, w / 2, w / 2, w / 2, -w / 2, w / 2, -w / 2, w / 2, -w / 2, -w / 2];
+                const shapeWidth = 0.8;
+                const vertices = [-shapeWidth / 2, -shapeWidth / 2, shapeWidth / 2, -shapeWidth / 2, shapeWidth / 2, -shapeWidth / 2, shapeWidth / 2, shapeWidth / 2, shapeWidth / 2, shapeWidth / 2, -shapeWidth / 2, shapeWidth / 2, -shapeWidth / 2, shapeWidth / 2, -shapeWidth / 2, -shapeWidth / 2];
                 for (let i = 0; i < 3; i++) {
-                    s.push(-0.28, 0.18 - i * 0.16, 0.24 - i * 0.08, 0.18 - i * 0.16);
+                    vertices.push(-0.28, 0.18 - i * 0.16, 0.24 - i * 0.08, 0.18 - i * 0.16);
                 }
-                return s;
+                return vertices;
             },
             cal() {
-                const s = [];
-                const w = 1.2;
-                const h = 1.0;
+                const vertices = [];
+                const shapeWidth = 1.2;
+                const shapeHeight = 1.0;
                 for (let i = 0; i <= 7; i++) {
-                    s.push(-w / 2 + (i * w) / 7, -h / 2, -w / 2 + (i * w) / 7, h / 2 - 0.2);
+                    vertices.push(-shapeWidth / 2 + (i * shapeWidth) / 7, -shapeHeight / 2, -shapeWidth / 2 + (i * shapeWidth) / 7, shapeHeight / 2 - 0.2);
                 }
                 for (let j = 0; j <= 5; j++) {
-                    s.push(-w / 2, -h / 2 + (j * (h - 0.2)) / 5, w / 2, -h / 2 + (j * (h - 0.2)) / 5);
+                    vertices.push(-shapeWidth / 2, -shapeHeight / 2 + (j * (shapeHeight - 0.2)) / 5, shapeWidth / 2, -shapeHeight / 2 + (j * (shapeHeight - 0.2)) / 5);
                 }
-                s.push(-w / 2, h / 2, w / 2, h / 2, -w / 2, h / 2, -w / 2, h / 2 - 0.2, w / 2, h / 2, w / 2, h / 2 - 0.2);
-                return s;
+                vertices.push(-shapeWidth / 2, shapeHeight / 2, shapeWidth / 2, shapeHeight / 2, -shapeWidth / 2, shapeHeight / 2, -shapeWidth / 2, shapeHeight / 2 - 0.2, shapeWidth / 2, shapeHeight / 2, shapeWidth / 2, shapeHeight / 2 - 0.2);
+                return vertices;
             },
         };
-        const plan = [['sheet', -3.6, 1.2, 0.2, 3, 1.6], ['mail', 3.4, 1.4, -0.4, 5, 1.4], ['doc', -3.1, -1.4, 0.3, 7, 1.0], ['note', 2.9, -1.3, 0.5, 2, 0.8], ['cal', 0.3, 2.1, -0.8, 6, 1.2], ['sheet', 1.0, -2.2, -0.2, 0, 1.6], ['doc', -1.4, 2.4, -1.0, 4, 1.0], ['note', 4.2, -0.2, 0.2, 1, 0.8]];
-        const fragGeos = [];
-        const frags = plan.map((p, i) => {
-            const arr = shapes[p[0]]().reduce((acc, v, k) => {
-                acc.push(v);
-                if (k % 2 === 1) {
-                    acc.push(0);
+        const fragmentPlan = [['sheet', -3.6, 1.2, 0.2, 3, 1.6], ['mail', 3.4, 1.4, -0.4, 5, 1.4], ['doc', -3.1, -1.4, 0.3, 7, 1.0], ['note', 2.9, -1.3, 0.5, 2, 0.8], ['cal', 0.3, 2.1, -0.8, 6, 1.2], ['sheet', 1.0, -2.2, -0.2, 0, 1.6], ['doc', -1.4, 2.4, -1.0, 4, 1.0], ['note', 4.2, -0.2, 0.2, 1, 0.8]];
+        const fragmentGeometries = [];
+        const fragments = fragmentPlan.map((planEntry, planIndex) => {
+            const vertexArray = shapeBuilders[planEntry[0]]().reduce((accumulator, value, valueIndex) => {
+                accumulator.push(value);
+                if (valueIndex % 2 === 1) {
+                    accumulator.push(0);
                 }
-                return acc;
+                return accumulator;
             }, []);
-            const g = new THREE.BufferGeometry();
-            g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
-            fragGeos.push(g);
-            const m = new THREE.LineSegments(g, fragMat);
-            m.userData = {
-                home: new THREE.Vector3(p[1], p[2], p[3]),
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertexArray, 3));
+            fragmentGeometries.push(geometry);
+            const fragmentMesh = new THREE.LineSegments(geometry, fragmentMaterial);
+            fragmentMesh.userData = {
+                home: new THREE.Vector3(planEntry[1], planEntry[2], planEntry[3]),
                 spin: new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(0.5),
-                ph: Math.random() * 6,
-                rot: new THREE.Euler(Math.random() * 2, Math.random() * 2, Math.random()),
-                mod: p[4],
-                w: p[5],
-                k: i,
+                phase: Math.random() * 6,
+                rotation: new THREE.Euler(Math.random() * 2, Math.random() * 2, Math.random()),
+                moduleIndex: planEntry[4],
+                width: planEntry[5],
+                index: planIndex,
             };
-            fragG.add(m);
-            return m;
+            fragmentGroup.add(fragmentMesh);
+            return fragmentMesh;
         });
 
-        const archCv = document.createElement('canvas');
-        archCv.width = 1760;
-        archCv.height = 1100;
-        const archTex = canvasTex(archCv);
-        const archMat = new THREE.MeshBasicMaterial({ map: archTex, transparent: true, opacity: 0, depthWrite: false });
-        const arch = new THREE.Mesh(new THREE.PlaneGeometry(SW, SH), archMat);
-        arch.position.z = 0.04;
-        arch.renderOrder = 3;
-        group.add(arch);
+        const archCanvas = document.createElement('canvas');
+        archCanvas.width = 1760;
+        archCanvas.height = 1100;
+        const archTexture = createCanvasTexture(archCanvas);
+        const archMaterial = new THREE.MeshBasicMaterial({ map: archTexture, transparent: true, opacity: 0, depthWrite: false });
+        const archMesh = new THREE.Mesh(new THREE.PlaneGeometry(SCREEN_WORLD_WIDTH, SCREEN_WORLD_HEIGHT), archMaterial);
+        archMesh.position.z = 0.04;
+        archMesh.renderOrder = 3;
+        group.add(archMesh);
 
-        const lp = [];
-        UIR.forEach((r) =>
-            rectSegs(r).forEach((s) => {
-                const a = toW(s[0], s[1]);
-                const b = toW(s[2], s[3]);
-                lp.push(a[0], a[1], 0.05, b[0], b[1], 0.05);
+        const wireVertices = [];
+        UI_WIREFRAME_RECTANGLES.forEach((rectangle) =>
+            getRectangleSegments(rectangle).forEach((segment) => {
+                const startPoint = convertUnitsToWorld(segment[0], segment[1]);
+                const endPoint = convertUnitsToWorld(segment[2], segment[3]);
+                wireVertices.push(startPoint[0], startPoint[1], 0.05, endPoint[0], endPoint[1], 0.05);
             }),
         );
-        [5.2, 7.25, 9.3, 11.35, 13.4, 15.45].forEach((v) => {
-            const a = toW(1.4, v - 0.3);
-            const b = toW(6.4, v - 0.3);
-            lp.push(a[0], a[1], 0.05, b[0], b[1], 0.05);
+        [5.2, 7.25, 9.3, 11.35, 13.4, 15.45].forEach((unitY) => {
+            const startPoint = convertUnitsToWorld(1.4, unitY - 0.3);
+            const endPoint = convertUnitsToWorld(6.4, unitY - 0.3);
+            wireVertices.push(startPoint[0], startPoint[1], 0.05, endPoint[0], endPoint[1], 0.05);
         });
         for (let i = 0; i < 14; i++) {
-            const u = 10.6 + i * 1.42;
-            const h = BARS[i] * 0.85;
-            rectSegs([u, 24.6 - h, 0.82, h]).forEach((s) => {
-                const a = toW(s[0], s[1]);
-                const b = toW(s[2], s[3]);
-                lp.push(a[0], a[1], 0.05, b[0], b[1], 0.05);
+            const unitX = 10.6 + i * 1.42;
+            const barHeight = CHART_BAR_VALUES[i] * 0.85;
+            getRectangleSegments([unitX, 24.6 - barHeight, 0.82, barHeight]).forEach((segment) => {
+                const startPoint = convertUnitsToWorld(segment[0], segment[1]);
+                const endPoint = convertUnitsToWorld(segment[2], segment[3]);
+                wireVertices.push(startPoint[0], startPoint[1], 0.05, endPoint[0], endPoint[1], 0.05);
             });
         }
-        const lg = new THREE.BufferGeometry();
-        lg.setAttribute('position', new THREE.Float32BufferAttribute(lp, 3));
-        const wclip = new THREE.Plane(new THREE.Vector3(0, 1, 0), 50);
-        const wireMat = new THREE.LineDashedMaterial({ color: 0xf1f0ec, transparent: true, opacity: 0, dashSize: 0.0001, gapSize: 50, depthWrite: false, clippingPlanes: [wclip] });
-        const wire = new THREE.LineSegments(lg, wireMat);
-        const ld = new Float32Array(lp.length / 3);
-        for (let i = 0; i < ld.length; i += 2) {
-            ld[i] = 0;
-            ld[i + 1] = Math.hypot(lp[(i + 1) * 3] - lp[i * 3], lp[(i + 1) * 3 + 1] - lp[i * 3 + 1]);
+        const wireGeometry = new THREE.BufferGeometry();
+        wireGeometry.setAttribute('position', new THREE.Float32BufferAttribute(wireVertices, 3));
+        const wireClipPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 50);
+        const wireMaterial = new THREE.LineDashedMaterial({ color: 0xf1f0ec, transparent: true, opacity: 0, dashSize: 0.0001, gapSize: 50, depthWrite: false, clippingPlanes: [wireClipPlane] });
+        const wireLines = new THREE.LineSegments(wireGeometry, wireMaterial);
+        const lineDistances = new Float32Array(wireVertices.length / 3);
+        for (let i = 0; i < lineDistances.length; i += 2) {
+            lineDistances[i] = 0;
+            lineDistances[i + 1] = Math.hypot(wireVertices[(i + 1) * 3] - wireVertices[i * 3], wireVertices[(i + 1) * 3 + 1] - wireVertices[i * 3 + 1]);
         }
-        lg.setAttribute('lineDistance', new THREE.BufferAttribute(ld, 1));
-        wire.renderOrder = 4;
-        group.add(wire);
+        wireGeometry.setAttribute('lineDistance', new THREE.BufferAttribute(lineDistances, 1));
+        wireLines.renderOrder = 4;
+        group.add(wireLines);
 
-        const uiCv = document.createElement('canvas');
-        uiCv.width = 2200;
-        uiCv.height = 1375;
-        const uiTex = canvasTex(uiCv);
-        const clip = new THREE.Plane(new THREE.Vector3(0, -1, 0), -10);
-        const uiMat = new THREE.MeshBasicMaterial({ map: uiTex, transparent: true, opacity: 1, clippingPlanes: [clip], depthWrite: false });
-        const uiMesh = new THREE.Mesh(new THREE.PlaneGeometry(SW, SH), uiMat);
+        const uiCanvas = document.createElement('canvas');
+        uiCanvas.width = 2200;
+        uiCanvas.height = 1375;
+        const uiTexture = createCanvasTexture(uiCanvas);
+        const uiClipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), -10);
+        const uiMaterial = new THREE.MeshBasicMaterial({ map: uiTexture, transparent: true, opacity: 1, clippingPlanes: [uiClipPlane], depthWrite: false });
+        const uiMesh = new THREE.Mesh(new THREE.PlaneGeometry(SCREEN_WORLD_WIDTH, SCREEN_WORLD_HEIGHT), uiMaterial);
         uiMesh.position.z = 0;
         uiMesh.renderOrder = 2;
         group.add(uiMesh);
-        const scan = new THREE.Mesh(new THREE.PlaneGeometry(SW * 1.06, 0.014), new THREE.MeshBasicMaterial({ color: 0xff4a1c, transparent: true, opacity: 0, depthWrite: false }));
-        scan.renderOrder = 10;
-        group.add(scan);
+        const scanLineMesh = new THREE.Mesh(new THREE.PlaneGeometry(SCREEN_WORLD_WIDTH * 1.06, 0.014), new THREE.MeshBasicMaterial({ color: 0xff4a1c, transparent: true, opacity: 0, depthWrite: false }));
+        scanLineMesh.renderOrder = 10;
+        group.add(scanLineMesh);
 
-        const toastCv = document.createElement('canvas');
-        toastCv.width = 820;
-        toastCv.height = 160;
-        drawToast(toastCv);
-        const toastMat = new THREE.MeshBasicMaterial({ map: canvasTex(toastCv), transparent: true, opacity: 0, depthWrite: false });
-        const toast = new THREE.Mesh(new THREE.PlaneGeometry(1.95, (1.95 * 160) / 820), toastMat);
-        toast.renderOrder = 12;
-        group.add(toast);
+        const toastCanvas = document.createElement('canvas');
+        toastCanvas.width = 820;
+        toastCanvas.height = 160;
+        drawToast(toastCanvas);
+        const toastMaterial = new THREE.MeshBasicMaterial({ map: createCanvasTexture(toastCanvas), transparent: true, opacity: 0, depthWrite: false });
+        const toastMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.95, (1.95 * 160) / 820), toastMaterial);
+        toastMesh.renderOrder = 12;
+        group.add(toastMesh);
 
-        const redraw = { arch: -1, ui: -1 };
+        const lastRedrawProgress = { arch: -1, ui: -1 };
         if (document.fonts && document.fonts.ready) {
             document.fonts.ready.then(() => {
-                redraw.arch = -1;
-                redraw.ui = -1;
-                drawToast(toastCv);
-                toastMat.map.needsUpdate = true;
+                lastRedrawProgress.arch = -1;
+                lastRedrawProgress.ui = -1;
+                drawToast(toastCanvas);
+                toastMaterial.map.needsUpdate = true;
             });
         }
 
         const dispose = () => {
-            scene.traverse((o) => {
-                o.geometry?.dispose();
-                const mats = Array.isArray(o.material) ? o.material : o.material ? [o.material] : [];
-                mats.forEach((m) => {
-                    m.map?.dispose();
-                    m.dispose();
+            scene.traverse((sceneObject) => {
+                sceneObject.geometry?.dispose();
+                const materials = Array.isArray(sceneObject.material) ? sceneObject.material : sceneObject.material ? [sceneObject.material] : [];
+                materials.forEach((material) => {
+                    material.map?.dispose();
+                    material.dispose();
                 });
             });
-            atlas.dispose();
-            fragGeos.forEach((g) => g.dispose());
+            atlasTexture.dispose();
+            fragmentGeometries.forEach((geometry) => geometry.dispose());
             renderer.dispose();
             renderer.forceContextLoss();
         };
@@ -758,231 +761,231 @@ export default function (el, SC) {
             scene,
             camera,
             group,
-            pm,
-            frags,
-            fragMat,
-            wclip,
-            tmpV: new THREE.Vector3(),
-            tmpQ: new THREE.Quaternion(),
-            tmpQ2: new THREE.Quaternion(),
-            archCv,
-            archTex,
-            archMat,
-            wireMat,
-            uiCv,
-            uiTex,
-            uiMat,
-            clip,
-            scan,
-            toast,
-            toastMat,
-            redraw,
+            particleMaterial,
+            fragments,
+            fragmentMaterial,
+            wireClipPlane,
+            temporaryVector: new THREE.Vector3(),
+            temporaryQuaternion: new THREE.Quaternion(),
+            temporaryTargetQuaternion: new THREE.Quaternion(),
+            archCanvas,
+            archTexture,
+            archMaterial,
+            wireMaterial,
+            uiCanvas,
+            uiTexture,
+            uiMaterial,
+            uiClipPlane,
+            scanLineMesh,
+            toastMesh,
+            toastMaterial,
+            lastRedrawProgress,
             dispose,
-            cur: { x: 0, y: 0, s: 1, g: 1 },
-            rot: { x: 0, y: 0 },
-            mw: new THREE.Vector3(),
-            start: performance.now(),
-            aliveAt: null,
+            currentAnchor: { x: 0, y: 0, scale: 1, visibility: 1 },
+            tiltRotation: { x: 0, y: 0 },
+            pointerWorldPosition: new THREE.Vector3(),
+            startedAt: performance.now(),
+            aliveSince: null,
         };
     }
 
-    function renderGl(now, dt) {
-        const T = gl.THREE;
-        const t = (now - gl.start) / 1000;
-        const k = 1 - Math.pow(0.0008, dt);
-        const center = sy + vh * 0.5;
-        const nx = (mouse.sx / vw) * 2 - 1;
-        const ny = -(mouse.sy / vh) * 2 + 1;
-        const st = secs.story;
-        const P = st ? clamp((sy - st.top) / Math.max(1, st.h - vh), 0, 1) * 6 : 6;
-        const pre = st ? clamp((sy - st.top + vh * 0.7) / (vh * 0.75), 0, 1) : 1;
+    function renderThreeScene(timestamp, deltaSeconds) {
+        const THREE = threeState.THREE;
+        const elapsedSeconds = (timestamp - threeState.startedAt) / 1000;
+        const rotationEase = 1 - Math.pow(0.0008, deltaSeconds);
+        const viewportCenter = scrollPosition + viewportHeight * 0.5;
+        const normalizedPointerX = (pointer.smoothX / viewportWidth) * 2 - 1;
+        const normalizedPointerY = -(pointer.smoothY / viewportHeight) * 2 + 1;
+        const storySection = sectionBounds.story;
+        const storyProgress = storySection ? clamp((scrollPosition - storySection.top) / Math.max(1, storySection.height - viewportHeight), 0, 1) * 6 : 6;
+        const preProgress = storySection ? clamp((scrollPosition - storySection.top + viewportHeight * 0.7) / (viewportHeight * 0.75), 0, 1) : 1;
 
-        const lastKey = Object.keys(secs).reduce((a, b) => (secs[b].top > (secs[a]?.top ?? -1) ? b : a), 'hero');
-        const lastSec = secs[lastKey];
-        let anchor = lastSec && center >= lastSec.top + lastSec.h ? anchors.contact : anchors.hero;
-        for (const key in secs) {
-            const s = secs[key];
-            if (center >= s.top && center < s.top + s.h && anchors[key]) {
-                anchor = anchors[key];
+        const lastSectionKey = Object.keys(sectionBounds).reduce((bestKey, candidateKey) => (sectionBounds[candidateKey].top > (sectionBounds[bestKey]?.top ?? -1) ? candidateKey : bestKey), 'hero');
+        const lastSection = sectionBounds[lastSectionKey];
+        let anchor = lastSection && viewportCenter >= lastSection.top + lastSection.height ? sectionAnchors.contact : sectionAnchors.hero;
+        for (const sectionKey in sectionBounds) {
+            const section = sectionBounds[sectionKey];
+            if (viewportCenter >= section.top && viewportCenter < section.top + section.height && sectionAnchors[sectionKey]) {
+                anchor = sectionAnchors[sectionKey];
             }
         }
-        const narrow = vw < 900;
-        const kk = 1 - Math.pow(0.02, dt);
-        gl.cur.x = lerp(gl.cur.x, anchor.x, kk);
-        gl.cur.y = lerp(gl.cur.y, anchor.y, kk);
-        gl.cur.s = lerp(gl.cur.s, narrow ? anchor.s * 0.72 : anchor.s, kk);
-        gl.cur.g = lerp(gl.cur.g, anchor.g, 1 - Math.pow(0.004, dt));
-        const g = gl.cur.g < 0.01 ? 0 : gl.cur.g;
-        gl.group.position.set(gl.cur.x, gl.cur.y, 0);
-        gl.group.scale.setScalar(gl.cur.s);
+        const isNarrow = viewportWidth < 900;
+        const anchorEase = 1 - Math.pow(0.02, deltaSeconds);
+        threeState.currentAnchor.x = linearInterpolate(threeState.currentAnchor.x, anchor.x, anchorEase);
+        threeState.currentAnchor.y = linearInterpolate(threeState.currentAnchor.y, anchor.y, anchorEase);
+        threeState.currentAnchor.scale = linearInterpolate(threeState.currentAnchor.scale, isNarrow ? anchor.scale * 0.72 : anchor.scale, anchorEase);
+        threeState.currentAnchor.visibility = linearInterpolate(threeState.currentAnchor.visibility, anchor.visibility, 1 - Math.pow(0.004, deltaSeconds));
+        const globalVisibility = threeState.currentAnchor.visibility < 0.01 ? 0 : threeState.currentAnchor.visibility;
+        threeState.group.position.set(threeState.currentAnchor.x, threeState.currentAnchor.y, 0);
+        threeState.group.scale.setScalar(threeState.currentAnchor.scale);
 
-        const v3 = new T.Vector3(nx, ny, 0.5).unproject(gl.camera).sub(gl.camera.position).normalize();
-        gl.mw.copy(gl.camera.position).add(v3.multiplyScalar(-gl.camera.position.z / v3.z));
-        if (!mouse.moved || !fine) {
-            gl.mw.set(99, 99, 0);
+        const pointerRayDirection = new THREE.Vector3(normalizedPointerX, normalizedPointerY, 0.5).unproject(threeState.camera).sub(threeState.camera.position).normalize();
+        threeState.pointerWorldPosition.copy(threeState.camera.position).add(pointerRayDirection.multiplyScalar(-threeState.camera.position.z / pointerRayDirection.z));
+        if (!pointer.hasMoved || !hasFinePointer) {
+            threeState.pointerWorldPosition.set(99, 99, 0);
         }
 
-        const t1 = smooth(0.7, 1.8, P);
-        const t2 = smooth(1.8, 2.7, P);
-        const archP = smooth(1.9, 2.95, P);
-        const archOut = smooth(2.95, 3.4, P);
-        const wireIn = smooth(3.05, 3.35, P);
-        const wireDraw = smooth(3.05, 3.9, P);
-        const build = smooth(4.0, 4.9, P);
-        if (P >= 5.05 && g > 0.5) {
-            if (gl.aliveAt === null) {
-                gl.aliveAt = t;
+        const toClusterProgress = smoothStep(0.7, 1.8, storyProgress);
+        const toArchitectureProgress = smoothStep(1.8, 2.7, storyProgress);
+        const architectureDrawProgress = smoothStep(1.9, 2.95, storyProgress);
+        const architectureFadeOutProgress = smoothStep(2.95, 3.4, storyProgress);
+        const wireFadeInProgress = smoothStep(3.05, 3.35, storyProgress);
+        const wireDrawProgress = smoothStep(3.05, 3.9, storyProgress);
+        const buildProgress = smoothStep(4.0, 4.9, storyProgress);
+        if (storyProgress >= 5.05 && globalVisibility > 0.5) {
+            if (threeState.aliveSince === null) {
+                threeState.aliveSince = elapsedSeconds;
             }
         } else {
-            gl.aliveAt = null;
+            threeState.aliveSince = null;
         }
-        const alive = gl.aliveAt === null ? 0 : clamp((t - gl.aliveAt) / 3.6, 0, 1);
+        const aliveProgress = threeState.aliveSince === null ? 0 : clamp((elapsedSeconds - threeState.aliveSince) / 3.6, 0, 1);
 
-        const tilt = 0.35 + 0.65 * smooth(1.5, 5, P);
-        gl.rot.x = lerp(gl.rot.x, (fine ? -ny * 0.2 * tilt : 0) + (reduce ? 0 : Math.sin(t * 0.35) * 0.03 * tilt), k);
-        gl.rot.y = lerp(gl.rot.y, (fine ? nx * 0.3 * tilt : 0) + (reduce ? 0 : Math.sin(t * 0.27) * 0.05 * tilt), k);
-        gl.group.rotation.set(gl.rot.x, gl.rot.y, 0);
+        const tiltStrength = 0.35 + 0.65 * smoothStep(1.5, 5, storyProgress);
+        threeState.tiltRotation.x = linearInterpolate(threeState.tiltRotation.x, (hasFinePointer ? -normalizedPointerY * 0.2 * tiltStrength : 0) + (prefersReducedMotion ? 0 : Math.sin(elapsedSeconds * 0.35) * 0.03 * tiltStrength), rotationEase);
+        threeState.tiltRotation.y = linearInterpolate(threeState.tiltRotation.y, (hasFinePointer ? normalizedPointerX * 0.3 * tiltStrength : 0) + (prefersReducedMotion ? 0 : Math.sin(elapsedSeconds * 0.27) * 0.05 * tiltStrength), rotationEase);
+        threeState.group.rotation.set(threeState.tiltRotation.x, threeState.tiltRotation.y, 0);
 
-        const u = gl.pm.uniforms;
-        u.uTime.value = reduce ? 0 : t;
-        u.uIntro.value = reduce ? 1 : smooth(0, 2.2, t);
-        u.uPre.value = pre;
-        u.uT1.value = t1;
-        u.uT2.value = t2;
-        u.uFade.value = 1 - smooth(2.85, 3.3, P);
-        u.uRepel.value = (1 - t1 * 0.85) * (reduce ? 0 : 1);
-        u.uGlobal.value = g;
-        u.uMouse.value.copy(gl.mw);
+        const uniforms = threeState.particleMaterial.uniforms;
+        uniforms.uTime.value = prefersReducedMotion ? 0 : elapsedSeconds;
+        uniforms.uIntro.value = prefersReducedMotion ? 1 : smoothStep(0, 2.2, elapsedSeconds);
+        uniforms.uPre.value = preProgress;
+        uniforms.uT1.value = toClusterProgress;
+        uniforms.uT2.value = toArchitectureProgress;
+        uniforms.uFade.value = 1 - smoothStep(2.85, 3.3, storyProgress);
+        uniforms.uRepel.value = (1 - toClusterProgress * 0.85) * (prefersReducedMotion ? 0 : 1);
+        uniforms.uGlobal.value = globalVisibility;
+        uniforms.uMouse.value.copy(threeState.pointerWorldPosition);
 
-        gl.group.updateMatrixWorld();
-        const fragA = pre * (1 - smooth(2.1, 2.7, P)) * g;
-        gl.fragMat.opacity = fragA * lerp(0.5, 0.75, smooth(0.7, 1.9, P));
-        gl.frags.forEach((m) => {
-            const d = m.userData;
-            const mod = MODS[d.mod];
-            const c = toW(mod[0] + mod[2] / 2, mod[1] + mod[3] / 2);
-            gl.tmpV.set(c[0], c[1], 0.06);
-            gl.group.localToWorld(gl.tmpV);
-            const pf = smooth(0.75 + d.k * 0.09, 1.45 + d.k * 0.09, P);
-            const fx = Math.sin(t * 0.4 + d.ph) * 0.12 * (1 - pf);
-            const fy = Math.cos(t * 0.33 + d.ph) * 0.1 * (1 - pf);
-            m.position.set(lerp(d.home.x + fx, gl.tmpV.x, pf), lerp(d.home.y + fy, gl.tmpV.y, pf), lerp(d.home.z, gl.tmpV.z, pf));
-            if (!reduce) {
-                d.rot.x += d.spin.x * dt * (1 - pf);
-                d.rot.y += d.spin.y * dt * (1 - pf);
-                d.rot.z += d.spin.z * dt * 0.5 * (1 - pf);
+        threeState.group.updateMatrixWorld();
+        const fragmentOpacity = preProgress * (1 - smoothStep(2.1, 2.7, storyProgress)) * globalVisibility;
+        threeState.fragmentMaterial.opacity = fragmentOpacity * linearInterpolate(0.5, 0.75, smoothStep(0.7, 1.9, storyProgress));
+        threeState.fragments.forEach((fragmentMesh) => {
+            const fragmentData = fragmentMesh.userData;
+            const moduleRectangle = MODULE_RECTANGLES[fragmentData.moduleIndex];
+            const moduleCenter = convertUnitsToWorld(moduleRectangle[0] + moduleRectangle[2] / 2, moduleRectangle[1] + moduleRectangle[3] / 2);
+            threeState.temporaryVector.set(moduleCenter[0], moduleCenter[1], 0.06);
+            threeState.group.localToWorld(threeState.temporaryVector);
+            const fragmentProgress = smoothStep(0.75 + fragmentData.index * 0.09, 1.45 + fragmentData.index * 0.09, storyProgress);
+            const floatOffsetX = Math.sin(elapsedSeconds * 0.4 + fragmentData.phase) * 0.12 * (1 - fragmentProgress);
+            const floatOffsetY = Math.cos(elapsedSeconds * 0.33 + fragmentData.phase) * 0.1 * (1 - fragmentProgress);
+            fragmentMesh.position.set(linearInterpolate(fragmentData.home.x + floatOffsetX, threeState.temporaryVector.x, fragmentProgress), linearInterpolate(fragmentData.home.y + floatOffsetY, threeState.temporaryVector.y, fragmentProgress), linearInterpolate(fragmentData.home.z, threeState.temporaryVector.z, fragmentProgress));
+            if (!prefersReducedMotion) {
+                fragmentData.rotation.x += fragmentData.spin.x * deltaSeconds * (1 - fragmentProgress);
+                fragmentData.rotation.y += fragmentData.spin.y * deltaSeconds * (1 - fragmentProgress);
+                fragmentData.rotation.z += fragmentData.spin.z * deltaSeconds * 0.5 * (1 - fragmentProgress);
             }
-            gl.tmpQ.setFromEuler(d.rot);
-            gl.tmpQ2.copy(gl.group.quaternion);
-            m.quaternion.copy(gl.tmpQ).slerp(gl.tmpQ2, pf);
-            const target = (mod[2] * 0.1 * gl.cur.s * 0.62) / d.w;
-            m.scale.setScalar(Math.max(0.001, lerp(narrow ? 0.6 : 1, target, pf)));
-            m.visible = fragA > 0.002;
+            threeState.temporaryQuaternion.setFromEuler(fragmentData.rotation);
+            threeState.temporaryTargetQuaternion.copy(threeState.group.quaternion);
+            fragmentMesh.quaternion.copy(threeState.temporaryQuaternion).slerp(threeState.temporaryTargetQuaternion, fragmentProgress);
+            const targetScale = (moduleRectangle[2] * 0.1 * threeState.currentAnchor.scale * 0.62) / fragmentData.width;
+            fragmentMesh.scale.setScalar(Math.max(0.001, linearInterpolate(isNarrow ? 0.6 : 1, targetScale, fragmentProgress)));
+            fragmentMesh.visible = fragmentOpacity > 0.002;
         });
 
-        const archA = smooth(1.9, 2.3, P) * (1 - archOut) * g * 0.85;
-        gl.archMat.opacity = archA;
-        if (archA > 0.001) {
-            const q = Math.round(archP * 200) / 200;
-            if (q !== gl.redraw.arch) {
-                gl.redraw.arch = q;
-                drawArch(gl.archCv, q);
-                gl.archTex.needsUpdate = true;
+        const architectureOpacity = smoothStep(1.9, 2.3, storyProgress) * (1 - architectureFadeOutProgress) * globalVisibility * 0.85;
+        threeState.archMaterial.opacity = architectureOpacity;
+        if (architectureOpacity > 0.001) {
+            const quantizedArchitectureProgress = Math.round(architectureDrawProgress * 200) / 200;
+            if (quantizedArchitectureProgress !== threeState.lastRedrawProgress.arch) {
+                threeState.lastRedrawProgress.arch = quantizedArchitectureProgress;
+                drawArchitecture(threeState.archCanvas, quantizedArchitectureProgress);
+                threeState.archTexture.needsUpdate = true;
             }
         }
 
-        gl.wireMat.opacity = wireIn * 0.85 * g;
-        gl.wireMat.dashSize = 0.0001 + wireDraw * 4.6;
+        threeState.wireMaterial.opacity = wireFadeInProgress * 0.85 * globalVisibility;
+        threeState.wireMaterial.dashSize = 0.0001 + wireDrawProgress * 4.6;
 
-        const yLocal = -SH / 2 + (SH + 0.04) * build;
-        gl.clip.constant = gl.cur.y + yLocal * gl.cur.s + (build >= 1 ? 50 : 0);
-        gl.wclip.constant = build >= 1 ? -50 : -(gl.cur.y + yLocal * gl.cur.s) + 0.002;
-        gl.uiMat.visible = build > 0.001 && g > 0.001;
-        gl.uiMat.opacity = g;
-        const qa = Math.round(alive * 120) / 120;
-        if (gl.uiMat.visible && qa !== gl.redraw.ui) {
-            gl.redraw.ui = qa;
-            drawUI(gl.uiCv, qa);
-            gl.uiTex.needsUpdate = true;
+        const localY = -SCREEN_WORLD_HEIGHT / 2 + (SCREEN_WORLD_HEIGHT + 0.04) * buildProgress;
+        threeState.uiClipPlane.constant = threeState.currentAnchor.y + localY * threeState.currentAnchor.scale + (buildProgress >= 1 ? 50 : 0);
+        threeState.wireClipPlane.constant = buildProgress >= 1 ? -50 : -(threeState.currentAnchor.y + localY * threeState.currentAnchor.scale) + 0.002;
+        threeState.uiMaterial.visible = buildProgress > 0.001 && globalVisibility > 0.001;
+        threeState.uiMaterial.opacity = globalVisibility;
+        const quantizedAliveProgress = Math.round(aliveProgress * 120) / 120;
+        if (threeState.uiMaterial.visible && quantizedAliveProgress !== threeState.lastRedrawProgress.ui) {
+            threeState.lastRedrawProgress.ui = quantizedAliveProgress;
+            drawUserInterface(threeState.uiCanvas, quantizedAliveProgress);
+            threeState.uiTexture.needsUpdate = true;
         }
-        gl.scan.position.set(0, yLocal, 0.12);
-        gl.scan.material.opacity = build > 0.001 && build < 0.999 ? g : 0;
-        const ta = smooth(0.62, 0.78, alive);
-        gl.toastMat.opacity = ta * g;
-        gl.toast.position.set(SW / 2 - 0.7, -SH / 2 + 0.2 - (1 - ta) * 0.25, 0.45);
+        threeState.scanLineMesh.position.set(0, localY, 0.12);
+        threeState.scanLineMesh.material.opacity = buildProgress > 0.001 && buildProgress < 0.999 ? globalVisibility : 0;
+        const toastProgress = smoothStep(0.62, 0.78, aliveProgress);
+        threeState.toastMaterial.opacity = toastProgress * globalVisibility;
+        threeState.toastMesh.position.set(SCREEN_WORLD_WIDTH / 2 - 0.7, -SCREEN_WORLD_HEIGHT / 2 + 0.2 - (1 - toastProgress) * 0.25, 0.45);
 
-        if (g > 0) {
-            gl.renderer.render(gl.scene, gl.camera);
+        if (globalVisibility > 0) {
+            threeState.renderer.render(threeState.scene, threeState.camera);
         } else {
-            gl.renderer.clear();
+            threeState.renderer.clear();
         }
     }
 
-    SC.onFrame.push((now, dt) => {
-        sy = scrollY;
+    siteRuntime.frameCallbacks.push((timestamp, deltaSeconds) => {
+        scrollPosition = scrollY;
 
-        if (!reduce) {
-            mqT += dt * 38;
-            mqRows.forEach((r) => {
-                const half = r.e.scrollWidth / 2 || 1;
-                const x = (mqT + sy * 0.45) % half;
-                r.e.style.transform = `translate3d(${r.dir > 0 ? -x : x - half}px, 0, 0)`;
+        if (!prefersReducedMotion) {
+            marqueeOffset += deltaSeconds * 38;
+            marqueeRows.forEach((marqueeRow) => {
+                const halfWidth = marqueeRow.element.scrollWidth / 2 || 1;
+                const offsetX = (marqueeOffset + scrollPosition * 0.45) % halfWidth;
+                marqueeRow.element.style.transform = `translate3d(${marqueeRow.direction > 0 ? -offsetX : offsetX - halfWidth}px, 0, 0)`;
             });
         }
 
-        const st = secs.story;
-        const P = st ? clamp((sy - st.top) / Math.max(1, st.h - vh), 0, 1) * 6 : 6;
-        const chap = Math.min(5, Math.floor(P >= 6 ? 5.99 : P));
-        if (chap !== lastChap) {
-            lastChap = chap;
-            giants.forEach((e, i) => e.classList.toggle('on', i === chap));
-            chs.forEach((e, i) => e.classList.toggle('on', i === chap));
-            idxBtns.forEach((e, i) => e.classList.toggle('on', i === chap));
+        const storySection = sectionBounds.story;
+        const storyProgress = storySection ? clamp((scrollPosition - storySection.top) / Math.max(1, storySection.height - viewportHeight), 0, 1) * 6 : 6;
+        const chapterIndex = Math.min(5, Math.floor(storyProgress >= 6 ? 5.99 : storyProgress));
+        if (chapterIndex !== lastChapterIndex) {
+            lastChapterIndex = chapterIndex;
+            giantLetters.forEach((giantLetter, index) => giantLetter.classList.toggle('is-active', index === chapterIndex));
+            chapterElements.forEach((chapterElement, index) => chapterElement.classList.toggle('is-active', index === chapterIndex));
+            indexButtons.forEach((indexButton, index) => indexButton.classList.toggle('is-active', index === chapterIndex));
         }
 
-        const wk = secs.works;
-        if (wk && wItems.length) {
-            if (horizontal) {
-                const p = clamp((sy - wk.top) / Math.max(1, wk.h - vh), 0, 0.999);
-                setWork(Math.floor(p * wItems.length));
-            } else if (wActive < 0) {
-                setWork(0);
+        const worksSection = sectionBounds.works;
+        if (worksSection && workItems.length) {
+            if (isHorizontalLayout) {
+                const worksProgress = clamp((scrollPosition - worksSection.top) / Math.max(1, worksSection.height - viewportHeight), 0, 0.999);
+                activateWork(Math.floor(worksProgress * workItems.length));
+            } else if (activeWorkIndex < 0) {
+                activateWork(0);
             }
-            const target = scHover ? scT : now - scSince > 250 ? 1 : 0;
-            scV = reduce ? target : lerp(scV, target, 1 - Math.pow(scHover ? 0.0005 : 0.06, dt));
-            screen?.style.setProperty('--sc', scV.toFixed(4));
+            const targetProgress = isScreenHovered ? screenTargetProgress : timestamp - screenWorkChangedAt > 250 ? 1 : 0;
+            screenCurrentProgress = prefersReducedMotion ? targetProgress : linearInterpolate(screenCurrentProgress, targetProgress, 1 - Math.pow(isScreenHovered ? 0.0005 : 0.06, deltaSeconds));
+            screenElement?.style.setProperty('--screen-scan-progress', screenCurrentProgress.toFixed(4));
         }
 
-        if (portrait && !reduce) {
-            const top = portrait.getBoundingClientRect().top;
-            portrait.style.setProperty('--rev', clamp((vh - top) / (vh * 0.55), 0, 1).toFixed(3));
+        if (portraitElement && !prefersReducedMotion) {
+            const portraitTop = portraitElement.getBoundingClientRect().top;
+            portraitElement.style.setProperty('--portrait-reveal-progress', clamp((viewportHeight - portraitTop) / (viewportHeight * 0.55), 0, 1).toFixed(3));
         }
 
-        if (gl) {
-            renderGl(now, dt);
+        if (threeState) {
+            renderThreeScene(timestamp, deltaSeconds);
         }
     });
 
     import('three')
         .then((THREE) => {
-            if (disposed) {
+            if (isDisposed) {
                 return;
             }
-            gl = init3D(THREE);
-            if (!gl) {
-                doc.classList.add('no-gl');
+            threeState = initThreeScene(THREE);
+            if (!threeState) {
+                documentRoot.classList.add('is-webgl-unavailable');
             }
         })
-        .catch(() => doc.classList.add('no-gl'));
+        .catch(() => documentRoot.classList.add('is-webgl-unavailable'));
 
     return () => {
-        disposed = true;
-        cleanups.forEach((fn) => fn());
-        if (gl) {
-            gl.dispose();
-            gl.THREE.ColorManagement.enabled = true;
-            gl = null;
+        isDisposed = true;
+        cleanupCallbacks.forEach((cleanup) => cleanup());
+        if (threeState) {
+            threeState.dispose();
+            threeState.THREE.ColorManagement.enabled = true;
+            threeState = null;
         }
-        doc.classList.remove('no-gl');
+        documentRoot.classList.remove('is-webgl-unavailable');
     };
 }

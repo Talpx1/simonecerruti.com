@@ -1,82 +1,82 @@
-export default function (root, SC) {
-    const { $, $$, clamp, reduce } = SC;
+export default function (root, siteRuntime) {
+    const { queryOne, queryAll, clamp, prefersReducedMotion } = siteRuntime;
     const config = JSON.parse(root.dataset.config || '{}');
-    const routes = $('#routes');
-    const verdict = $('#verdict', root);
-    const go = $('#verdict-go', root);
-    const cards = $$('.scard', root);
-    const flip = $('#flip', root);
-    const switches = $$('.switch button', root);
-    const listeners = [];
-    let auto = true;
-    let timer = null;
+    const routes = queryOne('#services-routes-canvas');
+    const verdict = queryOne('#services-verdict', root);
+    const verdictLink = queryOne('#services-verdict-link', root);
+    const cards = queryAll('.services-card', root);
+    const flip = queryOne('#services-compare', root);
+    const switches = queryAll('.segmented-toggle button', root);
+    const removeListenerCallbacks = [];
+    let isAutoSwitchEnabled = true;
+    let switchTimer = null;
 
-    const listen = (el, type, fn) => {
-        el.addEventListener(type, fn);
-        listeners.push(() => el.removeEventListener(type, fn));
+    const addTrackedListener = (target, eventType, handler) => {
+        target.addEventListener(eventType, handler);
+        removeListenerCallbacks.push(() => target.removeEventListener(eventType, handler));
     };
 
-    const escapeHtml = (s) =>
-        s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    const escapeHtml = (text) =>
+        text.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 
-    const goals = $$('.goal', root);
-    goals.forEach((g) =>
-        listen(g, 'click', () => {
-            goals.forEach((x) => x.classList.toggle('on', x === g));
-            const to = g.dataset.to;
-            const label = g.querySelector('span').textContent;
+    const goals = queryAll('.services-goal', root);
+    goals.forEach((goal) =>
+        addTrackedListener(goal, 'click', () => {
+            goals.forEach((otherGoal) => otherGoal.classList.toggle('is-active', otherGoal === goal));
+            const targetArea = goal.dataset.to;
+            const goalLabel = goal.querySelector('span').textContent;
             verdict.innerHTML = config.verdict
-                .replace(':goal', escapeHtml(label))
-                .replace(':service', escapeHtml(config.names[to]));
-            go.hidden = false;
-            go.href = '#area-' + to;
-            cards.forEach((c) => c.classList.toggle('pick', c.id === 'area-' + to));
+                .replace(':goal', escapeHtml(goalLabel))
+                .replace(':service', escapeHtml(config.names[targetArea]));
+            verdictLink.hidden = false;
+            verdictLink.href = '#area-' + targetArea;
+            cards.forEach((card) => card.classList.toggle('is-picked', card.id === 'area-' + targetArea));
             if (routes) {
-                routes.dataset.route = String(config.channels[to]);
+                routes.dataset.route = String(config.channels[targetArea]);
             }
         }),
     );
 
-    SC.onFrame.push(() => {
-        if (reduce || innerWidth < 900) {
+    siteRuntime.frameCallbacks.push(() => {
+        if (prefersReducedMotion || innerWidth < 900) {
             return;
         }
-        cards.forEach((c, i) => {
-            const next = cards[i + 1];
-            if (!next) {
+        cards.forEach((card, cardIndex) => {
+            const nextCard = cards[cardIndex + 1];
+            if (!nextCard) {
                 return;
             }
-            const p = clamp(1 - (next.getBoundingClientRect().top - 96) / (innerHeight * 0.8), 0, 1);
-            c.style.transform = `scale(${(1 - p * 0.06).toFixed(4)})`;
-            c.style.filter = `brightness(${(1 - p * 0.5).toFixed(3)})`;
+            const coverProgress = clamp(1 - (nextCard.getBoundingClientRect().top - 96) / (innerHeight * 0.8), 0, 1);
+            card.style.transform = `scale(${(1 - coverProgress * 0.06).toFixed(4)})`;
+            card.style.filter = `brightness(${(1 - coverProgress * 0.5).toFixed(3)})`;
         });
     });
 
-    const setMode = (m) => {
-        flip.dataset.mode = m;
-        switches.forEach((b) => {
-            b.classList.toggle('on', b.dataset.m === m);
-            b.classList.toggle('acc-on', b.dataset.m === 'custom');
+    const setMode = (mode) => {
+        flip.dataset.mode = mode;
+        switches.forEach((switchButton) => {
+            switchButton.classList.toggle('is-active', switchButton.dataset.mode === mode);
+            switchButton.classList.toggle('is-accent', switchButton.dataset.mode === 'custom');
         });
     };
-    switches.forEach((b) =>
-        listen(b, 'click', () => {
-            auto = false;
-            setMode(b.dataset.m);
+    switches.forEach((switchButton) =>
+        addTrackedListener(switchButton, 'click', () => {
+            isAutoSwitchEnabled = false;
+            setMode(switchButton.dataset.mode);
         }),
     );
-    SC.onFrame.push(() => {
-        if (!auto) {
+    siteRuntime.frameCallbacks.push(() => {
+        if (!isAutoSwitchEnabled) {
             return;
         }
         if (flip.getBoundingClientRect().top < innerHeight * 0.35) {
-            auto = false;
-            timer = setTimeout(() => setMode('custom'), 500);
+            isAutoSwitchEnabled = false;
+            switchTimer = setTimeout(() => setMode('custom'), 500);
         }
     });
 
     return () => {
-        listeners.forEach((off) => off());
-        clearTimeout(timer);
+        removeListenerCallbacks.forEach((removeListener) => removeListener());
+        clearTimeout(switchTimer);
     };
 }

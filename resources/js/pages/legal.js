@@ -1,20 +1,20 @@
-export default function (el, SC) {
-    const { clamp } = SC;
-    const art = el.querySelector('.art-body');
-    const bar = el.querySelector('.art-prog i');
-    const links = [...el.querySelectorAll('.toc a')];
-    const heads = links.map((a) => document.getElementById(a.getAttribute('href').slice(1)));
+export default function (rootElement, siteRuntime) {
+    const { clamp } = siteRuntime;
+    const articleBody = rootElement.querySelector('.article-body');
+    const progressBar = rootElement.querySelector('.article-progress i');
+    const tocLinks = [...rootElement.querySelectorAll('.article-toc a')];
+    const headingElements = tocLinks.map((tocLink) => document.getElementById(tocLink.getAttribute('href').slice(1)));
 
-    SC.onFrame.push(() => {
-        const r = art.getBoundingClientRect();
-        const p = clamp((innerHeight * 0.3 - r.top) / (r.height - innerHeight * 0.4), 0, 1);
-        bar.style.transform = `scaleY(${p.toFixed(4)})`;
-        let on = 0;
-        heads.forEach((h, i) => {
-            if (h && h.getBoundingClientRect().top < innerHeight * 0.35) {
-                on = i;
+    siteRuntime.frameCallbacks.push(() => {
+        const bodyRect = articleBody.getBoundingClientRect();
+        const progress = clamp((innerHeight * 0.3 - bodyRect.top) / (bodyRect.height - innerHeight * 0.4), 0, 1);
+        progressBar.style.transform = `scaleY(${progress.toFixed(4)})`;
+        let activeIndex = 0;
+        headingElements.forEach((headingElement, headingIndex) => {
+            if (headingElement && headingElement.getBoundingClientRect().top < innerHeight * 0.35) {
+                activeIndex = headingIndex;
             }
         });
-        links.forEach((a, i) => a.classList.toggle('on', i === on));
+        tocLinks.forEach((tocLink, linkIndex) => tocLink.classList.toggle('is-active', linkIndex === activeIndex));
     });
 }

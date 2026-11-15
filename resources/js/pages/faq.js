@@ -1,10 +1,10 @@
-export default function (el, SC) {
-    const rows = SC.$$('.xrow', el);
-    const toggles = rows.map((row) => {
-        const toggle = () => row.classList.toggle('open');
-        row.addEventListener('click', toggle);
-        return () => row.removeEventListener('click', toggle);
+export default function (rootElement, siteRuntime) {
+    const expandableRows = siteRuntime.queryAll('.accordion-item', rootElement);
+    const rowToggleRemovers = expandableRows.map((expandableRow) => {
+        const toggleRow = () => expandableRow.classList.toggle('is-open');
+        expandableRow.addEventListener('click', toggleRow);
+        return () => expandableRow.removeEventListener('click', toggleRow);
     });
 
-    return () => toggles.forEach((off) => off());
+    return () => rowToggleRemovers.forEach((removeToggle) => removeToggle());
 }

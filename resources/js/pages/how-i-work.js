@@ -1,15 +1,16 @@
-export default function (root, SC) {
-    const { $, $$, reduce } = SC;
-    const config = JSON.parse($('.fx-config', root).textContent);
-    const t = config.text;
-    const controller = new AbortController();
-    const { signal } = controller;
+export default function (rootElement, siteRuntime) {
+    const { queryOne, queryAll, prefersReducedMotion } = siteRuntime;
+    const config = JSON.parse(queryOne('.page-effect-config', rootElement).textContent);
+    const translations = config.text;
+    const abortController = new AbortController();
+    const { signal } = abortController;
     const timers = [];
-    let alive = true;
+    let isAlive = true;
 
-    const on = (target, type, handler, options = {}) => target.addEventListener(type, handler, { signal, ...options });
-    const html = (tag, className, text) => {
-        const node = document.createElement(tag);
+    const addListener = (target, eventType, handler, options = {}) =>
+        target.addEventListener(eventType, handler, { signal, ...options });
+    const createElement = (tagName, className, text) => {
+        const node = document.createElement(tagName);
         if (className) {
             node.className = className;
         }
@@ -18,396 +19,462 @@ export default function (root, SC) {
         }
         return node;
     };
-    const wait = (ms) =>
+    const waitMilliseconds = (milliseconds) =>
         new Promise((resolve) => {
-            const id = setTimeout(resolve, ms);
-            timers.push(id);
+            const timerId = setTimeout(resolve, milliseconds);
+            timers.push(timerId);
         });
 
-    const fit = $('#fit', root);
-    const rulesEl = $('.rules', fit);
-    const flow = $('#flow', fit);
-    const score = $('#fit-score', fit);
-    const icon = { x: '✕', w: '↻', v: '✓' };
-    let rIdx = 0;
-    let mode = 't';
+    const fitSection = queryOne('#method-fit-section', rootElement);
+    const rulesContainer = queryOne('.method-rules', fitSection);
+    const flowList = queryOne('#method-flow-list', fitSection);
+    const fitScore = queryOne('#method-fit-score-line', fitSection);
+    const statusIcons = { blocked: '✕', workaround: '↻', supported: '✓' };
+    let selectedRuleIndex = 0;
+    let fitMode = 'template';
 
-    config.rules.forEach((r, i) => {
-        const b = html('button', i === 0 ? 'on' : '', r.k);
-        b.type = 'button';
-        b.dataset.i = i;
-        rulesEl.appendChild(b);
+    config.rules.forEach((rule, ruleIndex) => {
+        const ruleButton = createElement('button', ruleIndex === 0 ? 'is-active' : '', rule.title);
+        ruleButton.type = 'button';
+        ruleButton.dataset.itemIndex = ruleIndex;
+        rulesContainer.appendChild(ruleButton);
     });
 
     const renderFit = () => {
-        const r = config.rules[rIdx];
-        const items = mode === 'c' ? r.c : r.t;
-        $$('.switch button', fit).forEach((b) => {
-            b.classList.toggle('on', b.dataset.m === mode);
-            b.classList.toggle('acc-on', b.dataset.m === 'c');
+        const selectedRule = config.rules[selectedRuleIndex];
+        const flowItems = fitMode === 'custom' ? selectedRule.custom_steps : selectedRule.template_steps;
+        queryAll('.segmented-toggle button', fitSection).forEach((switchButton) => {
+            switchButton.classList.toggle('is-active', switchButton.dataset.fitMode === fitMode);
+            switchButton.classList.toggle('is-accent', switchButton.dataset.fitMode === 'custom');
         });
-        $('#fit-title', fit).textContent = '«' + r.rule + '»';
-        flow.replaceChildren(
-            ...items.map((it, i) => {
-                const li = html('li', 'f-' + it[0]);
-                li.style.transitionDelay = i * 90 + 'ms';
-                li.append(html('i', '', icon[it[0]]), html('span', '', it[1]));
-                return li;
+        queryOne('#method-fit-rule-title', fitSection).textContent = '«' + selectedRule.rule + '»';
+        flowList.replaceChildren(
+            ...flowItems.map((flowItem, itemIndex) => {
+                const listItem = createElement('li', 'method-flow-step--' + flowItem[0]);
+                listItem.style.transitionDelay = itemIndex * 90 + 'ms';
+                listItem.append(
+                    createElement('i', '', statusIcons[flowItem[0]]),
+                    createElement('span', '', flowItem[1]),
+                );
+                return listItem;
             }),
         );
-        requestAnimationFrame(() => $$('#flow li', fit).forEach((li) => li.classList.add('in')));
-        const manual = items.filter((i) => i[0] === 'w').length;
-        const [before, after] = t.workarounds.split(':count');
-        const count = html('b', mode === 'c' ? 'ok' : '', mode === 'c' ? '0' : String(manual));
-        score.replaceChildren(before, count);
-        if (after) {
-            score.append(after);
+        requestAnimationFrame(() =>
+            queryAll('#method-flow-list li', fitSection).forEach((listItem) => listItem.classList.add('is-revealed')),
+        );
+        const manualWorkaroundCount = flowItems.filter((flowItem) => flowItem[0] === 'workaround').length;
+        const [textBefore, textAfter] = translations.workarounds.split(':count');
+        const workaroundCountElement = createElement(
+            'b',
+            fitMode === 'custom' ? 'is-success' : '',
+            fitMode === 'custom' ? '0' : String(manualWorkaroundCount),
+        );
+        fitScore.replaceChildren(textBefore, workaroundCountElement);
+        if (textAfter) {
+            fitScore.append(textAfter);
         }
-        if (mode !== 'c') {
-            score.append(' ', html('span', '', t.rule_stays_outside));
+        if (fitMode !== 'custom') {
+            fitScore.append(' ', createElement('span', '', translations.rule_stays_outside));
         }
     };
-    $$('.rules button', fit).forEach((b) =>
-        on(b, 'click', () => {
-            rIdx = Number(b.dataset.i);
-            $$('.rules button', fit).forEach((x) => x.classList.toggle('on', x === b));
+    queryAll('.method-rules button', fitSection).forEach((ruleButton) =>
+        addListener(ruleButton, 'click', () => {
+            selectedRuleIndex = Number(ruleButton.dataset.itemIndex);
+            queryAll('.method-rules button', fitSection).forEach((otherButton) =>
+                otherButton.classList.toggle('is-active', otherButton === ruleButton),
+            );
             renderFit();
         }),
     );
-    $$('.switch button', fit).forEach((b) =>
-        on(b, 'click', () => {
-            mode = b.dataset.m;
+    queryAll('.segmented-toggle button', fitSection).forEach((switchButton) =>
+        addListener(switchButton, 'click', () => {
+            fitMode = switchButton.dataset.fitMode;
             renderFit();
         }),
     );
     renderFit();
 
-    const tests = $('#tests', root);
-    const runs = $$('.run', tests);
-    const meter = $('.meter i', tests);
-    let ran = false;
-    const setState = (run, text) => (run.querySelector('b').textContent = text);
+    const testsSection = queryOne('#method-tests-section', rootElement);
+    const testRuns = queryAll('.method-check', testsSection);
+    const progressMeter = queryOne('.method-meter i', testsSection);
+    let hasRunTests = false;
+    const setRunState = (testRun, text) => (testRun.querySelector('b').textContent = text);
     const runTests = async () => {
-        runs.forEach((r) => {
-            r.classList.remove('done');
-            setState(r, t.waiting);
+        testRuns.forEach((testRun) => {
+            testRun.classList.remove('is-done');
+            setRunState(testRun, translations.waiting);
         });
-        meter.style.transform = 'scaleX(0)';
-        for (let i = 0; i < runs.length; i++) {
-            const isSecurity = runs[i].classList.contains('sec');
-            setState(runs[i], isSecurity ? t.analysing : t.running);
-            await wait(reduce ? 0 : 480);
-            if (!alive) {
+        progressMeter.style.transform = 'scaleX(0)';
+        for (let i = 0; i < testRuns.length; i++) {
+            const isSecurityRun = testRuns[i].classList.contains('section');
+            setRunState(testRuns[i], isSecurityRun ? translations.analysing : translations.running);
+            await waitMilliseconds(prefersReducedMotion ? 0 : 480);
+            if (!isAlive) {
                 return;
             }
-            runs[i].classList.add('done');
-            setState(runs[i], i === runs.length - 1 ? t.none : isSecurity ? t.clean : t.passed);
-            meter.style.transform = `scaleX(${(i + 1) / runs.length})`;
+            testRuns[i].classList.add('is-done');
+            setRunState(
+                testRuns[i],
+                i === testRuns.length - 1
+                    ? translations.none
+                    : isSecurityRun
+                      ? translations.clean
+                      : translations.passed,
+            );
+            progressMeter.style.transform = `scaleX(${(i + 1) / testRuns.length})`;
         }
     };
-    on($('#rerun', tests), 'click', runTests);
+    addListener(queryOne('#rerun-tests-button', testsSection), 'click', runTests);
 
-    const nav = $('#ma-nav', root);
-    const grid = $('#ma-grid', root);
-    const count = $('#modcount', root);
-    const addBtn = $('#addmod', root);
-    let n = 3;
-    const viz = (k) => {
-        const b = html('b', 'v-' + { bar: 'bar', chart: 'chart', rows: 'rows', phone: 'phone', ai: 'ai' }[k] || 'dots');
-        const kids = { bar: 1, chart: 5, rows: 3, phone: 0, ai: 0 }[k] ?? 5;
-        for (let i = 0; i < kids; i++) {
-            const bar = html('i');
-            if (k === 'chart') {
-                bar.style.height = [40, 65, 50, 85, 100][i] + '%';
+    const moduleNav = queryOne('#method-app-nav', rootElement);
+    const moduleGrid = queryOne('#method-app-grid', rootElement);
+    const moduleCountElement = queryOne('#module-count', rootElement);
+    const addModuleButton = queryOne('#add-module-button', rootElement);
+    let visibleModuleCount = 3;
+    const createVisualization = (visualizationType) => {
+        const visualizationElement = createElement(
+            'b',
+            'method-app-visual--' + { bar: 'bar', chart: 'chart', rows: 'rows', phone: 'phone', ai: 'ai' }[visualizationType] ||
+                'dots',
+        );
+        const childCount = { bar: 1, chart: 5, rows: 3, phone: 0, ai: 0 }[visualizationType] ?? 5;
+        for (let i = 0; i < childCount; i++) {
+            const barElement = createElement('i');
+            if (visualizationType === 'chart') {
+                barElement.style.height = [40, 65, 50, 85, 100][i] + '%';
             }
-            b.appendChild(bar);
+            visualizationElement.appendChild(barElement);
         }
-        if (k === 'ai') {
-            b.textContent = 'AI';
+        if (visualizationType === 'ai') {
+            visualizationElement.textContent = 'AI';
         }
-        return b;
+        return visualizationElement;
     };
-    const drawApp = (fresh) => {
-        const mods = config.modules.slice(0, n);
-        nav.replaceChildren(
-            ...mods.map((m, i) => {
-                const li = html('li', (i === 0 ? 'cur' : '') + (fresh && i === n - 1 ? ' fresh' : ''), m.name);
-                if (fresh && i === n - 1) {
-                    li.appendChild(html('em', '', t.new));
+    const drawApp = (isFreshModule) => {
+        const visibleModules = config.modules.slice(0, visibleModuleCount);
+        moduleNav.replaceChildren(
+            ...visibleModules.map((moduleData, moduleIndex) => {
+                const navItem = createElement(
+                    'li',
+                    (moduleIndex === 0 ? 'cur' : '') +
+                        (isFreshModule && moduleIndex === visibleModuleCount - 1 ? ' fresh' : ''),
+                    moduleData.name,
+                );
+                if (isFreshModule && moduleIndex === visibleModuleCount - 1) {
+                    navItem.appendChild(createElement('em', '', translations.new));
                 }
-                return li;
+                return navItem;
             }),
         );
-        grid.replaceChildren(
-            ...mods.map((m, i) => {
-                const card = html('div', 'ma-card' + (fresh && i === n - 1 ? ' fresh' : ''));
-                card.append(html('span', '', m.name), html('strong', '', m.value), html('small', '', m.label), viz(m.viz));
-                return card;
+        moduleGrid.replaceChildren(
+            ...visibleModules.map((moduleData, moduleIndex) => {
+                const moduleCard = createElement(
+                    'div',
+                    'method-app-card' + (isFreshModule && moduleIndex === visibleModuleCount - 1 ? ' fresh' : ''),
+                );
+                moduleCard.append(
+                    createElement('span', '', moduleData.name),
+                    createElement('strong', '', moduleData.value),
+                    createElement('small', '', moduleData.label),
+                    createVisualization(moduleData.visualization),
+                );
+                return moduleCard;
             }),
         );
-        count.textContent = t.modules.replace(':count', String(n));
+        moduleCountElement.textContent = translations.modules.replace(':count', String(visibleModuleCount));
     };
     drawApp(false);
-    on(addBtn, 'click', () => {
-        if (n >= config.modules.length) {
-            n = 3;
+    addListener(addModuleButton, 'click', () => {
+        if (visibleModuleCount >= config.modules.length) {
+            visibleModuleCount = 3;
             drawApp(false);
         } else {
-            n++;
+            visibleModuleCount++;
             drawApp(true);
         }
-        addBtn.querySelector('span').textContent = n >= config.modules.length ? t.restart : t.add_module;
+        addModuleButton.querySelector('span').textContent =
+            visibleModuleCount >= config.modules.length ? translations.restart : translations.add_module;
     });
 
-    const autos = $('#autos', root);
-    const alog = $('#alog', root);
-    const manualEl = $('#manual', root);
-    const total = config.automations.length;
-    const idleItem = () => html('li', 'idle', t.all_manual);
-    autos.replaceChildren(
-        ...config.automations.map((a, i) => {
-            const b = html('button', 'auto');
-            b.type = 'button';
-            b.dataset.i = i;
-            b.setAttribute('aria-pressed', 'false');
-            const txt = html('span', 'a-txt');
-            txt.append(html('b', '', a.name), html('span', 'pain', a.pain), html('span', 'fixed', t.done_automatically));
-            const sw = html('span', 'a-sw');
-            sw.appendChild(html('i'));
-            b.append(txt, sw);
-            return b;
+    const automationsList = queryOne('#automation-list', rootElement);
+    const automationLog = queryOne('#automation-log', rootElement);
+    const manualCounter = queryOne('#manual-counter', rootElement);
+    const totalAutomations = config.automations.length;
+    const createIdleItem = () => createElement('li', 'is-idle', translations.all_manual);
+    automationsList.replaceChildren(
+        ...config.automations.map((automation, automationIndex) => {
+            const automationButton = createElement('button', 'method-auto');
+            automationButton.type = 'button';
+            automationButton.dataset.itemIndex = automationIndex;
+            automationButton.setAttribute('aria-pressed', 'false');
+            const textWrapper = createElement('span', 'method-auto-text');
+            textWrapper.append(
+                createElement('b', '', automation.name),
+                createElement('span', 'method-auto-pain', automation.pain),
+                createElement('span', 'method-auto-fixed', translations.done_automatically),
+            );
+            const switchWrapper = createElement('span', 'method-auto-switch');
+            switchWrapper.appendChild(createElement('i'));
+            automationButton.append(textWrapper, switchWrapper);
+            return automationButton;
         }),
     );
-    alog.replaceChildren(idleItem());
-    let clock = 8 * 60 + 2;
-    const stamp = () => {
-        clock += 3 + Math.floor(Math.random() * 9);
-        return String(Math.floor(clock / 60) % 24).padStart(2, '0') + ':' + String(clock % 60).padStart(2, '0');
-    };
-    const pushLog = (i) => {
-        alog.querySelector('.idle')?.remove();
-        const a = config.automations[i];
-        const li = html('li');
-        li.append(
-            html('time', '', stamp()),
-            html('i', '', '✓'),
-            html('span', '', a.ev[Math.floor(Math.random() * a.ev.length)]),
+    automationLog.replaceChildren(createIdleItem());
+    let clockMinutes = 8 * 60 + 2;
+    const createTimestamp = () => {
+        clockMinutes += 3 + Math.floor(Math.random() * 9);
+        return (
+            String(Math.floor(clockMinutes / 60) % 24).padStart(2, '0') +
+            ':' +
+            String(clockMinutes % 60).padStart(2, '0')
         );
-        alog.prepend(li);
-        requestAnimationFrame(() => li.classList.add('in'));
-        while (alog.children.length > 4) {
-            alog.lastChild.remove();
+    };
+    const pushLogEntry = (automationIndex) => {
+        automationLog.querySelector('.is-idle')?.remove();
+        const automation = config.automations[automationIndex];
+        const logItem = createElement('li');
+        logItem.append(
+            createElement('time', '', createTimestamp()),
+            createElement('i', '', '✓'),
+            createElement('span', '', automation.events[Math.floor(Math.random() * automation.events.length)]),
+        );
+        automationLog.prepend(logItem);
+        requestAnimationFrame(() => logItem.classList.add('is-revealed'));
+        while (automationLog.children.length > 4) {
+            automationLog.lastChild.remove();
         }
     };
-    const onIdx = () =>
-        $$('.auto', autos)
-            .filter((b) => b.getAttribute('aria-pressed') === 'true')
-            .map((b) => Number(b.dataset.i));
-    const renderManual = (active) => {
-        manualEl.textContent = t.by_hand.replace(':left', String(total - active)).replace(':total', String(total));
-        manualEl.classList.toggle('ok', active === total);
+    const getActiveAutomationIndexes = () =>
+        queryAll('.method-auto', automationsList)
+            .filter((automationButton) => automationButton.getAttribute('aria-pressed') === 'true')
+            .map((automationButton) => Number(automationButton.dataset.itemIndex));
+    const renderManualCounter = (activeCount) => {
+        manualCounter.textContent = translations.by_hand
+            .replace(':left', String(totalAutomations - activeCount))
+            .replace(':total', String(totalAutomations));
+        manualCounter.classList.toggle('is-success', activeCount === totalAutomations);
     };
-    renderManual(0);
-    $$('.auto', autos).forEach((b) =>
-        on(b, 'click', () => {
-            const isOn = b.getAttribute('aria-pressed') !== 'true';
-            b.setAttribute('aria-pressed', String(isOn));
-            if (isOn) {
-                pushLog(Number(b.dataset.i));
+    renderManualCounter(0);
+    queryAll('.method-auto', automationsList).forEach((automationButton) =>
+        addListener(automationButton, 'click', () => {
+            const isNowActive = automationButton.getAttribute('aria-pressed') !== 'true';
+            automationButton.setAttribute('aria-pressed', String(isNowActive));
+            if (isNowActive) {
+                pushLogEntry(Number(automationButton.dataset.itemIndex));
             }
-            const active = onIdx().length;
-            renderManual(active);
-            if (!active) {
-                alog.replaceChildren(idleItem());
+            const activeCount = getActiveAutomationIndexes().length;
+            renderManualCounter(activeCount);
+            if (!activeCount) {
+                automationLog.replaceChildren(createIdleItem());
             }
         }),
     );
     timers.push(
         setInterval(() => {
-            const active = onIdx();
-            if (!active.length || reduce) {
+            const activeIndexes = getActiveAutomationIndexes();
+            if (!activeIndexes.length || prefersReducedMotion) {
                 return;
             }
-            const r = autos.getBoundingClientRect();
-            if (r.bottom < 0 || r.top > innerHeight) {
+            const automationsRect = automationsList.getBoundingClientRect();
+            if (automationsRect.bottom < 0 || automationsRect.top > innerHeight) {
                 return;
             }
-            pushLog(active[Math.floor(Math.random() * active.length)]);
+            pushLogEntry(activeIndexes[Math.floor(Math.random() * activeIndexes.length)]);
         }, 2400),
     );
 
-    const validate = (id, test, ok, bad) => {
-        const f = $(id, root);
-        const input = f.querySelector('input');
-        const msg = f.querySelector('.msg');
-        on(input, 'input', () => {
-            const v = input.value.trim();
-            f.classList.remove('good', 'bad');
-            if (!v) {
-                msg.textContent = t.write_something;
+    const setupFieldValidation = (fieldSelector, isValueValid, okMessage, badMessage) => {
+        const fieldElement = queryOne(fieldSelector, rootElement);
+        const inputElement = fieldElement.querySelector('input');
+        const messageElement = fieldElement.querySelector('.method-field-message');
+        addListener(inputElement, 'input', () => {
+            const trimmedValue = inputElement.value.trim();
+            fieldElement.classList.remove('is-valid', 'is-invalid');
+            if (!trimmedValue) {
+                messageElement.textContent = translations.write_something;
                 return;
             }
-            const passes = test(v);
-            f.classList.add(passes ? 'good' : 'bad');
-            msg.textContent = passes ? ok : bad;
+            const isValid = isValueValid(trimmedValue);
+            fieldElement.classList.add(isValid ? 'is-valid' : 'is-invalid');
+            messageElement.textContent = isValid ? okMessage : badMessage;
         });
     };
-    validate('#f-mail', (v) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v), t.email_ok, t.email_bad);
-    validate('#f-iva', (v) => /^\d{11}$/.test(v), t.vat_ok, t.vat_bad);
+    setupFieldValidation(
+        '#field-email',
+        (value) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(value),
+        translations.email_ok,
+        translations.email_bad,
+    );
+    setupFieldValidation('#field-vat-number', (value) => /^\d{11}$/.test(value), translations.vat_ok, translations.vat_bad);
 
-    const tabs = $$('.uix-tabs button', root);
-    tabs.forEach((b) =>
-        on(b, 'click', () => {
-            tabs.forEach((x) => x.classList.toggle('on', x === b));
-            $$('.uix-pane', root).forEach((p) => p.classList.toggle('on', p.dataset.p === b.dataset.t));
+    const tabButtons = queryAll('.method-ui-tabs button', rootElement);
+    tabButtons.forEach((tabButton) =>
+        addListener(tabButton, 'click', () => {
+            tabButtons.forEach((otherTab) => otherTab.classList.toggle('is-active', otherTab === tabButton));
+            queryAll('.method-ui-pane', rootElement).forEach((paneElement) =>
+                paneElement.classList.toggle('is-active', paneElement.dataset.paneIndex === tabButton.dataset.tabIndex),
+            );
         }),
     );
 
-    let dragged = null;
-    const kbCols = $$('.kb-col', root);
-    const place = (card, col) => {
-        col.appendChild(card);
-        card.classList.toggle('done', col.dataset.c === '2');
-        card.classList.remove('pop');
-        void card.offsetWidth;
-        card.classList.add('pop');
+    let draggedCard = null;
+    const kanbanColumns = queryAll('.method-kanban-column', rootElement);
+    const placeCardInColumn = (cardElement, columnElement) => {
+        columnElement.appendChild(cardElement);
+        cardElement.classList.toggle('is-done', columnElement.dataset.columnIndex === '2');
+        cardElement.classList.remove('is-added');
+        void cardElement.offsetWidth;
+        cardElement.classList.add('is-added');
     };
-    $$('.kb-card', root).forEach((c) => {
-        on(c, 'dragstart', (e) => {
-            dragged = c;
-            c.classList.add('lift');
-            e.dataTransfer.effectAllowed = 'move';
+    queryAll('.method-kanban-card', rootElement).forEach((cardElement) => {
+        addListener(cardElement, 'dragstart', (event) => {
+            draggedCard = cardElement;
+            cardElement.classList.add('is-dragging');
+            event.dataTransfer.effectAllowed = 'move';
             try {
-                e.dataTransfer.setData('text/plain', 'x');
+                event.dataTransfer.setData('text/plain', 'x');
             } catch (_) {
                 /* some browsers refuse setData */
             }
         });
-        on(c, 'dragend', () => {
-            c.classList.remove('lift');
-            kbCols.forEach((k) => k.classList.remove('over'));
-            dragged = null;
+        addListener(cardElement, 'dragend', () => {
+            cardElement.classList.remove('is-dragging');
+            kanbanColumns.forEach((columnElement) => columnElement.classList.remove('is-drop-target'));
+            draggedCard = null;
         });
-        on(c, 'click', () => place(c, kbCols[(Number(c.parentElement.dataset.c) + 1) % 3]));
+        addListener(cardElement, 'click', () =>
+            placeCardInColumn(
+                cardElement,
+                kanbanColumns[(Number(cardElement.parentElement.dataset.columnIndex) + 1) % 3],
+            ),
+        );
     });
-    kbCols.forEach((col) => {
-        on(col, 'dragover', (e) => {
-            e.preventDefault();
-            col.classList.add('over');
+    kanbanColumns.forEach((columnElement) => {
+        addListener(columnElement, 'dragover', (event) => {
+            event.preventDefault();
+            columnElement.classList.add('is-drop-target');
         });
-        on(col, 'dragleave', () => col.classList.remove('over'));
-        on(col, 'drop', (e) => {
-            e.preventDefault();
-            col.classList.remove('over');
-            if (dragged) {
-                place(dragged, col);
+        addListener(columnElement, 'dragleave', () => columnElement.classList.remove('is-drop-target'));
+        addListener(columnElement, 'drop', (event) => {
+            event.preventDefault();
+            columnElement.classList.remove('is-drop-target');
+            if (draggedCard) {
+                placeCardInColumn(draggedCard, columnElement);
             }
         });
     });
 
-    const sign = $('.ph-sign', root);
-    const sx = sign.getContext('2d');
-    const send = $('.ph-send', root);
-    const checks = $$('.chk', root);
-    let signed = false;
-    let sd = false;
-    let sl = null;
-    const check = () => {
-        send.disabled = !(checks.every((c) => c.classList.contains('on')) && signed);
+    const signatureCanvas = queryOne('.method-phone-signature', rootElement);
+    const signatureContext = signatureCanvas.getContext('2d');
+    const sendButton = queryOne('.method-phone-send', rootElement);
+    const checkboxes = queryAll('.method-phone-check', rootElement);
+    let isSigned = false;
+    let isSigning = false;
+    let lastSignaturePoint = null;
+    const updateSendButtonState = () => {
+        sendButton.disabled = !(checkboxes.every((checkbox) => checkbox.classList.contains('is-active')) && isSigned);
     };
-    const clearSign = () => {
-        sx.fillStyle = '#F1F0EC';
-        sx.fillRect(0, 0, sign.width, sign.height);
-        sx.strokeStyle = '#C9C8C3';
-        sx.beginPath();
-        sx.moveTo(20, 96);
-        sx.lineTo(440, 96);
-        sx.stroke();
+    const clearSignature = () => {
+        signatureContext.fillStyle = '#F1F0EC';
+        signatureContext.fillRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+        signatureContext.strokeStyle = '#C9C8C3';
+        signatureContext.beginPath();
+        signatureContext.moveTo(20, 96);
+        signatureContext.lineTo(440, 96);
+        signatureContext.stroke();
     };
-    clearSign();
-    const sp = (e) => {
-        const r = sign.getBoundingClientRect();
-        return [((e.clientX - r.left) / r.width) * sign.width, ((e.clientY - r.top) / r.height) * sign.height];
+    clearSignature();
+    const getSignaturePoint = (event) => {
+        const canvasRect = signatureCanvas.getBoundingClientRect();
+        return [
+            ((event.clientX - canvasRect.left) / canvasRect.width) * signatureCanvas.width,
+            ((event.clientY - canvasRect.top) / canvasRect.height) * signatureCanvas.height,
+        ];
     };
-    on(sign, 'pointerdown', (e) => {
-        sd = true;
-        sl = sp(e);
-        sign.setPointerCapture(e.pointerId);
+    addListener(signatureCanvas, 'pointerdown', (event) => {
+        isSigning = true;
+        lastSignaturePoint = getSignaturePoint(event);
+        signatureCanvas.setPointerCapture(event.pointerId);
     });
-    on(sign, 'pointermove', (e) => {
-        if (!sd) {
+    addListener(signatureCanvas, 'pointermove', (event) => {
+        if (!isSigning) {
             return;
         }
-        const p = sp(e);
-        sx.strokeStyle = '#0A0A0A';
-        sx.lineWidth = 3;
-        sx.lineCap = 'round';
-        sx.beginPath();
-        sx.moveTo(sl[0], sl[1]);
-        sx.lineTo(p[0], p[1]);
-        sx.stroke();
-        sl = p;
-        signed = true;
-        check();
+        const currentPoint = getSignaturePoint(event);
+        signatureContext.strokeStyle = '#0A0A0A';
+        signatureContext.lineWidth = 3;
+        signatureContext.lineCap = 'round';
+        signatureContext.beginPath();
+        signatureContext.moveTo(lastSignaturePoint[0], lastSignaturePoint[1]);
+        signatureContext.lineTo(currentPoint[0], currentPoint[1]);
+        signatureContext.stroke();
+        lastSignaturePoint = currentPoint;
+        isSigned = true;
+        updateSendButtonState();
     });
-    on(window, 'pointerup', () => (sd = false));
-    checks.forEach((c) =>
-        on(c, 'click', () => {
-            c.classList.toggle('on');
-            check();
+    addListener(window, 'pointerup', () => (isSigning = false));
+    checkboxes.forEach((checkbox) =>
+        addListener(checkbox, 'click', () => {
+            checkbox.classList.toggle('is-active');
+            updateSendButtonState();
         }),
     );
-    on(send, 'click', () => {
-        send.textContent = t.report_sent;
-        send.classList.add('sent');
+    addListener(sendButton, 'click', () => {
+        sendButton.textContent = translations.report_sent;
+        sendButton.classList.add('is-sent');
         timers.push(
             setTimeout(() => {
-                send.textContent = t.close_job;
-                send.classList.remove('sent');
-                checks.forEach((c) => c.classList.remove('on'));
-                signed = false;
-                clearSign();
-                check();
+                sendButton.textContent = translations.close_job;
+                sendButton.classList.remove('is-sent');
+                checkboxes.forEach((checkbox) => checkbox.classList.remove('is-active'));
+                isSigned = false;
+                clearSignature();
+                updateSendButtonState();
             }, 2600),
         );
     });
 
-    const cfg = { mat: 'rovere', len: '160', del: 'std' };
-    const MAT = { rovere: ['#B8895A', 0], noce: ['#6B4A33', 180], nero: ['#1A1A1A', 120] };
-    const LEN = { 120: [0.6, 980], 160: [0.8, 1240], 200: [1, 1520] };
-    const drawCfg = () => {
-        const o = $('#cfg-obj', root);
-        o.style.background = MAT[cfg.mat][0];
-        o.style.width = LEN[cfg.len][0] * 100 + '%';
-        o.style.borderColor = cfg.mat === 'nero' ? '#3A3A3A' : 'transparent';
-        $('#cfg-dim', root).textContent = cfg.len + ' cm';
-        const price = LEN[cfg.len][1] + MAT[cfg.mat][1] + (cfg.del === 'exp' ? 90 : 0);
-        $('#cfg-price', root).textContent = '€ ' + price.toLocaleString(config.locale);
+    const configuratorSelection = { material: 'rovere', length: '160', delivery: 'std' };
+    const materialOptions = { rovere: ['#B8895A', 0], noce: ['#6B4A33', 180], nero: ['#1A1A1A', 120] };
+    const lengthOptions = { 120: [0.6, 980], 160: [0.8, 1240], 200: [1, 1520] };
+    const drawConfigurator = () => {
+        const objectElement = queryOne('#configurator-object', rootElement);
+        objectElement.style.background = materialOptions[configuratorSelection.material][0];
+        objectElement.style.width = lengthOptions[configuratorSelection.length][0] * 100 + '%';
+        objectElement.style.borderColor = configuratorSelection.material === 'nero' ? '#3A3A3A' : 'transparent';
+        queryOne('#configurator-dimensions', rootElement).textContent = configuratorSelection.length + ' cm';
+        const totalPrice =
+            lengthOptions[configuratorSelection.length][1] +
+            materialOptions[configuratorSelection.material][1] +
+            (configuratorSelection.delivery === 'exp' ? 90 : 0);
+        queryOne('#configurator-price', rootElement).textContent = '€ ' + totalPrice.toLocaleString(config.locale);
     };
-    $$('.cfg-row', root).forEach((row) =>
-        $$('button', row).forEach((b) =>
-            on(b, 'click', () => {
-                $$('button', row).forEach((x) => x.classList.toggle('on', x === b));
-                cfg[row.dataset.k] = b.dataset.v;
-                drawCfg();
+    queryAll('.method-config-row', rootElement).forEach((optionRow) =>
+        queryAll('button', optionRow).forEach((optionButton) =>
+            addListener(optionButton, 'click', () => {
+                queryAll('button', optionRow).forEach((otherButton) =>
+                    otherButton.classList.toggle('is-active', otherButton === optionButton),
+                );
+                configuratorSelection[optionRow.dataset.optionGroup] = optionButton.dataset.optionValue;
+                drawConfigurator();
             }),
         ),
     );
-    drawCfg();
+    drawConfigurator();
 
-    SC.onFrame.push(() => {
-        if (!ran && tests.getBoundingClientRect().top < innerHeight * 0.7) {
-            ran = true;
+    siteRuntime.frameCallbacks.push(() => {
+        if (!hasRunTests && testsSection.getBoundingClientRect().top < innerHeight * 0.7) {
+            hasRunTests = true;
             runTests();
         }
     });
 
     return () => {
-        alive = false;
-        controller.abort();
-        timers.forEach((id) => {
-            clearTimeout(id);
-            clearInterval(id);
+        isAlive = false;
+        abortController.abort();
+        timers.forEach((timerId) => {
+            clearTimeout(timerId);
+            clearInterval(timerId);
         });
     };
 }

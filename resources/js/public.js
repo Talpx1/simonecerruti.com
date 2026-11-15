@@ -1,336 +1,367 @@
-const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const fine = window.matchMedia('(pointer: fine)').matches;
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const lerp = (a, b, t) => a + (b - a) * t;
-const smooth = (a, b, v) => {
-    const t = clamp((v - a) / (b - a), 0, 1);
-    return t * t * (3 - 2 * t);
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+const clamp = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value));
+const linearInterpolate = (from, to, progress) => from + (to - from) * progress;
+const smoothStep = (edgeStart, edgeEnd, value) => {
+    const progress = clamp((value - edgeStart) / (edgeEnd - edgeStart), 0, 1);
+    return progress * progress * (3 - 2 * progress);
 };
-const $ = (s, r) => (r || document).querySelector(s);
-const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
-const mouse = { x: innerWidth * 0.6, y: innerHeight * 0.5, sx: innerWidth * 0.6, sy: innerHeight * 0.5, moved: false };
+const queryOne = (selector, root) => (root || document).querySelector(selector);
+const queryAll = (selector, root) => Array.from((root || document).querySelectorAll(selector));
+const pointer = {
+    x: innerWidth * 0.6,
+    y: innerHeight * 0.5,
+    smoothX: innerWidth * 0.6,
+    smoothY: innerHeight * 0.5,
+    hasMoved: false,
+};
 
-const SC = (window.SC = { reduce, fine, clamp, lerp, smooth, $, $$, mouse, onFrame: [] });
+const siteRuntime = (window.siteRuntime = {
+    prefersReducedMotion,
+    hasFinePointer,
+    clamp,
+    linearInterpolate,
+    smoothStep,
+    queryOne,
+    queryAll,
+    pointer,
+    frameCallbacks: [],
+});
 
-const effects = import.meta.glob('./pages/*.js');
+const effectLoaders = import.meta.glob('./pages/*.js');
 
-let page = emptyPage();
-let cleanups = [];
-let refreshed_main = null;
-let logo_drawn = false;
+let pageState = createEmptyPageState();
+let cleanupCallbacks = [];
+let lastRefreshedMain = null;
+let hasLogoIntroPlayed = false;
 
-function emptyPage() {
-    return { letters: [], scrubs: [], mags: [], bar: null, navCta: null, heroCta: null, nav_shown: false };
+function createEmptyPageState() {
+    return {
+        variableLetters: [],
+        scrollLitStatements: [],
+        magneticElements: [],
+        scrollProgressBar: null,
+        navigationCta: null,
+        heroCta: null,
+        isNavigationCtaShown: false,
+    };
 }
 
 function resetPage() {
-    cleanups.forEach((fn) => {
+    cleanupCallbacks.forEach((cleanup) => {
         try {
-            fn();
-        } catch (e) {
-            console.error(e);
+            cleanup();
+        } catch (error) {
+            console.error(error);
         }
     });
-    cleanups = [];
-    SC.onFrame.length = 0;
-    page = emptyPage();
+    cleanupCallbacks = [];
+    siteRuntime.frameCallbacks.length = 0;
+    pageState = createEmptyPageState();
 }
 
-function splitLetters() {
-    $$('[data-split]').forEach((el, li) => {
-        const text = el.textContent;
-        el.textContent = '';
-        el.setAttribute('aria-hidden', 'true');
-        let i = 0;
+function splitVariableLetters() {
+    queryAll('[data-variable-letters]').forEach((element, elementIndex) => {
+        const text = element.textContent;
+        element.textContent = '';
+        element.setAttribute('aria-hidden', 'true');
+        let letterIndex = 0;
         text.split(/(\s+)/).forEach((chunk) => {
             if (chunk === '') {
                 return;
             }
             if (/^\s+$/.test(chunk)) {
-                el.appendChild(document.createTextNode(' '));
-                i += chunk.length;
+                element.appendChild(document.createTextNode(' '));
+                letterIndex += chunk.length;
                 return;
             }
-            const word = document.createElement('span');
-            word.className = 'vw';
-            for (const ch of chunk) {
-                const s = document.createElement('span');
-                s.className = 'vf';
-                s.textContent = ch;
-                s.style.animationDelay = li * 0.12 + i * 0.025 + 's';
-                word.appendChild(s);
-                page.letters.push({ el: s, w: 850, s: 100 });
-                i++;
+            const wordElement = document.createElement('span');
+            wordElement.className = 'variable-word';
+            for (const character of chunk) {
+                const letterElement = document.createElement('span');
+                letterElement.className = 'variable-letter';
+                letterElement.textContent = character;
+                letterElement.style.animationDelay = elementIndex * 0.12 + letterIndex * 0.025 + 's';
+                wordElement.appendChild(letterElement);
+                pageState.variableLetters.push({ element: letterElement, weight: 850, width: 100 });
+                letterIndex++;
             }
-            el.appendChild(word);
+            element.appendChild(wordElement);
         });
     });
 }
 
-function bindMenu() {
-    const burger = $('#burger');
-    const mmenu = $('#mmenu');
-    if (!burger || !mmenu) {
+function bindMobileMenu() {
+    const burgerButton = queryOne('#mobile-menu-toggle');
+    const mobileMenu = queryOne('#mobile-menu');
+    if (!burgerButton || !mobileMenu) {
         return;
     }
-    const set = (open) => {
-        mmenu.classList.toggle('open', open);
-        burger.setAttribute('aria-expanded', String(open));
-        burger.textContent = open ? burger.dataset.labelClose : burger.dataset.labelOpen;
-        document.body.style.overflow = open ? 'hidden' : '';
+    const setMenuOpen = (isOpen) => {
+        mobileMenu.classList.toggle('is-open', isOpen);
+        burgerButton.setAttribute('aria-expanded', String(isOpen));
+        burgerButton.textContent = isOpen ? burgerButton.dataset.labelClose : burgerButton.dataset.labelOpen;
+        document.body.style.overflow = isOpen ? 'hidden' : '';
     };
-    burger.addEventListener('click', () => set(!mmenu.classList.contains('open')));
-    $$('a', mmenu).forEach((a) => a.addEventListener('click', () => set(false)));
-    const onKey = (e) => {
-        if (e.key === 'Escape') {
-            set(false);
+    burgerButton.addEventListener('click', () => setMenuOpen(!mobileMenu.classList.contains('is-open')));
+    queryAll('a', mobileMenu).forEach((link) => link.addEventListener('click', () => setMenuOpen(false)));
+    const closeOnEscape = (event) => {
+        if (event.key === 'Escape') {
+            setMenuOpen(false);
         }
     };
-    document.addEventListener('keydown', onKey);
-    cleanups.push(() => {
-        document.removeEventListener('keydown', onKey);
+    document.addEventListener('keydown', closeOnEscape);
+    cleanupCallbacks.push(() => {
+        document.removeEventListener('keydown', closeOnEscape);
         document.body.style.overflow = '';
     });
 }
 
 function bindCopyButtons() {
-    $$('[data-copy]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            const value = btn.dataset.copy;
-            const label = btn.textContent;
-            const done = (text) => {
-                btn.textContent = text;
+    queryAll('[data-copy]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const valueToCopy = button.dataset.copy;
+            const originalLabel = button.textContent;
+            const showFeedback = (feedbackText) => {
+                button.textContent = feedbackText;
                 setTimeout(() => {
-                    btn.textContent = label;
+                    button.textContent = originalLabel;
                 }, 1800);
             };
             if (navigator.clipboard) {
-                navigator.clipboard.writeText(value).then(
-                    () => done(btn.dataset.copied || value),
-                    () => done(value),
+                navigator.clipboard.writeText(valueToCopy).then(
+                    () => showFeedback(button.dataset.copied || valueToCopy),
+                    () => showFeedback(valueToCopy),
                 );
             } else {
-                done(value);
+                showFeedback(valueToCopy);
             }
         });
     });
 }
 
-function bindReveals() {
-    if ('IntersectionObserver' in window && !reduce) {
-        const io = new IntersectionObserver(
+function bindScrollReveals() {
+    if ('IntersectionObserver' in window && !prefersReducedMotion) {
+        const revealObserver = new IntersectionObserver(
             (entries) =>
-                entries.forEach((e) => {
-                    if (e.isIntersecting) {
-                        e.target.classList.add('in');
-                        io.unobserve(e.target);
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-revealed');
+                        revealObserver.unobserve(entry.target);
                     }
                 }),
             { rootMargin: '0px 0px -10% 0px' },
         );
-        $$('.rv').forEach((el) => io.observe(el));
-        cleanups.push(() => io.disconnect());
+        queryAll('.reveal').forEach((element) => revealObserver.observe(element));
+        cleanupCallbacks.push(() => revealObserver.disconnect());
     } else {
-        $$('.rv').forEach((el) => el.classList.add('in'));
+        queryAll('.reveal').forEach((element) => element.classList.add('is-revealed'));
     }
 }
 
-function bindScrubs() {
-    page.scrubs = $$('.scrub p').map((p) => {
-        const words = p.textContent.trim().split(/\s+/);
-        p.textContent = '';
-        const els = words.map((w, i) => {
-            const s = document.createElement('span');
-            s.className = 'wd' + (p.dataset.acc && new RegExp(p.dataset.acc).test(w) ? ' a' : '');
-            s.textContent = w;
-            p.appendChild(s);
-            if (i < words.length - 1) {
-                p.appendChild(document.createTextNode(' '));
+function bindScrollLitStatements() {
+    pageState.scrollLitStatements = queryAll('.scroll-lit p').map((paragraph) => {
+        const words = paragraph.textContent.trim().split(/\s+/);
+        paragraph.textContent = '';
+        const wordElements = words.map((word, wordIndex) => {
+            const wordElement = document.createElement('span');
+            const isAccentWord = paragraph.dataset.accentPattern && new RegExp(paragraph.dataset.accentPattern).test(word);
+            wordElement.className = 'scroll-lit-word' + (isAccentWord ? ' a' : '');
+            wordElement.textContent = word;
+            paragraph.appendChild(wordElement);
+            if (wordIndex < words.length - 1) {
+                paragraph.appendChild(document.createTextNode(' '));
             }
-            return s;
+            return wordElement;
         });
-        if (reduce) {
-            els.forEach((e) => e.classList.add('lit'));
+        if (prefersReducedMotion) {
+            wordElements.forEach((wordElement) => wordElement.classList.add('is-lit'));
         }
-        return { p, els };
+        return { paragraph, wordElements };
     });
 }
 
-function bindLogo() {
-    const arm = () => {
-        $$('.mark').forEach((m) => {
-            m.classList.add('drawn');
-            m.addEventListener('mouseenter', () => m.classList.add('flow'));
-            m.addEventListener('animationend', () => m.classList.remove('flow'));
+function bindLogoAnimation() {
+    const armLogos = () => {
+        queryAll('.site-brand').forEach((logo) => {
+            logo.classList.add('is-drawn');
+            logo.addEventListener('mouseenter', () => logo.classList.add('is-flowing'));
+            logo.addEventListener('animationend', () => logo.classList.remove('is-flowing'));
         });
     };
-    if (logo_drawn) {
-        arm();
+    if (hasLogoIntroPlayed) {
+        armLogos();
         return;
     }
-    logo_drawn = true;
-    setTimeout(arm, 1900);
+    hasLogoIntroPlayed = true;
+    setTimeout(armLogos, 1900);
 }
 
-async function runEffects() {
-    for (const el of $$('[data-fx]')) {
-        const loader = effects[`./pages/${el.dataset.fx}.js`];
-        if (!loader) {
+async function runPageEffects() {
+    for (const effectElement of queryAll('[data-effect]')) {
+        const loadEffect = effectLoaders[`./pages/${effectElement.dataset.effect}.js`];
+        if (!loadEffect) {
             continue;
         }
-        const module = await loader();
-        if (!el.isConnected) {
+        const effectModule = await loadEffect();
+        if (!effectElement.isConnected) {
             continue;
         }
-        const cleanup = module.default(el, SC);
+        const cleanup = effectModule.default(effectElement, siteRuntime);
         if (typeof cleanup === 'function') {
-            cleanups.push(cleanup);
+            cleanupCallbacks.push(cleanup);
         }
     }
 }
 
-function refresh() {
-    const main = $('main');
-    if (main && main === refreshed_main) {
+function refreshPage() {
+    const mainElement = queryOne('main');
+    if (mainElement && mainElement === lastRefreshedMain) {
         return;
     }
-    refreshed_main = main;
+    lastRefreshedMain = mainElement;
     resetPage();
 
-    if (fine && !reduce) {
-        document.body.classList.add('has-cursor');
+    if (hasFinePointer && !prefersReducedMotion) {
+        document.body.classList.add('has-custom-cursor');
     } else {
-        $$('.cur, .cur-dot').forEach((el) => (el.style.display = 'none'));
+        queryAll('.cursor-ring, .cursor-dot').forEach((element) => (element.style.display = 'none'));
     }
 
-    page.bar = $('.bar');
-    page.navCta = $('.nav-cta');
-    page.heroCta = $('.hero-cta');
-    page.mags = $$('.mag');
+    pageState.scrollProgressBar = queryOne('.scroll-progress');
+    pageState.navigationCta = queryOne('.site-nav-cta');
+    pageState.heroCta = queryOne('.home-hero-cta');
+    pageState.magneticElements = queryAll('.magnetic-hover');
 
-    splitLetters();
-    bindMenu();
+    splitVariableLetters();
+    bindMobileMenu();
     bindCopyButtons();
-    bindReveals();
-    bindScrubs();
-    bindLogo();
-    runEffects();
+    bindScrollReveals();
+    bindScrollLitStatements();
+    bindLogoAnimation();
+    runPageEffects();
 }
 
 addEventListener(
     'pointermove',
-    (e) => {
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-        mouse.moved = true;
-        const cur = $('.cur');
-        if (!cur) {
+    (event) => {
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+        pointer.hasMoved = true;
+        const cursorRing = queryOne('.cursor-ring');
+        if (!cursorRing) {
             return;
         }
-        const label = $('span', cur);
-        const t = e.target.closest ? e.target.closest('[data-cursor], a, button') : null;
-        if (t && t.dataset.cursor) {
-            cur.classList.add('big');
-            cur.classList.remove('hov');
-            label.textContent = t.dataset.cursor;
-        } else if (t) {
-            cur.classList.add('hov');
-            cur.classList.remove('big');
+        const cursorLabel = queryOne('span', cursorRing);
+        const hoveredElement = event.target.closest ? event.target.closest('[data-cursor], a, button') : null;
+        if (hoveredElement && hoveredElement.dataset.cursor) {
+            cursorRing.classList.add('is-labelled');
+            cursorRing.classList.remove('is-hovering');
+            cursorLabel.textContent = hoveredElement.dataset.cursor;
+        } else if (hoveredElement) {
+            cursorRing.classList.add('is-hovering');
+            cursorRing.classList.remove('is-labelled');
         } else {
-            cur.classList.remove('big', 'hov');
+            cursorRing.classList.remove('is-labelled', 'is-hovering');
         }
     },
     { passive: true },
 );
 
-let prevT = performance.now();
+let previousFrameTimestamp = performance.now();
 
-function frame(now) {
-    const dt = Math.min(0.05, (now - prevT) / 1000);
-    prevT = now;
-    const vw = innerWidth;
-    const vh = innerHeight;
-    const sy = scrollY;
-    const k = 1 - Math.pow(0.0008, dt);
-    mouse.sx = lerp(mouse.sx, mouse.x, k * 1.6);
-    mouse.sy = lerp(mouse.sy, mouse.y, k * 1.6);
+function renderFrame(timestamp) {
+    const deltaSeconds = Math.min(0.05, (timestamp - previousFrameTimestamp) / 1000);
+    previousFrameTimestamp = timestamp;
+    const viewportHeight = innerHeight;
+    const scrollOffset = scrollY;
+    const pointerSmoothing = 1 - Math.pow(0.0008, deltaSeconds);
+    pointer.smoothX = linearInterpolate(pointer.smoothX, pointer.x, pointerSmoothing * 1.6);
+    pointer.smoothY = linearInterpolate(pointer.smoothY, pointer.y, pointerSmoothing * 1.6);
 
-    const cur = $('.cur');
-    const dot = $('.cur-dot');
-    if (cur) {
-        cur.style.transform = `translate3d(${mouse.sx}px, ${mouse.sy}px, 0)`;
+    const cursorRing = queryOne('.cursor-ring');
+    const cursorDot = queryOne('.cursor-dot');
+    if (cursorRing) {
+        cursorRing.style.transform = `translate3d(${pointer.smoothX}px, ${pointer.smoothY}px, 0)`;
     }
-    if (dot) {
-        dot.style.transform = `translate3d(${mouse.x}px, ${mouse.y}px, 0)`;
-    }
-
-    const docH = document.documentElement.scrollHeight - vh;
-    if (page.bar) {
-        page.bar.style.transform = `scaleX(${docH > 0 ? sy / docH : 0})`;
+    if (cursorDot) {
+        cursorDot.style.transform = `translate3d(${pointer.x}px, ${pointer.y}px, 0)`;
     }
 
-    if (page.navCta) {
-        const show = page.heroCta ? page.heroCta.getBoundingClientRect().bottom < 0 : sy > vh * 0.6;
-        if (show !== page.nav_shown) {
-            page.nav_shown = show;
-            page.navCta.classList.toggle('show', show);
-            page.navCta.setAttribute('aria-hidden', String(!show));
-            page.navCta.tabIndex = show ? 0 : -1;
+    const scrollableHeight = document.documentElement.scrollHeight - viewportHeight;
+    if (pageState.scrollProgressBar) {
+        pageState.scrollProgressBar.style.transform = `scaleX(${scrollableHeight > 0 ? scrollOffset / scrollableHeight : 0})`;
+    }
+
+    if (pageState.navigationCta) {
+        const shouldShow = pageState.heroCta
+            ? pageState.heroCta.getBoundingClientRect().bottom < 0
+            : scrollOffset > viewportHeight * 0.6;
+        if (shouldShow !== pageState.isNavigationCtaShown) {
+            pageState.isNavigationCtaShown = shouldShow;
+            pageState.navigationCta.classList.toggle('is-visible', shouldShow);
+            pageState.navigationCta.setAttribute('aria-hidden', String(!shouldShow));
+            pageState.navigationCta.tabIndex = shouldShow ? 0 : -1;
         }
     }
 
-    if (fine && !reduce) {
-        page.mags.forEach((m) => {
-            const b = m.getBoundingClientRect();
-            const dx = mouse.x - (b.left + b.width / 2);
-            const dy = mouse.y - (b.top + b.height / 2);
-            const d = Math.hypot(dx, dy);
-            const f = d < 140 ? 1 - d / 140 : 0;
-            m.style.transform = `translate3d(${dx * f * 0.35}px, ${dy * f * 0.35}px, 0)`;
+    if (hasFinePointer && !prefersReducedMotion) {
+        pageState.magneticElements.forEach((element) => {
+            const bounds = element.getBoundingClientRect();
+            const offsetX = pointer.x - (bounds.left + bounds.width / 2);
+            const offsetY = pointer.y - (bounds.top + bounds.height / 2);
+            const distance = Math.hypot(offsetX, offsetY);
+            const pullStrength = distance < 140 ? 1 - distance / 140 : 0;
+            element.style.transform = `translate3d(${offsetX * pullStrength * 0.35}px, ${offsetY * pullStrength * 0.35}px, 0)`;
         });
     }
 
-    if (fine && !reduce && mouse.moved) {
-        for (const L of page.letters) {
-            const b = L.el.getBoundingClientRect();
-            if (b.bottom < -50 || b.top > vh + 50) {
+    if (hasFinePointer && !prefersReducedMotion && pointer.hasMoved) {
+        for (const letter of pageState.variableLetters) {
+            const bounds = letter.element.getBoundingClientRect();
+            if (bounds.bottom < -50 || bounds.top > viewportHeight + 50) {
                 continue;
             }
-            const d = Math.hypot(mouse.sx - (b.left + b.width / 2), mouse.sy - (b.top + b.height / 2));
-            const f = smooth(260, 0, d);
-            const tw = 850 - f * 650;
-            const ts = 100 + f * 25;
-            if (Math.abs(tw - L.w) > 2 || Math.abs(ts - L.s) > 0.5) {
-                L.w = lerp(L.w, tw, 0.25);
-                L.s = lerp(L.s, ts, 0.25);
-                L.el.style.setProperty('--w', L.w.toFixed(0));
-                L.el.style.setProperty('--s', L.s.toFixed(1));
+            const distance = Math.hypot(
+                pointer.smoothX - (bounds.left + bounds.width / 2),
+                pointer.smoothY - (bounds.top + bounds.height / 2),
+            );
+            const proximity = smoothStep(260, 0, distance);
+            const targetWeight = 850 - proximity * 650;
+            const targetWidth = 100 + proximity * 25;
+            if (Math.abs(targetWeight - letter.weight) > 2 || Math.abs(targetWidth - letter.width) > 0.5) {
+                letter.weight = linearInterpolate(letter.weight, targetWeight, 0.25);
+                letter.width = linearInterpolate(letter.width, targetWidth, 0.25);
+                letter.element.style.setProperty('--letter-weight', letter.weight.toFixed(0));
+                letter.element.style.setProperty('--letter-width', letter.width.toFixed(1));
             }
         }
     }
 
-    page.scrubs.forEach((sc) => {
-        if (reduce) {
+    pageState.scrollLitStatements.forEach((statement) => {
+        if (prefersReducedMotion) {
             return;
         }
-        const r = sc.p.getBoundingClientRect();
-        const p = clamp((vh * 0.85 - r.top) / (r.height + vh * 0.35), 0, 1);
-        const lit = Math.floor(p * sc.els.length * 1.08);
-        sc.els.forEach((w, i) => w.classList.toggle('lit', i < lit));
+        const bounds = statement.paragraph.getBoundingClientRect();
+        const scrollProgress = clamp((viewportHeight * 0.85 - bounds.top) / (bounds.height + viewportHeight * 0.35), 0, 1);
+        const litWordCount = Math.floor(scrollProgress * statement.wordElements.length * 1.08);
+        statement.wordElements.forEach((wordElement, wordIndex) =>
+            wordElement.classList.toggle('is-lit', wordIndex < litWordCount),
+        );
     });
 
-    SC.onFrame.forEach((fn) => fn(now, dt));
-    requestAnimationFrame(frame);
+    siteRuntime.frameCallbacks.forEach((callback) => callback(timestamp, deltaSeconds));
+    requestAnimationFrame(renderFrame);
 }
 
 document.addEventListener('livewire:navigating', resetPage);
-document.addEventListener('livewire:navigated', refresh);
+document.addEventListener('livewire:navigated', refreshPage);
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', refresh);
+    document.addEventListener('DOMContentLoaded', refreshPage);
 } else {
-    refresh();
+    refreshPage();
 }
 
-requestAnimationFrame(frame);
+requestAnimationFrame(renderFrame);
 window.__revealReady = true;

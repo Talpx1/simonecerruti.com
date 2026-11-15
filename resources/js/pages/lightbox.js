@@ -1,142 +1,143 @@
-export default function (el, SC) {
-    const labels = JSON.parse(el.dataset.labels || '{}');
-    const zoom_selector = 'img:not(.gallery img)';
-    let overlay = null;
-    let items = [];
-    let current = 0;
-    let last_focus = null;
-    let touch_start = null;
+export default function (rootElement, siteRuntime) {
+    const labels = JSON.parse(rootElement.dataset.labels || '{}');
+    const zoomSelector = 'img:not(.article-gallery img)';
+    let overlayElement = null;
+    let lightboxImages = [];
+    let currentIndex = 0;
+    let previouslyFocusedElement = null;
+    let touchStartX = null;
 
-    const describe = (img) => {
-        const caption = img.closest('figure')?.querySelector('figcaption');
-        return (caption ? caption.textContent : img.getAttribute('alt')) || '';
+    const describeImage = (image) => {
+        const captionElement = image.closest('figure')?.querySelector('figcaption');
+        return (captionElement ? captionElement.textContent : image.getAttribute('alt')) || '';
     };
 
-    const show = (index) => {
-        current = (index + items.length) % items.length;
-        const img = items[current];
-        const view = overlay.querySelector('img');
-        view.src = img.currentSrc || img.src;
-        view.alt = img.alt;
-        overlay.querySelector('.lb-c').textContent = describe(img);
-        overlay.querySelector('.lb-k').textContent = items.length > 1 ? `${current + 1} / ${items.length}` : '';
+    const showImage = (index) => {
+        currentIndex = (index + lightboxImages.length) % lightboxImages.length;
+        const currentImage = lightboxImages[currentIndex];
+        const viewImage = overlayElement.querySelector('img');
+        viewImage.src = currentImage.currentSrc || currentImage.src;
+        viewImage.alt = currentImage.alt;
+        overlayElement.querySelector('.lightbox-caption').textContent = describeImage(currentImage);
+        overlayElement.querySelector('.lightbox-counter').textContent =
+            lightboxImages.length > 1 ? `${currentIndex + 1} / ${lightboxImages.length}` : '';
     };
 
-    const close = () => {
-        if (!overlay) {
+    const closeLightbox = () => {
+        if (!overlayElement) {
             return;
         }
-        document.removeEventListener('keydown', on_key);
-        overlay.remove();
-        overlay = null;
+        document.removeEventListener('keydown', handleKeydown);
+        overlayElement.remove();
+        overlayElement = null;
         document.body.style.overflow = '';
-        if (last_focus) {
-            last_focus.focus();
+        if (previouslyFocusedElement) {
+            previouslyFocusedElement.focus();
         }
     };
 
-    function on_key(event) {
+    function handleKeydown(event) {
         if (event.key === 'Escape') {
-            close();
-        } else if (event.key === 'ArrowLeft' && items.length > 1) {
-            show(current - 1);
-        } else if (event.key === 'ArrowRight' && items.length > 1) {
-            show(current + 1);
+            closeLightbox();
+        } else if (event.key === 'ArrowLeft' && lightboxImages.length > 1) {
+            showImage(currentIndex - 1);
+        } else if (event.key === 'ArrowRight' && lightboxImages.length > 1) {
+            showImage(currentIndex + 1);
         }
     }
 
-    const open = (group, index) => {
-        close();
-        items = group;
-        last_focus = document.activeElement;
-        overlay = document.createElement('div');
-        overlay.className = items.length > 1 ? 'lb' : 'lb single';
-        overlay.setAttribute('role', 'dialog');
-        overlay.setAttribute('aria-modal', 'true');
-        overlay.setAttribute('aria-label', labels.gallery || '');
-        overlay.innerHTML =
-            '<button type="button" class="lb-x"></button>' +
-            '<button type="button" class="lb-n lb-p">←</button>' +
-            '<figure><img alt=""><figcaption><span class="lb-c"></span><b class="lb-k"></b></figcaption></figure>' +
-            '<button type="button" class="lb-n lb-nx">→</button>';
-        overlay.querySelector('.lb-x').textContent = '✕';
-        overlay.querySelector('.lb-x').setAttribute('aria-label', labels.close || '');
-        overlay.querySelector('.lb-p').setAttribute('aria-label', labels.previous || '');
-        overlay.querySelector('.lb-nx').setAttribute('aria-label', labels.next || '');
-        overlay.querySelector('.lb-x').addEventListener('click', close);
-        overlay.querySelector('.lb-p').addEventListener('click', () => show(current - 1));
-        overlay.querySelector('.lb-nx').addEventListener('click', () => show(current + 1));
-        overlay.addEventListener('click', (event) => {
-            if (event.target === overlay) {
-                close();
+    const openLightbox = (imageGroup, startIndex) => {
+        closeLightbox();
+        lightboxImages = imageGroup;
+        previouslyFocusedElement = document.activeElement;
+        overlayElement = document.createElement('div');
+        overlayElement.className = lightboxImages.length > 1 ? 'lightbox' : 'lightbox lightbox--single';
+        overlayElement.setAttribute('role', 'dialog');
+        overlayElement.setAttribute('aria-modal', 'true');
+        overlayElement.setAttribute('aria-label', labels.gallery || '');
+        overlayElement.innerHTML =
+            '<button type="button" class="lightbox-close"></button>' +
+            '<button type="button" class="lightbox-navigation lightbox-previous">←</button>' +
+            '<figure><img alt=""><figcaption><span class="lightbox-caption"></span><b class="lightbox-counter"></b></figcaption></figure>' +
+            '<button type="button" class="lightbox-navigation lightbox-next">→</button>';
+        overlayElement.querySelector('.lightbox-close').textContent = '✕';
+        overlayElement.querySelector('.lightbox-close').setAttribute('aria-label', labels.close || '');
+        overlayElement.querySelector('.lightbox-previous').setAttribute('aria-label', labels.previous || '');
+        overlayElement.querySelector('.lightbox-next').setAttribute('aria-label', labels.next || '');
+        overlayElement.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+        overlayElement.querySelector('.lightbox-previous').addEventListener('click', () => showImage(currentIndex - 1));
+        overlayElement.querySelector('.lightbox-next').addEventListener('click', () => showImage(currentIndex + 1));
+        overlayElement.addEventListener('click', (event) => {
+            if (event.target === overlayElement) {
+                closeLightbox();
             }
         });
-        overlay.addEventListener('touchstart', (event) => {
-            touch_start = event.touches[0].clientX;
+        overlayElement.addEventListener('touchstart', (event) => {
+            touchStartX = event.touches[0].clientX;
         });
-        overlay.addEventListener('touchend', (event) => {
-            if (touch_start === null || items.length < 2) {
+        overlayElement.addEventListener('touchend', (event) => {
+            if (touchStartX === null || lightboxImages.length < 2) {
                 return;
             }
-            const delta = event.changedTouches[0].clientX - touch_start;
-            if (Math.abs(delta) > 40) {
-                show(current + (delta < 0 ? 1 : -1));
+            const horizontalDelta = event.changedTouches[0].clientX - touchStartX;
+            if (Math.abs(horizontalDelta) > 40) {
+                showImage(currentIndex + (horizontalDelta < 0 ? 1 : -1));
             }
-            touch_start = null;
+            touchStartX = null;
         });
-        document.body.appendChild(overlay);
+        document.body.appendChild(overlayElement);
         document.body.style.overflow = 'hidden';
-        document.addEventListener('keydown', on_key);
-        show(index);
-        overlay.querySelector('.lb-x').focus();
+        document.addEventListener('keydown', handleKeydown);
+        showImage(startIndex);
+        overlayElement.querySelector('.lightbox-close').focus();
     };
 
-    const open_from = (target) => {
-        const gallery_figure = target.closest('.gallery figure');
-        if (gallery_figure) {
-            const group = SC.$$('img', gallery_figure.parentElement);
-            open(group, group.indexOf(gallery_figure.querySelector('img')));
+    const openFromTarget = (targetElement) => {
+        const galleryFigure = targetElement.closest('.article-gallery figure');
+        if (galleryFigure) {
+            const galleryImages = siteRuntime.queryAll('img', galleryFigure.parentElement);
+            openLightbox(galleryImages, galleryImages.indexOf(galleryFigure.querySelector('img')));
             return true;
         }
-        const img = target.closest(zoom_selector);
-        if (img && el.contains(img)) {
-            open([img], 0);
+        const zoomableImage = targetElement.closest(zoomSelector);
+        if (zoomableImage && rootElement.contains(zoomableImage)) {
+            openLightbox([zoomableImage], 0);
             return true;
         }
         return false;
     };
 
-    const on_click = (event) => {
+    const handleClick = (event) => {
         if (event.target.closest('a')) {
             return;
         }
-        open_from(event.target);
+        openFromTarget(event.target);
     };
 
-    const on_figure_key = (event) => {
-        if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('.gallery figure')) {
+    const handleFigureKeydown = (event) => {
+        if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('.article-gallery figure')) {
             event.preventDefault();
-            open_from(event.target);
+            openFromTarget(event.target);
         }
     };
 
-    SC.$$('img', el).forEach((img) => {
-        if (!img.closest('.gallery')) {
-            img.classList.add('lb-zoom');
+    siteRuntime.queryAll('img', rootElement).forEach((image) => {
+        if (!image.closest('.article-gallery')) {
+            image.classList.add('lightbox-zoomable');
         }
     });
-    SC.$$('.gallery figure', el).forEach((figure) => {
-        figure.tabIndex = 0;
-        figure.setAttribute('role', 'button');
-        figure.setAttribute('aria-label', labels.open || '');
+    siteRuntime.queryAll('.article-gallery figure', rootElement).forEach((figureElement) => {
+        figureElement.tabIndex = 0;
+        figureElement.setAttribute('role', 'button');
+        figureElement.setAttribute('aria-label', labels.open || '');
     });
 
-    el.addEventListener('click', on_click);
-    el.addEventListener('keydown', on_figure_key);
+    rootElement.addEventListener('click', handleClick);
+    rootElement.addEventListener('keydown', handleFigureKeydown);
 
     return () => {
-        el.removeEventListener('click', on_click);
-        el.removeEventListener('keydown', on_figure_key);
-        close();
+        rootElement.removeEventListener('click', handleClick);
+        rootElement.removeEventListener('keydown', handleFigureKeydown);
+        closeLightbox();
     };
 }
