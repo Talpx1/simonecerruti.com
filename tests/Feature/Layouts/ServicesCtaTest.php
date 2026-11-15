@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Enums\BlogCategories;
+use App\Enums\TagTypes;
 use App\Livewire\Pages\Home;
+use App\Models\Tag;
 use Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter;
 use Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect;
 
@@ -12,7 +13,7 @@ use function Pest\Livewire\livewire;
 beforeEach(fn () => $this->withoutVite());
 
 it('exposes a services CTA on the home page', function () {
-    BlogCategories::sync();
+    Tag::findOrCreate(['practical', 'technical'], TagTypes::BLOG_CATEGORY->value);
 
     livewire(Home::class)
         ->assertOk()

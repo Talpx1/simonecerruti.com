@@ -29,12 +29,7 @@ parameters:
         -
             identifier: function.alreadyNarrowedType
             paths:
-                - app/Enums/Concerns/HasModel.php
-                - app/Enums/Concerns/SeedDb.php
                 - app/Models/Concerns/HasSitemapTag.php
-        -
-            identifier: function.impossibleType
-            path: app/Enums/Concerns/SeedDb.php
         # Field text-transform macro closures are bound to a Field by Field::macro() at
         # registration; PHPStan cannot connect $this back from the Macro::register() contract.
         -
