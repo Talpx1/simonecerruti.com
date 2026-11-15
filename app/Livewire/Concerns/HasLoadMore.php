@@ -68,7 +68,7 @@ trait HasLoadMore {
             return true;
         }
 
-        return count($this->load_more_data[$key]) === 0;
+        return \count($this->load_more_data[$key]) === 0;
     }
 
     public function isLoadMoreNotEmpty(string $key): bool {

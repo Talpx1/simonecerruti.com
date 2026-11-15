@@ -36,7 +36,7 @@ class PanEventsWidget extends TableWidget {
         $records = [];
 
         foreach ($rows as $row) {
-            $name = is_string($row->name) ? $row->name : '';
+            $name = \is_string($row->name) ? $row->name : '';
             $id = is_numeric($row->id) ? (int) $row->id : 0;
 
             $records[$id] = [

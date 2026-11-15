@@ -8,15 +8,17 @@ use App\Enums\LeadReadStatus;
 use App\Models\Concerns\LogsAllDirtyChanges;
 use Carbon\CarbonImmutable;
 use Database\Factories\LeadFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * @property int $id
+ * @property string $id
  * @property class-string<ContactLead> $leadable_type
- * @property int $leadable_id
+ * @property string $leadable_id
  * @property CarbonImmutable|null $read_at
  * @property bool $is_pinned
  * @property CarbonImmutable $created_at
@@ -25,9 +27,10 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property-read string $source
  * @property-read ContactLead $leadable
  */
-class Lead extends Model {
+#[Fillable(['leadable_type', 'leadable_id', 'read_at', 'is_pinned'])]
+final class Lead extends Model {
     /** @use HasFactory<LeadFactory> */
-    use HasFactory, LogsAllDirtyChanges;
+    use HasFactory, HasUuids, LogsAllDirtyChanges;
 
     protected function casts(): array {
         return [

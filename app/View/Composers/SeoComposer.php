@@ -51,7 +51,7 @@ class SeoComposer {
             return $title.$separator.$app_name;
         }
 
-        return is_string($data['suffix'])
+        return \is_string($data['suffix'])
             ? $title.$separator.$data['suffix']
             : $title;
     }
@@ -64,7 +64,7 @@ class SeoComposer {
      * @param  array<array-key, mixed>  $data
      */
     private function stringField(array $data, string $key): ?string {
-        return isset($data[$key]) && is_string($data[$key]) && $data[$key] !== ''
+        return isset($data[$key]) && \is_string($data[$key]) && $data[$key] !== ''
             ? $data[$key]
             : null;
     }

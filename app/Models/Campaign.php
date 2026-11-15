@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\VisitMediumType;
+use App\Models\Concerns\LogsAllDirtyChanges;
 use Carbon\CarbonImmutable;
 use Database\Factories\CampaignFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Tags\HasTags;
 
 /**
- * @property int $id
+ * @property string $id
  * @property string $name
  * @property string $slug
  * @property string $source
@@ -26,9 +29,10 @@ use Spatie\Tags\HasTags;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
-class Campaign extends Model {
+#[Fillable(['name', 'slug', 'source', 'medium', 'description', 'starts_at', 'ends_at', 'notes'])]
+final class Campaign extends Model {
     /** @use HasFactory<CampaignFactory> */
-    use HasFactory, HasTags;
+    use HasFactory, HasTags, HasUuids, LogsAllDirtyChanges;
 
     protected function casts(): array {
         return [

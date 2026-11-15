@@ -12,7 +12,7 @@ final class GetAdjacentProjects {
     use AsAction;
 
     public function handle(Project $project): AdjacentProjectsData {
-        /** @var list<int> $ordered_ids */
+        /** @var list<string> $ordered_ids */
         $ordered_ids = Project::query()->featuredRanked()->pluck('id')->all();
 
         $position = \array_search($project->id, $ordered_ids, true);
@@ -33,7 +33,7 @@ final class GetAdjacentProjects {
 
         $projects = Project::query()
             ->with(['tags', 'media'])
-            ->whereIn('id', \array_filter([$previous_id, $next_id], static fn (?int $id): bool => $id !== null))
+            ->whereIn('id', \array_filter([$previous_id, $next_id], static fn (?string $id): bool => $id !== null))
             ->whereKeyNot($project->id)
             ->get()
             ->keyBy('id');

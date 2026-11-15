@@ -99,7 +99,7 @@ trait HasSeo {
     private function hasSeoNoindex(string $locale): bool {
         $robots = $this->seo?->getTranslation('robots', $locale, false);
 
-        return is_array($robots) && in_array(RobotsDirective::NOINDEX->value, $robots, true);
+        return \is_array($robots) && \in_array(RobotsDirective::NOINDEX->value, $robots, true);
     }
 
     /**
@@ -111,7 +111,7 @@ trait HasSeo {
     private function seoOverride(?Seo $seo, string $field): ?string {
         $value = $seo?->getTranslation($field, App::getLocale(), false);
 
-        return is_string($value) && $value !== '' ? $value : null;
+        return \is_string($value) && $value !== '' ? $value : null;
     }
 
     /**
@@ -166,7 +166,7 @@ trait HasSeo {
         // noindex does not bleed into other locales via the spatie fallback.
         $stored = $seo?->getTranslation('robots', App::getLocale(), false);
 
-        $directives = is_array($stored) && $stored !== []
+        $directives = \is_array($stored) && $stored !== []
             ? array_values(array_filter($stored, 'is_string'))
             : array_map(fn (RobotsDirective $directive): string => $directive->value, $config->robots);
 
@@ -244,13 +244,13 @@ trait HasSeo {
 
         // Per-property overrides for the current locale only (no fallback).
         $stored = $seo?->getTranslation('schema_overrides', App::getLocale(), false);
-        $overrides = is_array($stored) ? $stored : [];
+        $overrides = \is_array($stored) ? $stored : [];
 
         $node = ['@type' => $type];
 
         foreach ($config->schema as $property => $template) {
             $override = $overrides[$property] ?? null;
-            $value = $this->substituteSeoVars(is_string($override) ? $override : $template, $vars);
+            $value = $this->substituteSeoVars(\is_string($override) ? $override : $template, $vars);
 
             if ($value !== '') {
                 $node[$property] = $value;

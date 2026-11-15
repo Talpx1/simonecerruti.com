@@ -26,7 +26,7 @@ class EditBlogArticle extends EditRecord {
     protected function mutateFormDataBeforeSave(array $data): array {
         $status = $data['status'] ?? null;
 
-        if (is_string($status)) {
+        if (\is_string($status)) {
             $status = BlogArticleStatuses::tryFrom($status);
         }
 

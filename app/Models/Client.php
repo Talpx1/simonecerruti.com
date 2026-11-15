@@ -10,6 +10,7 @@ use Database\Factories\ClientFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,7 +21,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Translatable\HasTranslations;
 
 /**
- * @property int $id
+ * @property string $id
  * @property string $name
  * @property string|null $description
  * @property CarbonImmutable $created_at
@@ -29,9 +30,9 @@ use Spatie\Translatable\HasTranslations;
  * @property-read string|null $image_url
  */
 #[Fillable(['name', 'description'])]
-class Client extends Model implements HasMedia {
+final class Client extends Model implements HasMedia {
     /** @use HasFactory<ClientFactory> */
-    use HasFactory, HasTranslations, InteractsWithMedia, LogsAllDirtyChanges;
+    use HasFactory, HasTranslations, HasUuids, InteractsWithMedia, LogsAllDirtyChanges;
 
     /** @var list<string> */
     public array $translatable = ['description'];

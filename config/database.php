@@ -185,4 +185,6 @@ return [
 
     ],
 
+    'seeders_allowed_environments' => array_filter(explode(',', (string) env('SEEDERS_ALLOWED_ENVIRONMENTS', 'local,testing'))),
+
 ];

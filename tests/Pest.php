@@ -11,17 +11,26 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Settings\BlogSettings;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\Sleep;
+use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Livewire\Features\SupportTesting\Testable;
 use Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter;
 use Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect;
+use Spatie\Activitylog\Models\Activity;
 use Tests\TestCase;
 
 use function Pest\Laravel\actingAs;
@@ -33,12 +42,49 @@ use function Safe\mkdir;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
+    ->in(__DIR__)
     ->beforeEach(function (): void {
         $this->withoutVite();
         Mail::fake();
+        Notification::fake();
+        Sleep::fake();
+        Storage::fake('local');
         Storage::fake('public');
+        App::setLocale(config()->string('app.locale'));
+        Http::preventStrayRequests();
+        Process::fake([]);
+        Process::preventStrayProcesses();
+        $this->freezeTime();
     })
-    ->in(__DIR__);
+    ->afterEach(function (): void {
+        Str::createUuidsNormally();
+    });
+
+pest()->in('Browser')
+    ->beforeAll(function (): void {
+        $manifest = dirname(__DIR__).'/public/build/manifest.json';
+        $newest_source = 0;
+
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(dirname(__DIR__).'/resources', FilesystemIterator::SKIP_DOTS)) as $source) {
+            $newest_source = max($newest_source, $source->getMTime());
+        }
+
+        $lock = fopen(dirname(__DIR__).'/storage/framework/vite-build.lock', 'c');
+
+        flock($lock, LOCK_EX);
+
+        if (! is_file($manifest) || filemtime($manifest) < $newest_source) {
+            exec('npm run build 2>&1', $output, $exit_code);
+
+            throw_if($exit_code !== 0, RuntimeException::class, implode("\n", $output));
+        }
+
+        flock($lock, LOCK_UN);
+        fclose($lock);
+    })
+    ->beforeEach(function (): void {
+        Vite::useHotFile(storage_path('framework/vite.hot'));
+    });
 
 expect()->intercept(
     'toContain',
@@ -46,8 +92,17 @@ expect()->intercept(
     fn (Collection $models) => expect($this->value->pluck('id'))->toContain(...$models->pluck('id')->toArray())
 );
 
+// expect the provided model to be the same model
 expect()->intercept('toBe', Model::class, function (Model $expected): void {
-    expect($this->value->id)->toBe($expected->id);
+    expect($expected->is($this->value))->toBeTrue(
+        'Failed asserting that two models are the same record (same table, connection and key).'
+    );
+});
+
+expect()->intercept('toEqual', Model::class, function (Model $expected): void {
+    expect($expected->is($this->value))->toBeTrue(
+        'Failed asserting that two models are the same record (same table, connection and key).'
+    );
 });
 
 /**
@@ -79,6 +134,29 @@ function runWithLocale(string $locale, Closure $callback): mixed {
     } finally {
         app()->setLocale($original);
     }
+}
+
+/**
+ * @return EloquentCollection<int, Activity>
+ */
+function getActivityLogsFor(Model $subject, ?string $event = null): EloquentCollection {
+    return Activity::query()
+        ->forSubject($subject)
+        ->when($event !== null, fn (Builder $query): Builder => $query->forEvent($event))
+        ->orderBy('id')
+        ->get();
+}
+
+function getLastActivityLogsFor(Model $subject, ?string $event = null): ?Activity {
+    return getActivityLogsFor($subject, $event)->last();
+}
+
+function assertNoActivityLogsFor(Model $subject, ?string $event = null): void {
+    expect(getActivityLogsFor($subject, $event))->toBeEmpty();
+}
+
+function assertCountActivityLogsFor(Model $subject, int $count, ?string $event = null): void {
+    expect(getActivityLogsFor($subject, $event))->toHaveCount($count);
 }
 
 function createServiceTag(ServiceAreas $area, string $name): Tag {

@@ -4,26 +4,30 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsAllDirtyChanges;
 use Database\Factories\BlogArticleRelatableFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * @property int $id
- * @property int $blog_article_id
+ * @property string $id
+ * @property string $blog_article_id
  * @property class-string<Model> $relatable_type
- * @property int $relatable_id
+ * @property string $relatable_id
  * @property-read Project|BlogArticle|null $relatable
  * @property-read string|null $show_route
  * @property-read string|null $title
  * @property-read string|null $post_type
  */
-class BlogArticleRelatable extends Model {
+#[Fillable(['blog_article_id', 'relatable_type', 'relatable_id'])]
+final class BlogArticleRelatable extends Model {
     /** @use HasFactory<BlogArticleRelatableFactory> */
-    use HasFactory;
+    use HasFactory, HasUuids, LogsAllDirtyChanges;
 
     /** @return BelongsTo<BlogArticle, $this> */
     public function article(): BelongsTo {
@@ -61,7 +65,7 @@ class BlogArticleRelatable extends Model {
                 default => null,
             };
 
-            return is_string($label) ? $label : null;
+            return \is_string($label) ? $label : null;
         });
     }
 }

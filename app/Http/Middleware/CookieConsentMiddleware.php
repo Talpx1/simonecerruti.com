@@ -25,14 +25,14 @@ class CookieConsentMiddleware {
 
         $raw = $request->cookie('cookie_consent');
 
-        if (is_string($raw)) {
+        if (\is_string($raw)) {
             try {
                 $prefs = \Safe\json_decode($raw, true);
             } catch (\JsonException) {
                 $prefs = null;
             }
 
-            if (is_array($prefs) && isset($prefs['version'])) {
+            if (\is_array($prefs) && isset($prefs['version'])) {
                 $defaults = [
                     'given' => true,
                     'necessary' => true,

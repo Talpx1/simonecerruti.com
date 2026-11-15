@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Enums\BlogCategories;
 use App\Enums\TagTypes;
 use App\Livewire\Pages\BlogArticle\BlogArticleList;
 use App\Models\BlogArticle;
@@ -61,7 +60,7 @@ describe('categories', function (): void {
     it('lists the blog category tags', function (): void {
         expect(livewire(BlogArticleList::class)->instance()->categories())->toBeEmpty();
 
-        BlogCategories::sync();
+        Tag::findOrCreate(['practical', 'technical'], TagTypes::BLOG_CATEGORY->value);
 
         expect(livewire(BlogArticleList::class)->instance()->categories())->toHaveCount(2);
     });
@@ -101,7 +100,7 @@ describe('categories', function (): void {
     });
 
     it('marks the active category filter', function (): void {
-        BlogCategories::sync();
+        Tag::findOrCreate(['practical', 'technical'], TagTypes::BLOG_CATEGORY->value);
         $category = Tag::query()->where('type', TagTypes::BLOG_CATEGORY)->firstOrFail();
 
         livewire(BlogArticleList::class)
