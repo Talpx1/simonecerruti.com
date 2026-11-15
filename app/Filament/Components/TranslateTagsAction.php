@@ -17,7 +17,6 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 final class TranslateTagsAction {
@@ -27,7 +26,7 @@ final class TranslateTagsAction {
             ->icon(Heroicon::OutlinedLanguage)
             ->modalHeading(__('Translate tags'))
             ->modalSubmitActionLabel(__('Save translations'))
-            ->visible(fn (SpatieTagsInput $component): bool => Gate::allows('translateTags') && \filled($component->getState()))
+            ->visible(fn (SpatieTagsInput $component): bool => \filled($component->getState()))
             ->fillForm(fn (SpatieTagsInput $component): array => ['tags' => self::getRows($component)])
             ->schema([
                 Repeater::make('tags')

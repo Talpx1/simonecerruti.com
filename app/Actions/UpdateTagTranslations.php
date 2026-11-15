@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\Tag;
-use Illuminate\Support\Facades\Gate;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class UpdateTagTranslations {
@@ -15,8 +14,6 @@ final class UpdateTagTranslations {
      * @param  array<string, string|null>  $names_by_locale
      */
     public function handle(Tag $tag, array $names_by_locale): Tag {
-        Gate::authorize('translateTags');
-
         foreach (FillMissingTagTranslations::getSupportedLocales() as $locale) {
             $name = $names_by_locale[$locale] ?? null;
 
