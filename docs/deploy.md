@@ -32,7 +32,24 @@ Deploys come from the `laravel-containerized-starter-kit` deploy module. The ref
 - Variables: `DEPLOY_HOST`, `DOCKERHUB_USERNAME`, `DOCKERHUB_NAMESPACE`, `RELEASE_APP_ID`.
 - Secrets: `DEPLOY_SSH_KEY_STAGING`, `DEPLOY_SSH_KEY_PRODUCTION`, `DEPLOY_KNOWN_HOSTS`, `DOTENV_STAGING`, `DOTENV_PRODUCTION`, `DOCKERHUB_TOKEN`, `DOCKERHUB_PULL_TOKEN`, `RELEASE_APP_PRIVATE_KEY`. Optional: `SECURITY_ALERT_WEBHOOK_URL`, `GITLEAKS_LICENSE`.
 - Environments `staging` and `production`, a `staging` branch, and branch protection on `main`, `staging` and `production` with the `pr-checks` checks required.
-- `DOTENV_PRODUCTION` must set `APP_URL`, `APP_HOST`, `DB_*`, every `PHP_OPCACHE_*` value (no defaults) and the application keys (reCAPTCHA, backup, Slack, mail). Drop `COMPOSE_PROJECT_NAME`.
+- `DOTENV_PRODUCTION` must set `APP_URL`, `APP_HOST`, `DB_*`, every `PHP_OPCACHE_*` value (no defaults) and the application keys (reCAPTCHA, `BACKUP_*`, `GOOGLE_DRIVE_*`, Slack, mail). Drop `COMPOSE_PROJECT_NAME`.
+
+## Backups
+
+`backup:clean` (01:00), `backup:run` (01:30) and `backup:monitor` (03:00) run every night and save the database and files to the disks listed in `BACKUP_DISKS`: `local` (same volume as the app, so not an offsite copy) and `google` (Google Drive).
+
+1. In Google Cloud Console create a project, enable the **Google Drive API** and create an OAuth client (type *Web application*, redirect `https://developers.google.com/oauthplayground`).
+2. On [OAuth Playground](https://developers.google.com/oauthplayground) use your own credentials, authorize the scope `https://www.googleapis.com/auth/drive` and exchange the code for a **refresh token**.
+3. Set `GOOGLE_DRIVE_CLIENT_ID`, `GOOGLE_DRIVE_CLIENT_SECRET`, `GOOGLE_DRIVE_REFRESH_TOKEN` and `GOOGLE_DRIVE_FOLDER` (`Backups/simone_cerruti_website`) in `DOTENV_PRODUCTION`.
+4. Keep the OAuth consent screen in *Production*: in *Testing* the refresh token expires after 7 days.
+5. Set `BACKUP_ARCHIVE_PASSWORD` to encrypt the archives and `BACKUP_NOTIFICATION_EMAIL` to receive failures.
+6. Run `php artisan backup:run` once and check the file in Drive, then check once that a restore works.
+
+## Admin multi-factor authentication
+
+The admin panel requires multi-factor authentication: an authenticator app (with recovery codes) or an email code. Users without a method are sent to the setup page at their next sign-in. Email codes need working mail; the cache store must support locks (`database`, `redis`, `file`, `memcached`).
+
+A user who lost the second factor is reset from the server with `php artisan users:reset-mfa {email}`, then sets it up again at the next sign-in.
 
 ## Moving from watchtower
 
