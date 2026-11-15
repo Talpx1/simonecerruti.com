@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Clients\Schemas;
 
+use App\Enums\GeneratableFields;
+use App\Filament\Components\GenerateWithAiAction;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
@@ -29,6 +31,7 @@ class ClientForm {
 
             Textarea::make('description')
                 ->label('Descrizione')
+                ->hintAction(GenerateWithAiAction::make(GeneratableFields::CLIENT_DESCRIPTION))
                 ->rows(4),
 
             SpatieMediaLibraryFileUpload::make('client_image')

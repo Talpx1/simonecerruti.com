@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Filament\Resources\BlogArticles\Schemas;
 
 use App\Enums\BlogArticleStatuses;
+use App\Enums\GeneratableFields;
 use App\Enums\TagTypes;
+use App\Filament\Components\GenerateWithAiAction;
 use App\Filament\Components\SeoFields;
 use App\Filament\Components\TranslateTagsAction;
 use App\Filament\RichContentBlocks\GalleryBlock;
@@ -68,6 +70,7 @@ class BlogArticleForm {
 
                 TextInput::make('title')
                     ->label(__('Title'))
+                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::BLOG_ARTICLE_TITLE))
                     ->unique('blog_articles', "title->{$current_locale}")
                     ->required()
                     ->string()
@@ -96,6 +99,7 @@ class BlogArticleForm {
 
                 RichEditor::make('content')
                     ->label(__('Content'))
+                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::BLOG_ARTICLE_CONTENT))
                     ->required()
                     ->columnSpanFull()
                     ->customBlocks([GalleryBlock::class])
@@ -109,6 +113,7 @@ class BlogArticleForm {
 
                 Textarea::make('summary')
                     ->label(__('Summary'))
+                    ->hintAction(GenerateWithAiAction::make(GeneratableFields::BLOG_ARTICLE_SUMMARY))
                     ->string()
                     ->required(),
 
