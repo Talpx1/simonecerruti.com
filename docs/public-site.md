@@ -82,7 +82,7 @@ The keys used to be integers. The `convert_primary_keys_to_uuid` migration conve
 - foreign keys, unique constraints and indexes dropped with the old columns are re-created from the definitions read before the conversion;
 - the ids inside the activity log `attribute_changes` are remapped when the record still exists;
 - authenticated database sessions are deleted, because their payload holds the old integer user id;
-- `media.legacy_model_id` keeps the old integer id of the owner: `MediaPathGenerator` uses it before `model_id`, so files uploaded before the conversion keep their path (`projects/5/...`) and new files use the UUID.
+- `media.legacy_model_id` keeps the old integer id of the owner: `MediaPathGenerator` uses it before `model_id`, so files uploaded before the conversion keep their path (`projects/5/...`) and new files use the UUID. After the deploy, run `php artisan media:move-legacy-files` once: it copies every file, conversion and responsive image of such media to the UUID path, clears `legacy_model_id` in a transaction, and only then deletes the old directory, so the site keeps serving the images during the move. The command is idempotent and safe to resume. Once it has run in production, `legacy_model_id` and the fallback in `MediaPathGenerator` can be removed in a follow-up migration.
 
 ### Client
 
