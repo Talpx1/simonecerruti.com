@@ -7,6 +7,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Actions/** | .ai/rules/actions.md |
 | app/Console/Commands/** | .ai/rules/console_commands.md |
 | app/Enums/** | .ai/rules/enums.md, .ai/rules/enums_filament.md |
+| app/Exceptions/** | .ai/rules/exceptions.md |
 | database/factories/** | .ai/rules/factories.md |
 | app/Filament/** | .ai/rules/filament.md |
 | resources/views/**, **/*.blade.php, resources/js/**, resources/css/** | .ai/rules/frontend.md |
