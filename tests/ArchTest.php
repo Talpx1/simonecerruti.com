@@ -45,23 +45,15 @@ arch('model concerns are traits')
 arch('enums are enums')
     ->expect('App\Enums')
     ->toBeEnums()
-    ->ignoring(['App\Enums\Concerns', 'App\Enums\Contracts']);
+    ->ignoring('App\Enums\Concerns');
 
 arch('enum concerns are traits')
     ->expect('App\Enums\Concerns')
     ->toBeTraits();
 
-arch('enum contracts are interfaces')
-    ->expect('App\Enums\Contracts')
-    ->toBeInterfaces();
-
 arch('status-like enums are string backed')
     ->expect(['App\Enums\BlogArticleStatuses', 'App\Enums\LeadReadStatus', 'App\Enums\TagTypes'])
     ->toBeStringBackedEnums();
-
-arch('the blog category enum is integer backed')
-    ->expect('App\Enums\BlogCategories')
-    ->toBeIntBackedEnums();
 
 /*
 |--------------------------------------------------------------------------

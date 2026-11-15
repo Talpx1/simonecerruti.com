@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Enums\BlogCategories;
 use App\Livewire\Pages\Home;
+use Database\Seeders\BlogCategorySeeder;
 use Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter;
 use Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect;
 
@@ -12,7 +12,7 @@ use function Pest\Livewire\livewire;
 beforeEach(fn () => $this->withoutVite());
 
 it('exposes a services CTA on the home page', function () {
-    BlogCategories::sync();
+    $this->seed(BlogCategorySeeder::class);
 
     livewire(Home::class)
         ->assertOk()
