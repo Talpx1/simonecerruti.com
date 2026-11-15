@@ -13,9 +13,9 @@
                 @foreach ($works as $work)
                     <li>
                         <button type="button" class="home-works-item">
-                            <span class="home-works-item-name">{{ $work['title'] }}</span>
-                            @if ($work['kind'] !== '')
-                                <span class="home-works-item-kind">{{ $work['kind'] }}</span>
+                            <span class="home-works-item-name">{{ $work->title }}</span>
+                            @if ($work->kind !== '')
+                                <span class="home-works-item-kind">{{ $work->kind }}</span>
                             @endif
                         </button>
                     </li>
@@ -27,10 +27,10 @@
                     @foreach ($works as $work)
                         <div class="home-works-shot">
                             <div class="before-after-screen-after">
-                                @if ($work['image_url'])
-                                    <img src="{{ $work['image_url'] }}" alt="{{ $work['title'] }}" loading="lazy">
+                                @if ($work->image_url)
+                                    <img src="{{ $work->image_url }}" alt="{{ $work->title }}" loading="lazy">
                                 @else
-                                    <span class="before-after-screen-watermark" aria-hidden="true">{{ mb_strtoupper(mb_substr($work['title'], 0, 1)) }}</span>
+                                    <span class="before-after-screen-watermark" aria-hidden="true">{{ mb_strtoupper(mb_substr($work->title, 0, 1)) }}</span>
                                 @endif
                             </div>
                         </div>
@@ -40,12 +40,12 @@
                 <div class="home-works-captions">
                     @foreach ($works as $work)
                         <div class="home-works-caption">
-                            @if ($work['summary_html'])
-                                <div>{!! $work['summary_html'] !!}</div>
+                            @if ($work->summary_html)
+                                <div>{!! $work->summary_html !!}</div>
                             @else
                                 <span></span>
                             @endif
-                            <a href="{{ $work['url'] }}" wire:navigate
+                            <a href="{{ $work->url }}" wire:navigate
                                 data-pan="cta-home-work-open-{{ $loop->iteration }}">{{ __('Open the work') }} <span>→</span></a>
                         </div>
                     @endforeach

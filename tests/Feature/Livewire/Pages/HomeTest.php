@@ -42,7 +42,7 @@ it('shows only the three most relevant published projects, featured first', func
         ->assertSee($featured->title)
         ->assertDontSee($unpublished->title)
         ->assertSeeInOrder([$featured->title, 'Open the work'])
-        ->assertViewHas('works', fn (array $works): bool => \count($works) === 3 && $works[0]['title'] === 'Featured work');
+        ->assertViewHas('works', fn (array $works): bool => \count($works) === 3 && $works[0]->title === 'Featured work');
 });
 
 it('hides the works section when there are no projects', function () {
@@ -69,7 +69,7 @@ it('falls back to the tag names as kind and hides the summary when empty', funct
 
     livewire(Home::class)
         ->assertSee('Laravel')
-        ->assertViewHas('works', fn (array $works): bool => $works[0]['summary_html'] === null);
+        ->assertViewHas('works', fn (array $works): bool => $works[0]->summary_html === null);
 });
 
 it('renders the Italian version of the home page', function () {
