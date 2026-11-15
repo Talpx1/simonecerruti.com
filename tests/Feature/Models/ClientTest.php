@@ -112,7 +112,7 @@ describe('activity logging', function () {
         $client->update(['name' => 'After']);
 
         expect($count())->toBe(2)
-            ->and(Activity::query()->latest('id')->first()->properties->get('attributes')['name'])->toBe('After');
+            ->and(Activity::query()->latest('id')->first()->attribute_changes->get('attributes')['name'])->toBe('After');
 
         $client->update(['name' => 'After']);
 

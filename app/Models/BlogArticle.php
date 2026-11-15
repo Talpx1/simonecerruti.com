@@ -17,9 +17,11 @@ use App\Models\Concerns\ResolvesRoutBindingByLocalizedSlug;
 use App\Models\Concerns\Scopes\HasCurrentLocaleTranslationScope;
 use Carbon\CarbonImmutable;
 use Database\Factories\BlogArticleFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,13 +38,13 @@ use Spatie\Tags\HasTags;
 use Spatie\Translatable\HasTranslations;
 
 /**
- * @property int $id
+ * @property string $id
  * @property string $title
  * @property string $slug
  * @property string $summary
  * @property string $content
  * @property bool $featured
- * @property int $author_id
+ * @property string $author_id
  * @property BlogArticleStatuses $status
  * @property CarbonImmutable|null $published_at
  * @property CarbonImmutable $created_at
@@ -54,9 +56,10 @@ use Spatie\Translatable\HasTranslations;
  * @property-read User $author
  * @property-read Seo|null $seo
  */
-class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapable {
+#[Fillable(['title', 'slug', 'summary', 'content', 'featured', 'author_id', 'status', 'published_at'])]
+final class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapable {
     /** @use HasFactory<BlogArticleFactory> */
-    use HasCurrentLocaleTranslationScope, HasFactory, HasRoutableSlug, HasSeo, HasSitemapTag, HasTags, HasTranslations, InteractsWithMedia, LogsAllDirtyChanges, ResolvesRoutBindingByLocalizedSlug;
+    use HasCurrentLocaleTranslationScope, HasFactory, HasRoutableSlug, HasSeo, HasSitemapTag, HasTags, HasTranslations, HasUuids, InteractsWithMedia, LogsAllDirtyChanges, ResolvesRoutBindingByLocalizedSlug;
 
     /** @var list<string> */
     public array $translatable = ['title', 'slug', 'summary', 'content'];
@@ -239,7 +242,7 @@ class BlogArticle extends Model implements HasMedia, LocalizedUrlRoutable, Sitem
             return null;
         }
 
-        /** @var list<int> $ordered_ids */
+        /** @var list<string> $ordered_ids */
         $ordered_ids = self::query()
             ->wherePublished()
             ->orderBy('published_at')

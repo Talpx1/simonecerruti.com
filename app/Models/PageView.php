@@ -6,12 +6,14 @@ namespace App\Models;
 
 use Carbon\CarbonImmutable;
 use Database\Factories\PageViewFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property int $id
+ * @property string $id
  * @property string $visit_session_id
  * @property string $url_path
  * @property string|null $route_name
@@ -21,9 +23,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable $updated_at
  * @property-read VisitSession $visitSession
  */
-class PageView extends Model {
+#[Fillable(['visit_session_id', 'url_path', 'route_name', 'locale', 'viewed_at'])]
+final class PageView extends Model {
     /** @use HasFactory<PageViewFactory> */
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected function casts(): array {
         return [

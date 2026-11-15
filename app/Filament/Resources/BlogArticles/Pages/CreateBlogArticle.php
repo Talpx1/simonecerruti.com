@@ -29,7 +29,7 @@ class CreateBlogArticle extends CreateRecord {
 
         $status = $data['status'] ?? null;
 
-        if (is_string($status)) {
+        if (\is_string($status)) {
             $status = BlogArticleStatuses::tryFrom($status);
         }
 

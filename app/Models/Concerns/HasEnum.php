@@ -27,9 +27,7 @@ trait HasEnum {
         /** @var class-string<BackedEnum> */
         $enum = static::guessEnumClass();
 
-        if (! class_exists($enum)) {
-            throw new \Exception('Enum for model '.__CLASS__." could not be guessed ({$enum} enum does not exist). Manually specify the enum via the getEnumClass static method.");
-        }
+        throw_unless(class_exists($enum), \Exception::class, 'Enum for model '.__CLASS__." could not be guessed ({$enum} enum does not exist). Manually specify the enum via the getEnumClass static method.");
 
         return $enum;
     }

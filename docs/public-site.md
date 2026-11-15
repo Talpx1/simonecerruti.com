@@ -71,6 +71,19 @@ Fonts are self-hosted: Archivo Variable comes from `@fontsource-variable/archivo
 
 ## Back-office data model
 
+### Primary keys
+
+Every app model uses a UUIDv7 primary key (`HasUuids`) and logs its changes (`LogsAllDirtyChanges`); every column that points to an app model, morph columns included (`media.model_id`, `taggables.taggable_id`, `activity_log.subject_id`/`causer_id`, `seo.seoable_id`, ...), is a `uuid`. Vendor tables (`tags`, `media`, `activity_log`, `settings`, ...) keep their own integer keys, so `Tag` cannot log changes: its integer id does not fit `activity_log.subject_id`.
+
+The keys used to be integers. The `convert_primary_keys_to_uuid` migration converted them in place, in one transaction:
+
+- the new ids are UUIDv7 values in the same order as the old integer ids and older than any id created afterwards, so `orderBy('id')` keeps its meaning;
+- every foreign key and morph column is remapped through `(type, old id)`; the migration aborts, changing nothing, when a NOT NULL reference points to a missing record, and sets a nullable one to `NULL`;
+- foreign keys, unique constraints and indexes dropped with the old columns are re-created from the definitions read before the conversion;
+- the ids inside the activity log `attribute_changes` are remapped when the record still exists;
+- authenticated database sessions are deleted, because their payload holds the old integer user id;
+- `media.legacy_model_id` keeps the old integer id of the owner: `MediaPathGenerator` uses it before `model_id`, so files uploaded before the conversion keep their path (`projects/5/...`) and new files use the UUID.
+
 ### Client
 
 `clients` table, `Client` model: `name` and a translatable `description`. A client has many projects (`projects.client_id`). Each client can have one square image (`client_image` media collection, single file): the `client_image_webp` conversion crops it to a 600x600 webp, tuned in `config/client.php`, and `image_url` returns its URL or `null`. The project page shows it in the Client block when present. Managed in the Filament Client resource, which includes the image upload. Deleting goes through the `DeleteClient` action, which first nulls `client_id` on the client's projects so no project is lost.

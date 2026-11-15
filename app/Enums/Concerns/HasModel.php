@@ -32,9 +32,7 @@ trait HasModel {
 
         $model = static::guessModelClass();
 
-        if (! class_exists($model)) {
-            throw new \Exception('Model for enum '.__CLASS__." could not be guessed ({$model} model does not exist). Manually specify the model via the getModelClass static method.");
-        }
+        throw_unless(class_exists($model), \Exception::class, 'Model for enum '.__CLASS__." could not be guessed ({$model} model does not exist). Manually specify the model via the getModelClass static method.");
 
         return $model;
     }

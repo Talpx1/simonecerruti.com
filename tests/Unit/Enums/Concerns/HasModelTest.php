@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 use App\Enums\Concerns\HasModel;
-use App\Models\Lead;
+use App\Models\Tag;
 
 /**
- * Fixture whose name singularizes to a real model (Leads -> App\Models\Lead),
+ * Fixture whose name singularizes to a real integer-keyed model (Tags -> App\Models\Tag),
  * exercising the guess path without an explicit getModelClass().
  */
-enum Leads: int {
+enum Tags: int {
     use HasModel;
 
     case FIRST = 1;
@@ -25,10 +25,10 @@ enum HasModelUnguessableFixture: int {
 }
 
 it('guesses the model class from the enum name', function () {
-    $lead = Lead::factory()->create();
+    $tag = Tag::query()->forceCreate(['id' => Tags::FIRST->value, 'name' => ['en' => fake()->word()]]);
 
-    expect(Leads::FIRST->model())->toBeInstanceOf(Lead::class)
-        ->and(Leads::FIRST->model()->id)->toBe($lead->id);
+    expect(Tags::FIRST->model())->toBeInstanceOf(Tag::class)
+        ->and(Tags::FIRST->model()->id)->toBe($tag->id);
 });
 
 it('throws when the model class cannot be guessed', function () {
