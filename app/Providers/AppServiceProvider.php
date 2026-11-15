@@ -15,8 +15,10 @@ use App\Macros\Request\CookieStringOrDefaultMacro;
 use App\Macros\Request\QueryStringOrDefaultMacro;
 use App\Macros\Request\QueryStringOrNullMacro;
 use App\Macros\Str\ReplacePlaceholdersMacro;
+use App\Models\User;
 use App\View\Composers\SeoComposer;
 use Carbon\CarbonImmutable;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Field;
@@ -32,6 +34,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -88,10 +91,11 @@ class AppServiceProvider extends ServiceProvider {
 
         Storage::extend('google', $this->makeGoogleDriveFilesystem(...));
 
+        Gate::define('translateTags', fn (User $user): bool => $user->canAccessPanel(Filament::getPanel('admin')));
+
         RouteServiceProvider::loadCachedRoutesUsing(fn () => $this->loadCachedRoutes());
 
         App::macro('supportedLocales', fn (): array => LaravelLocalization::getSupportedLocales());
-
         $localizedUri = function (
             string|bool|null $locale = null,
             string|false|null $url = null,

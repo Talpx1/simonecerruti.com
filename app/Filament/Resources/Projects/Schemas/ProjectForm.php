@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Projects\Schemas;
 
 use App\Enums\TagTypes;
 use App\Filament\Components\SeoFields;
+use App\Filament\Components\TranslateTagsAction;
 use App\Filament\Resources\Clients\Schemas\ClientForm;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -135,18 +136,21 @@ class ProjectForm {
                     ->schema([
                         SpatieTagsInput::make('technologies')
                             ->type(TagTypes::TECHNOLOGY->value)
+                            ->hintAction(TranslateTagsAction::make())
                             ->label('Tecnologie')
                             ->splitKeys(['Tab', ','])
                             ->columnSpanFull(),
 
                         SpatieTagsInput::make('kinds')
                             ->type(TagTypes::PROJECT_KIND->value)
+                            ->hintAction(TranslateTagsAction::make())
                             ->label('Tipologia')
                             ->helperText('Etichette brevi, ad esempio "Piattaforma web". Se più di una, vengono unite da " + ".')
                             ->columnSpanFull(),
 
                         SpatieTagsInput::make('tags')
                             ->type(TagTypes::TAG->value)
+                            ->hintAction(TranslateTagsAction::make())
                             ->label('Tags')
                             ->columnSpanFull(),
                     ])
