@@ -34,6 +34,7 @@
         "laravel/slack-notification-channel": "^3.6",
         "laravel/tinker": "^3.0",
         "lorisleiva/laravel-actions": "^2.9",
+        "masbug/flysystem-google-drive-ext": "^2.4",
         "matomo/device-detector": "^6.5",
         "mcamara/laravel-localization": "^2.4",
         "owenvoke/blade-fontawesome": "^3.3",
@@ -165,6 +166,9 @@
             "@type-coverage",
             "@coverage"
         ],
+        "pre-autoload-dump": [
+            "Google\\Task\\Composer::cleanup"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi",
@@ -196,6 +200,9 @@
         ]
     },
     "extra": {
+        "google/apiclient-services": [
+            "Drive"
+        ],
         "laravel": {
             "dont-discover": [
                 "laravel/telescope"
