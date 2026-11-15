@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-final readonly class WorkCardData {
+use Spatie\LaravelData\Data;
+
+final class WorkCardData extends Data {
     public function __construct(
-        public string $title,
-        public string $kind,
-        public ?string $image_url,
-        public ?string $summary_html,
-        public string $url,
+        public readonly string $title,
+        public readonly string $kind,
+        public readonly ?string $image_url,
+        public readonly ?string $summary_html,
+        public readonly string $url,
     ) {}
 }

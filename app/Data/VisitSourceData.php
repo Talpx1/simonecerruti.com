@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-readonly class VisitSourceData {
+use Spatie\LaravelData\Data;
+
+class VisitSourceData extends Data {
     public function __construct(
-        public string $source,
-        public ?string $medium = null,
-        public ?int $campaign_id = null,
-        public ?string $utm_source = null,
-        public ?string $utm_medium = null,
-        public ?string $utm_campaign = null,
-        public ?string $utm_term = null,
-        public ?string $utm_content = null,
-        public ?string $referrer_url = null,
-        public ?string $referrer_host = null,
+        public readonly string $source,
+        public readonly ?string $medium = null,
+        public readonly ?int $campaign_id = null,
+        public readonly ?string $utm_source = null,
+        public readonly ?string $utm_medium = null,
+        public readonly ?string $utm_campaign = null,
+        public readonly ?string $utm_term = null,
+        public readonly ?string $utm_content = null,
+        public readonly ?string $referrer_url = null,
+        public readonly ?string $referrer_host = null,
     ) {}
 }

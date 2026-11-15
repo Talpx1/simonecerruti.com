@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-final readonly class TableOfContentsEntryData {
+use Spatie\LaravelData\Data;
+
+final class TableOfContentsEntryData extends Data {
     public function __construct(
-        public string $id,
-        public string $title,
-        public int $level,
+        public readonly string $id,
+        public readonly string $title,
+        public readonly int $level,
     ) {}
 }
