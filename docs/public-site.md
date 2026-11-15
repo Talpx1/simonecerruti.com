@@ -8,6 +8,14 @@ How the public pages are built: the frontend runtime, the data behind the back-o
 
 Two flags drive every effect: `siteRuntime.prefersReducedMotion` (`prefers-reduced-motion`) and `siteRuntime.hasFinePointer` (a precise pointer). Effects that need the mouse or heavy motion must check them.
 
+### Scrolling
+
+`resources/js/smooth-scroll.js` enables inertial wheel scrolling through Lenis (skipped with reduced motion; the mobile menu pauses it while open). `resources/js/custom-scrollbar.js` draws the dotted scrollbar rail on fine-pointer devices and hides the native one.
+
+### Portrait
+
+The `<x-portrait-showcase>` component (home "who builds" section and About page) pairs the grayscale photo with the brand logo wave. The `portrait-showcase` page effect draws the wave while scrolling, moves photo and wave apart following the pointer, and lights an accent-coloured glow under the cursor.
+
 ### Page lifecycle
 
 The site uses `wire:navigate`, so the document is never reloaded between pages.

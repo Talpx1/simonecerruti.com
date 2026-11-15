@@ -55,7 +55,8 @@ describe('rendering', function (): void {
 
     it('shows the empty message when there are no projects', function (): void {
         livewire(ProjectList::class)
-            ->assertSee('No projects yet.')
+            ->assertSeeHtml('class="blog-empty"')
+            ->assertSee('Discover my method')
             ->assertDontSeeHtml('id="projects-rail"');
     });
 });
