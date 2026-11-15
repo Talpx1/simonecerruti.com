@@ -15,9 +15,11 @@ use App\Models\Concerns\ResolvesRoutBindingByLocalizedSlug;
 use App\Models\Concerns\Scopes\HasCurrentLocaleTranslationScope;
 use Carbon\CarbonImmutable;
 use Database\Factories\ProjectFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,13 +35,13 @@ use Spatie\Tags\HasTags;
 use Spatie\Translatable\HasTranslations;
 
 /**
- * @property int $id
+ * @property string $id
  * @property string $title
  * @property string $short_description
  * @property string $description
  * @property string $slug
  * @property string|null $external_link
- * @property int|null $client_id
+ * @property string|null $client_id
  * @property string|null $starting_point
  * @property string|null $goal
  * @property string|null $outcome
@@ -56,9 +58,10 @@ use Spatie\Translatable\HasTranslations;
  * @property-read Client|null $client
  * @property-read Seo|null $seo
  */
-class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapable {
+#[Fillable(['title', 'short_description', 'description', 'slug', 'external_link', 'links', 'published', 'featured', 'client_id', 'starting_point', 'goal', 'outcome', 'features', 'home_summary'])]
+final class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapable {
     /** @use HasFactory<ProjectFactory> */
-    use HasCurrentLocaleTranslationScope, HasFactory, HasRoutableSlug, HasSeo, HasSitemapTag, HasTags, HasTranslations, InteractsWithMedia, LogsAllDirtyChanges, ResolvesRoutBindingByLocalizedSlug;
+    use HasCurrentLocaleTranslationScope, HasFactory, HasRoutableSlug, HasSeo, HasSitemapTag, HasTags, HasTranslations, HasUuids, InteractsWithMedia, LogsAllDirtyChanges, ResolvesRoutBindingByLocalizedSlug;
 
     /** @var list<string> */
     public array $translatable = [

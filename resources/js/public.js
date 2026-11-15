@@ -1,3 +1,6 @@
+import { initCustomScrollbar } from './custom-scrollbar';
+import { initSmoothScroll } from './smooth-scroll';
+
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
 const clamp = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value));
@@ -29,6 +32,9 @@ const siteRuntime = (window.siteRuntime = {
 });
 
 const effectLoaders = import.meta.glob('./pages/*.js');
+
+initCustomScrollbar();
+initSmoothScroll();
 
 let pageState = createEmptyPageState();
 let cleanupCallbacks = [];
@@ -102,6 +108,11 @@ function bindMobileMenu() {
         burgerButton.setAttribute('aria-expanded', String(isOpen));
         burgerButton.textContent = isOpen ? burgerButton.dataset.labelClose : burgerButton.dataset.labelOpen;
         document.body.style.overflow = isOpen ? 'hidden' : '';
+        if (isOpen) {
+            window.smoothScroller?.stop();
+        } else {
+            window.smoothScroller?.start();
+        }
     };
     burgerButton.addEventListener('click', () => setMenuOpen(!mobileMenu.classList.contains('is-open')));
     queryAll('a', mobileMenu).forEach((link) => link.addEventListener('click', () => setMenuOpen(false)));
@@ -294,9 +305,7 @@ function renderFrame(timestamp) {
     }
 
     if (pageState.navigationCta) {
-        const shouldShow = pageState.heroCta
-            ? pageState.heroCta.getBoundingClientRect().bottom < 0
-            : scrollOffset > viewportHeight * 0.6;
+        const shouldShow = pageState.heroCta ? pageState.heroCta.getBoundingClientRect().bottom < 0 : true;
         if (shouldShow !== pageState.isNavigationCtaShown) {
             pageState.isNavigationCtaShown = shouldShow;
             pageState.navigationCta.classList.toggle('is-visible', shouldShow);

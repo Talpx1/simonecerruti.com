@@ -172,7 +172,7 @@ class BlogArticleForm {
                             ->itemLabel(function (array $state): ?string {
                                 /** @var string|null $type */
                                 $type = $state['relatable_type'] ?? null;
-                                /** @var int|string|null $id */
+                                /** @var string|null $id */
                                 $id = $state['relatable_id'] ?? null;
 
                                 if (! $type || ! $id) {

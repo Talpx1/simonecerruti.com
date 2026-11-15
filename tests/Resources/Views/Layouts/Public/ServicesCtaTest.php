@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-use App\Enums\BlogCategories;
+use App\Enums\TagTypes;
 use App\Livewire\Pages\Home;
+use App\Models\Tag;
 
 use function Pest\Livewire\livewire;
 
 describe('services CTA', function (): void {
     it('is exposed on the home page', function (): void {
-        BlogCategories::sync();
+        Tag::findOrCreate(['practical', 'technical'], TagTypes::BLOG_CATEGORY->value);
 
         livewire(Home::class)
             ->assertOk()

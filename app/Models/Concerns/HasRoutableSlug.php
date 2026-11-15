@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Concerns;
 
-use App\Exceptions\MissingRoutableLocalizedRouteKeyException;
+use App\Exceptions\LocalizationMissingRoutableRouteKeyException;
 
 trait HasRoutableSlug {
     /** @param string $locale */
@@ -12,7 +12,7 @@ trait HasRoutableSlug {
         $translations = $this->getTranslations('slug');
         $slug = $translations[$locale] ?? false;
 
-        throw_if(! $slug, MissingRoutableLocalizedRouteKeyException::class, 'slug', $locale, $this);
+        throw_if(! $slug, LocalizationMissingRoutableRouteKeyException::class, 'slug', $locale, $this);
 
         return $slug;
     }

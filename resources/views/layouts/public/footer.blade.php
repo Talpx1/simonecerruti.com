@@ -3,7 +3,7 @@
         ['about', __('About'), route('about')],
         ['services', __('Services'), route('services')],
         ['projects', __('Works'), route('projects')],
-        ['how_i_work', __('How I work'), route('how_i_work')],
+        ['how_i_work', __('Method'), route('how_i_work')],
         ['blog', __('Blog'), route('blog')],
         ['contacts', __('Contacts'), route('contacts')],
     ];

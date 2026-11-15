@@ -49,7 +49,7 @@ class CookieConsent extends Component {
     public function mount(): void {
         $existing = request()->cookie(self::COOKIE_NAME);
 
-        if (is_string($existing)) {
+        if (\is_string($existing)) {
             try {
                 $prefs = \Safe\json_decode($existing, true);
             } catch (\JsonException) {
@@ -57,7 +57,7 @@ class CookieConsent extends Component {
             }
 
             // Valid saved consent found – apply and hide banner
-            if (is_array($prefs) && isset($prefs['version'])) {
+            if (\is_array($prefs) && isset($prefs['version'])) {
                 $this->analytics = (bool) ($prefs['analytics'] ?? false);
                 $this->functional = (bool) ($prefs['functional'] ?? false);
                 $this->marketing = (bool) ($prefs['marketing'] ?? false);

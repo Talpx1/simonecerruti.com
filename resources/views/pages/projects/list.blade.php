@@ -23,8 +23,17 @@
     @endforeach
 
     @if ($projects->isEmpty())
-        <section class="section">
-            <p class="section-lead section-lead--muted">{{ __('No projects yet.') }}</p>
+        <section class="section section--tight">
+            <div class="blog-empty">
+                <div>
+                    <h3>{!! __('No work<br>yet') !!}<span class="text-accent">.</span></h3>
+                    <p>{{ __('I show a project only when it is finished and in use, not before. In the meantime, let us talk about yours.') }}</p>
+                    <div class="services-card-actions">
+                        <a class="button-outline-link" wire:navigate href="{{ route('how_i_work') }}">{{ __('Discover my method') }} <span>→</span></a>
+                        <a class="button-primary magnetic-hover" wire:navigate href="{{ route('contacts') }}"><span>{{ __("Let's talk") }}</span><span class="button-arrow">→</span></a>
+                    </div>
+                </div>
+            </div>
         </section>
     @else
         <section class="projects-rail-section" id="tutti">

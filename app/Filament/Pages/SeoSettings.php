@@ -174,7 +174,7 @@ class SeoSettings extends Page {
 
         foreach ($this->locales() as $locale) {
             $value = $stored[$locale] ?? '';
-            $translations[$locale] = is_string($value) ? $value : '';
+            $translations[$locale] = \is_string($value) ? $value : '';
         }
 
         return $translations;

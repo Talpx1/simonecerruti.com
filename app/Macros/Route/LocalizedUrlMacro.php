@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Macros\Route;
 
-use App\Exceptions\MissingRoutableLocalizedRouteKeyException;
+use App\Exceptions\LocalizationMissingRoutableRouteKeyException;
 use App\Macros\Contracts\Macro;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Uri;
@@ -29,7 +29,7 @@ final class LocalizedUrlMacro extends Macro {
         try {
             return Uri::of((string) LaravelLocalization::getLocalizedURL($locale, $url, $attributes, $force_default_location))
                 ->withoutQuery(['missing_translations']);
-        } catch (MissingRoutableLocalizedRouteKeyException) {
+        } catch (LocalizationMissingRoutableRouteKeyException) {
             return Uri::of(request()->url())->withQuery(['missing_translations' => $locale]);
         }
     }

@@ -30,9 +30,10 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Sleep;
+use Illuminate\Validation\Rules\Password;
 use League\Flysystem\Filesystem;
 use Livewire\Livewire;
+use Lorisleiva\Actions\Facades\Actions;
 use Masbug\Flysystem\GoogleDriveAdapter;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use Mcamara\LaravelLocalization\Traits\LoadsTranslatedCachedRoutes;
@@ -60,16 +61,20 @@ class AppServiceProvider extends ServiceProvider {
      * Bootstrap any application services.
      */
     public function boot(): void {
+        if ($this->app->runningInConsole()) {
+            Actions::registerCommands();
+        }
+
+        Password::defaults(static fn (): Password => Password::min(12)->letters()->mixedCase()->numbers()->symbols());
+
         Livewire::setUpdateRoute(fn (array $handle) => Route::post('/livewire/update', $handle)
             ->middleware('web')
             ->prefix(LaravelLocalization::setLocale())
         );
 
         Vite::useAggressivePrefetching();
-        Sleep::fake();
         Date::use(CarbonImmutable::class);
-        Model::shouldBeStrict();
-        Model::unguard();
+        Model::shouldBeStrict(! $this->app->isProduction());
         Model::automaticallyEagerLoadRelationships();
         URL::forceHttps($this->app->environment(['staging', 'production']));
         DB::prohibitDestructiveCommands($this->app->environment('production'));

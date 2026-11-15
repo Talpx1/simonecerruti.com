@@ -23,6 +23,19 @@ class MediaPathGenerator implements PathGenerator {
     private function getBasePath(Media $media): string {
         $modelSlug = str($media->model_type)->classBasename()->snake()->plural();
 
-        return "{$modelSlug}/{$media->model_id}/{$media->collection_name}";
+        return "{$modelSlug}/{$this->getModelDirectory($media)}/{$media->collection_name}";
+    }
+
+    /**
+     * Files uploaded before the uuid primary keys live under the owner's old integer id — moving them would break stored urls.
+     */
+    private function getModelDirectory(Media $media): string {
+        /** @var int|string|null $legacy_model_id */
+        $legacy_model_id = $media->getAttribute('legacy_model_id');
+
+        /** @var int|string $model_id */
+        $model_id = $media->model_id;
+
+        return (string) ($legacy_model_id ?? $model_id);
     }
 }

@@ -33,11 +33,6 @@ return [
         'unread' => ['label' => 'Non letto'],
     ],
 
-    'blog_categories' => [
-        'practical' => ['label' => 'pratico'],
-        'technical' => ['label' => 'tecnico'],
-    ],
-
     'visit_source_type' => [
         'direct' => ['label' => 'Diretto'],
         'internal' => ['label' => 'Interno'],

@@ -29,12 +29,7 @@ parameters:
         -
             identifier: function.alreadyNarrowedType
             paths:
-                - app/Enums/Concerns/HasModel.php
-                - app/Enums/Concerns/SeedDb.php
                 - app/Models/Concerns/HasSitemapTag.php
-        -
-            identifier: function.impossibleType
-            path: app/Enums/Concerns/SeedDb.php
         # The closure built by InstanceMacro::register() is bound to the macroable instance by
         # Macroable::__call() at call time; PHPStan cannot see that binding from a static method.
         -
@@ -47,11 +42,6 @@ parameters:
             paths:
                 - app/Models/Concerns/ResolvesRoutBindingByLocalizedSlug.php
                 - app/Models/Concerns/Scopes/HasCurrentLocaleTranslationScope.php
-        # App\Models\Concerns\HasEnum is currently unused; flagged for removal (see notes) rather
-        # than deleted here so no behaviour is changed without review.
-        -
-            identifier: trait.unused
-            path: app/Models/Concerns/HasEnum.php
         # LaraZeus translatable resource pages expose $activeLocale dynamically; the Schema's
         # getLivewire() returns the generic HasSchemas&Component contract, so PHPStan cannot see it
         # (nor that the locale used to build the "slug->{locale}" rule key is a string).

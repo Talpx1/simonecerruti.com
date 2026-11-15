@@ -10,12 +10,14 @@ use Carbon\CarbonImmutable;
 use Database\Factories\ContactLeadFactory;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @property int $id
+ * @property string $id
  * @property string $first_name
  * @property string $last_name
  * @property string|null $company_name
@@ -30,9 +32,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read string $lead_title
  * @property-read Lead|null $lead
  */
-class ContactLead extends Model {
+#[Fillable(['first_name', 'last_name', 'company_name', 'email', 'phone', 'message', 'acceptance', 'ip'])]
+final class ContactLead extends Model {
     /** @use HasFactory<ContactLeadFactory> */
-    use HasFactory, HasLead, LogsAllDirtyChanges;
+    use HasFactory, HasLead, HasUuids, LogsAllDirtyChanges;
 
     protected function casts(): array {
         return [
@@ -50,7 +53,7 @@ class ContactLead extends Model {
         return Attribute::get(function (): string {
             $title = __('Contact request from :full_name', ['full_name' => $this->full_name]);
 
-            return is_string($title) ? $title : '';
+            return \is_string($title) ? $title : '';
         });
     }
 
@@ -70,6 +73,6 @@ class ContactLead extends Model {
     public static function getLeadSourceName(): string {
         $label = __('Contact Form');
 
-        return is_string($label) ? $label : 'Contact Form';
+        return \is_string($label) ? $label : 'Contact Form';
     }
 }

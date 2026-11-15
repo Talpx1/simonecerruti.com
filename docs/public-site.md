@@ -8,6 +8,14 @@ How the public pages are built: the frontend runtime, the data behind the back-o
 
 Two flags drive every effect: `siteRuntime.prefersReducedMotion` (`prefers-reduced-motion`) and `siteRuntime.hasFinePointer` (a precise pointer). Effects that need the mouse or heavy motion must check them.
 
+### Scrolling
+
+`resources/js/smooth-scroll.js` enables inertial wheel scrolling through Lenis (skipped with reduced motion; the mobile menu pauses it while open). `resources/js/custom-scrollbar.js` draws the dotted scrollbar rail on fine-pointer devices and hides the native one.
+
+### Portrait
+
+The `<x-portrait-showcase>` component (home "who builds" section and About page) pairs the grayscale photo with the brand logo wave. The `portrait-showcase` page effect draws the wave while scrolling, moves photo and wave apart following the pointer, and lights an accent-coloured glow under the cursor.
+
 ### Page lifecycle
 
 The site uses `wire:navigate`, so the document is never reloaded between pages.
@@ -70,6 +78,19 @@ Only the home page owns the `#home-webgl-canvas` canvas (`pages/home/home.blade.
 Fonts are self-hosted: Archivo Variable comes from `@fontsource-variable/archivo` (imported in `app.css`, `wdth` axis included), so no request goes to Google Fonts.
 
 ## Back-office data model
+
+### Primary keys
+
+Every app model uses a UUIDv7 primary key (`HasUuids`) and logs its changes (`LogsAllDirtyChanges`); every column that points to an app model, morph columns included (`media.model_id`, `taggables.taggable_id`, `activity_log.subject_id`/`causer_id`, `seo.seoable_id`, ...), is a `uuid`. Vendor tables (`tags`, `media`, `activity_log`, `settings`, ...) keep their own integer keys, so `Tag` cannot log changes: its integer id does not fit `activity_log.subject_id`.
+
+The keys used to be integers. The `convert_primary_keys_to_uuid` migration converted them in place, in one transaction:
+
+- the new ids are UUIDv7 values in the same order as the old integer ids and older than any id created afterwards, so `orderBy('id')` keeps its meaning;
+- every foreign key and morph column is remapped through `(type, old id)`; the migration aborts, changing nothing, when a NOT NULL reference points to a missing record, and sets a nullable one to `NULL`;
+- foreign keys, unique constraints and indexes dropped with the old columns are re-created from the definitions read before the conversion;
+- the ids inside the activity log `attribute_changes` are remapped when the record still exists;
+- authenticated database sessions are deleted, because their payload holds the old integer user id;
+- `media.legacy_model_id` keeps the old integer id of the owner: `MediaPathGenerator` uses it before `model_id`, so files uploaded before the conversion keep their path (`projects/5/...`) and new files use the UUID. After the deploy, run `php artisan media:move-legacy-files` once: it copies every file, conversion and responsive image of such media to the UUID path, clears `legacy_model_id` in a transaction, and only then deletes the old directory, so the site keeps serving the images during the move. The command is idempotent and safe to resume. Once it has run in production, `legacy_model_id` and the fallback in `MediaPathGenerator` can be removed in a follow-up migration.
 
 ### Client
 

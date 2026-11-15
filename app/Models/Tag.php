@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Actions\FillMissingTagTranslations;
 use App\Enums\ServiceAreas;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Support\Collection;
 use Spatie\Tags\Tag as BaseTag;
 
@@ -21,6 +22,7 @@ use Spatie\Tags\Tag as BaseTag;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
+#[Fillable(['name', 'slug', 'type', 'order_column', 'description', 'service'])]
 class Tag extends BaseTag {
     /** @var list<string> */
     public array $translatable = ['name', 'slug', 'description'];

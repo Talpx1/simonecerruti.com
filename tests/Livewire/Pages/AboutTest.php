@@ -9,7 +9,8 @@ use function Pest\Livewire\livewire;
 it('renders the page with the portrait, the paint canvas and the hobby accordion', function (): void {
     livewire(About::class)
         ->assertOk()
-        ->assertSeeHtml('images/about_protrait.webp')
+        ->assertSeeHtml('images/simone-cerruti.jpg')
+        ->assertSeeHtml('data-effect="portrait-showcase"')
         ->assertSeeHtml('id="pixel-paint-canvas"')
         ->assertSeeHtml('data-effect="about"')
         ->assertSeeHtml('class="accordion-item"')
