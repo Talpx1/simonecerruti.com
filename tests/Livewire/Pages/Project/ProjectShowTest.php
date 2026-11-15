@@ -10,6 +10,10 @@ use App\Models\Tag;
 
 use function Pest\Livewire\livewire;
 
+beforeEach(function (): void {
+    app()->setLocale('en');
+});
+
 it('renders a project', function (): void {
     $project = Project::factory()->published()->create();
 

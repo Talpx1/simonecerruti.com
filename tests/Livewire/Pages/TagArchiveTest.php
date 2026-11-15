@@ -11,6 +11,10 @@ use App\Models\Tag;
 
 use function Pest\Livewire\livewire;
 
+beforeEach(function (): void {
+    app()->setLocale('en');
+});
+
 it('shows articles and projects tagged with the given tag', function (): void {
     $tag = Tag::findOrCreate('My Tag', TagTypes::TAG->value);
 

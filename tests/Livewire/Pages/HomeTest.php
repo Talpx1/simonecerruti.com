@@ -8,6 +8,10 @@ use App\Models\Project;
 
 use function Pest\Livewire\livewire;
 
+beforeEach(function (): void {
+    app()->setLocale('en');
+});
+
 it('renders the home page', function (): void {
     Project::factory()->published()->count(3)->create();
     Project::factory()->published()->featured()->create();

@@ -87,7 +87,7 @@ On top of the usual fields, the Project form has the case-study fields shown on 
 | `features` | Repeater of `{title, description}`. |
 | `home_summary` | Short text for the home page. |
 
-Related actions: `GetAdjacentProjects` and `GetServiceAreaProjects`. Actions return DTOs from `App\DataTransferObjects`, never arrays with PHPDoc shapes.
+Related actions: `GetAdjacentProjects` and `GetServiceAreaProjects`. Actions return DTOs, never arrays with PHPDoc shapes. Every DTO lives in `App\Data` and extends `Spatie\LaravelData\Data` (`spatie/laravel-data`), with `public readonly` promoted properties. Classes cannot be `readonly` as a whole, because the `Data` base class is not.
 
 `GetAdjacentProjects` returns an `AdjacentProjectsData` with a nullable `previous` and `next` project. Navigation is circular, so a side is null only when there is no other content. With exactly two items, the first has only `next` and the last only `previous`. The current item is never returned as its own neighbour. The navigation is hidden when both are null. Articles follow the same previous/next rule.
 
@@ -97,6 +97,7 @@ The home page works section is built from a list of `WorkCardData` (title, kind,
 
 Tags have a `description` and an optional `service`, a `ServiceAreas` case (`management_erp_crm`, `web_ecommerce_platforms`, `consulting_and_seo`). `GetServiceAreaProjects::run($area, $limit)` returns the featured projects that carry a tag with that service; the matching service landing page (`$area->getRouteName()`) uses it for its project section. To show a project on a landing page, tag it with a tag whose `service` is set.
 
+Every tag has a name in every supported locale, so the public site never meets a tag without a slug. `Tag::findOrCreate()` (used by every tags input) runs `FillMissingTagTranslations`, which copies the name into the locales that have none; the slug follows from the name when the tag is saved. Until someone translates it, the English site shows the Italian name. The "Translate tags" action beside each tags input opens a modal with one name field per locale for the tags of that field, and saves them through `UpdateTagTranslations`.
 ### Blog
 
 - `BlogSettings` (Filament settings page, group `blog`) holds the per-locale `author_bio`, shown in the article footer through `getAuthorBioForCurrentLocale()`; it is null when empty.

@@ -88,6 +88,8 @@ Prioritize the example over brevity: a slightly longer message the user understa
 - **Always use an enum (its case or `->value`) instead of a raw string wherever the enum exists**:
   routes, middleware, migrations, seeds, configs, UI defaults, Blade, and test data.
 - Do **not** group classes by domain. Actions go in `app/Actions`, not `app/Actions/Analytics`. Same for Support, Service, etc. Exception may be allowed by explicit declaration of the user.
+- Every DTO is a `spatie/laravel-data` class (`Spatie\LaravelData\Data`) in `app/Data`, with `public readonly` promoted properties.
+  Never carry structured data in a plain class or in an array with a PHPDoc shape.
 - Enforce architectural testing via Pest's `arch` testing, in `tests/ArchTest.php`.
 
 === .ai/best_practices rules ===

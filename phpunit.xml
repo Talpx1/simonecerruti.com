@@ -51,6 +51,9 @@
         <env name="QUEUE_CONNECTION" value="sync" force="true"/>
         <env name="SESSION_DRIVER" value="array" force="true"/>
         <env name="TELESCOPE_ENABLED" value="false" force="true"/>
+        <env name="APP_LOCALE" value="it" force="true"/>
+        <env name="RECAPTCHA_SITE_KEY" value="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" force="true"/>
+        <env name="RECAPTCHA_SECRET_KEY" value="6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe" force="true"/>
         <!--
             The values below mirror the env vars into $_SERVER. Laravel's env reader
             checks $_SERVER before $_ENV/getenv, so without these any DB_* (etc.) vars
@@ -70,5 +73,8 @@
         <server name="QUEUE_CONNECTION" value="sync" force="true"/>
         <server name="SESSION_DRIVER" value="array" force="true"/>
         <server name="TELESCOPE_ENABLED" value="false" force="true"/>
+        <server name="APP_LOCALE" value="it" force="true"/>
+        <server name="RECAPTCHA_SITE_KEY" value="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" force="true"/>
+        <server name="RECAPTCHA_SECRET_KEY" value="6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe" force="true"/>
     </php>
 </phpunit>

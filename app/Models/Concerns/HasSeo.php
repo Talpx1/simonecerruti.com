@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models\Concerns;
 
-use App\DataTransferObjects\SeoConfig;
-use App\DataTransferObjects\SeoData;
+use App\Data\SeoConfig;
+use App\Data\SeoData;
 use App\Enums\RobotsDirective;
 use App\Models\Seo;
 use App\Models\SeoSetting;

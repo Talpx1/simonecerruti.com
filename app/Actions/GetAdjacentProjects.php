@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\DataTransferObjects\AdjacentProjectsData;
+use App\Data\AdjacentProjectsData;
 use App\Models\Project;
 use Lorisleiva\Actions\Concerns\AsAction;
 

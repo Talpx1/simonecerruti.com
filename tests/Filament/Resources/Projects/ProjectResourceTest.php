@@ -10,6 +10,7 @@ use App\Filament\Resources\Projects\Pages\ListProjects;
 use App\Filament\Resources\Projects\ProjectResource;
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\Tag;
 use Filament\Actions\Testing\TestAction;
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -176,6 +177,22 @@ describe('edit page', function (): void {
             ->and($project->getTranslation('features', 'it'))->toHaveCount(1)
             ->and($project->getTranslation('home_summary', 'it'))->toContain('<strong>risultato</strong>')
             ->and($project->tagsWithType(TagTypes::PROJECT_KIND->value)->pluck('name')->all())->toBe(['Piattaforma web']);
+    });
+
+    it('translates the tags of a project from the tags input', function (): void {
+        $project = Project::factory()->create();
+        $project->syncTagsWithType(['Gestionale'], TagTypes::TAG->value);
+        $tag = Tag::query()->where('type', TagTypes::TAG->value)->firstOrFail();
+
+        expect($tag->getTranslationWithoutFallback('name', 'en'))->toBe('Gestionale');
+
+        livewire(EditProject::class, ['record' => $project->id])
+            ->callAction(TestAction::make('translateTags')->schemaComponent('tags'), [
+                'tags' => [['id' => $tag->id, 'names' => ['it' => 'Gestionale', 'en' => 'Management software']]],
+            ])
+            ->assertHasNoActionErrors();
+
+        expect($tag->refresh()->getTranslationWithoutFallback('name', 'en'))->toBe('Management software');
     });
 
     describe('SEO overrides', function (): void {

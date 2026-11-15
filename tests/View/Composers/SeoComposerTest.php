@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\DataTransferObjects\SeoData;
+use App\Data\SeoData;
 use App\View\Composers\SeoComposer;
 
 it('keeps a page-provided SeoData and only prepends the sitewide schema nodes', function (): void {

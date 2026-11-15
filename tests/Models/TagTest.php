@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\ServiceAreas;
+use App\Enums\TagTypes;
 use App\Models\Tag;
 
 describe('attributes', function (): void {
@@ -36,6 +37,22 @@ describe('attributes', function (): void {
         it('is null when not set', function (): void {
             expect(createTag()->refresh()->service)->toBeNull();
         });
+    });
+});
+
+describe('findOrCreate', function (): void {
+    it('creates a tag with a name and a slug in every supported locale', function (): void {
+        $tag = runWithLocale('it', fn (): Tag => Tag::findOrCreate('Gestionale', TagTypes::TAG->value));
+
+        expect($tag->getTranslationWithoutFallback('name', 'en'))->toBe('Gestionale')
+            ->and($tag->getTranslationWithoutFallback('slug', 'en'))->toBe('gestionale');
+    });
+
+    it('fills every tag when several names are given', function (): void {
+        $tags = runWithLocale('it', fn () => Tag::findOrCreate(['Alpha', 'Beta'], TagTypes::TAG->value));
+
+        expect($tags)->toHaveCount(2)
+            ->and($tags->every(fn (Tag $tag): bool => $tag->getTranslationWithoutFallback('slug', 'en') !== null))->toBeTrue();
     });
 });
 

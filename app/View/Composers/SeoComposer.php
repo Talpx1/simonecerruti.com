@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\View\Composers;
 
-use App\DataTransferObjects\SeoData;
+use App\Data\SeoData;
 use App\Models\SeoSetting;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;

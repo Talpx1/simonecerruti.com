@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\DetectVisitSource;
-use App\DataTransferObjects\VisitSourceData;
+use App\Data\VisitSourceData;
 use App\Enums\ServiceAreas;
 use App\Enums\TagTypes;
 use App\Models\Project;

@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Campaigns\Schemas;
 
 use App\Enums\TagTypes;
 use App\Enums\VisitMediumType;
+use App\Filament\Components\TranslateTagsAction;
 use App\Models\Campaign;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -108,6 +109,7 @@ class CampaignForm {
 
                 SpatieTagsInput::make('tags')
                     ->type(TagTypes::CAMPAIGN_TAG->value)
+                    ->hintAction(TranslateTagsAction::make())
                     ->label(__('Tags'))
                     ->splitKeys(['Tab', ','])
                     ->columnSpanFull()

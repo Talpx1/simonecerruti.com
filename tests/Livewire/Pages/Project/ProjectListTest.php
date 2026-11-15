@@ -9,6 +9,10 @@ use App\Models\Tag;
 
 use function Pest\Livewire\livewire;
 
+beforeEach(function (): void {
+    app()->setLocale('en');
+});
+
 describe('load more', function (): void {
     it('paginates published projects', function (): void {
         Project::factory()->published()->count(8)->create();

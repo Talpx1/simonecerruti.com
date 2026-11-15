@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\DataTransferObjects\SeoData;
+use App\Data\SeoData;
 
 it('renders every section present on the SeoData', function (): void {
     $html = view('layouts.public.seo', ['seo_data' => new SeoData(

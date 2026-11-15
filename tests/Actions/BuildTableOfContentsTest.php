@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\BuildTableOfContents;
-use App\DataTransferObjects\TableOfContentsEntryData;
+use App\Data\TableOfContentsEntryData;
 
 describe('entries', function (): void {
     it('lists h2 and h3 headings in document order with their level', function (): void {
