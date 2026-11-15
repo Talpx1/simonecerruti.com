@@ -1,61 +1,99 @@
-<div>
-    <section class="flex flex-col px-8 lg:px-14 pb-20 pt-16">
-        <div class="flex items-end justify-between gap-8">
-            <h1 wire:ignore data-reveal class="font-black uppercase leading-none tracking-tight text-6xl lg:text-8xl xl:text-9xl">
-                {{ __('Projects') }}
-            </h1>
+@php
+    $projects = collect($this->getLoadMoreData('projects'));
+    $featured_projects = $projects->where('featured', true)->take(2);
+    $filter_tag_types = [\App\Enums\TagTypes::TAG->value, \App\Enums\TagTypes::PROJECT_KIND->value];
+    $filter_tags = $projects
+        ->flatMap(fn ($project) => $project->tags->whereIn('type', $filter_tag_types))
+        ->groupBy('name')
+        ->map->count()
+        ->sortDesc();
+@endphp
 
-            @if ($this->isLoadMoreNotEmpty('projects'))
-                <span class="text-light/25 font-mono text-sm tracking-widest mb-2 shrink-0">
-                    {{ str_pad((string) $this->getLoadMoreTotal('projects'), 2, '0', STR_PAD_LEFT) }}
-                </span>
-            @endif
+<div data-effect="projects-rail">
+    <section class="projects-hero">
+        <div>
+            <h1 class="page-hero-title" aria-label="{{ __('Work.') }}"><span class="page-hero-title-line" data-variable-letters>{{ __('Work.') }}</span></h1>
+            <p class="section-lead">{{ __('Real problems, solved custom and used every day. No showcase mockups: only things that work.') }}</p>
         </div>
-
-        <p wire:ignore data-reveal class="mt-10 text-light/60 text-lg lg:text-xl font-light leading-relaxed max-w-2xl">
-            {{ __('A selection of work built with care. Designed to last, scale, and solve a real problem.') }}
-        </p>
+        <div class="projects-hero-canvas" aria-hidden="true"><canvas id="projects-3d-frames-canvas" data-effect="projects-3d-frames"></canvas></div>
     </section>
 
-    <section class="border-t border-light/10">
-        @if ($this->isLoadMoreEmpty('projects'))
-            <div class="px-8 lg:px-14 py-36 text-light/25 text-sm uppercase tracking-widest font-semibold">
-                {{ __('No projects yet.') }}
+    @foreach ($featured_projects as $project)
+        <x-project-feature :project="$project" />
+    @endforeach
+
+    @if ($projects->isEmpty())
+        <section class="section">
+            <p class="section-lead section-lead--muted">{{ __('No projects yet.') }}</p>
+        </section>
+    @else
+        <section class="projects-rail-section" id="tutti">
+            <div class="projects-rail-head">
+                <div>
+                    <h2 class="section-title">{!! __('All<br>the work') !!}<span class="text-accent">.</span></h2>
+                    <div class="filter-bar" role="group" aria-label="{{ __('Filter by type') }}">
+                        <button type="button" class="is-active" data-f="*">{{ __('All') }}<small>{{ $projects->count() }}</small></button>
+                        @foreach ($filter_tags as $tag_name => $tag_count)
+                            <button type="button" data-f="{{ $tag_name }}">{{ $tag_name }}<small>{{ $tag_count }}</small></button>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="projects-rail-controls">
+                    <button type="button" data-rail-step="-1" aria-label="{{ __('Previous') }}"
+                        data-pan="cta-projects-rail-previous">←</button>
+                    <button type="button" data-rail-step="1" aria-label="{{ __('Next') }}"
+                        data-pan="cta-projects-rail-next">→</button>
+                </div>
             </div>
-        @else
-            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 ">
-                @foreach ($this->getLoadMoreData('projects') as $project)
-                    <x-project-card :project="$project" :index="$loop->index" />
+
+            <div class="projects-rail" id="projects-rail" data-cursor="{{ __('Drag') }}">
+                @foreach ($projects as $project)
+                    <a class="projects-rail-card" wire:navigate wire:key="rail-{{ $project->id }}" href="{{ route('project.show', $project->slug) }}"
+                        data-types="{{ $project->tags->whereIn('type', $filter_tag_types)->pluck('name')->unique()->implode('|') }}"
+                        data-cursor="{{ __('Open work') }}">
+                        <x-project-cover :project="$project" />
+
+                        <div>
+                            <h3>{{ $project->title }}</h3>
+                            @if ($project->kind_names)
+                                <span class="project-feature-kind">{{ $project->kind_names }}</span>
+                            @endif
+                        </div>
+
+                        @if ($project->tags->where('type', \App\Enums\TagTypes::TAG->value)->isNotEmpty())
+                            <div class="chip-list chip-list--small">
+                                @foreach ($project->tags->where('type', \App\Enums\TagTypes::TAG->value) as $tag)
+                                    <span>{{ $tag->name }}</span>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        @if ($project->tags->where('type', \App\Enums\TagTypes::TECHNOLOGY->value)->isNotEmpty())
+                            <div class="chip-list chip-list--small chip-list--stack">
+                                @foreach ($project->tags->where('type', \App\Enums\TagTypes::TECHNOLOGY->value) as $tag)
+                                    <span>{{ $tag->name }}</span>
+                                @endforeach
+                            </div>
+                        @endif
+                    </a>
                 @endforeach
             </div>
 
-            @if ($this->canLoadMore('projects'))
-                <div class="border-t border-light/10 px-8 lg:px-14 py-12 flex items-center justify-between">
-                    <span class="text-light/25 text-sm font-mono tracking-widest">
-                        {{ count($this->getLoadMoreData('projects')) }} / {{ $this->getLoadMoreTotal('projects') }}
-                    </span>
+            <p class="projects-rail-empty" id="projects-rail-empty">{{ __('No work with this tag. Yet.') }}</p>
 
-                    <button wire:click="loadMore('projects')" wire:loading.attr="disabled" data-pan="cta-projects-load-more"
-                        class="group relative overflow-hidden border border-light/20 text-light/50 flex items-center gap-4 px-8 py-4 hover:text-dark hover:border-light transition-colors duration-300">
-                        <span
-                            class="absolute inset-0 bg-light translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(.77,0,.18,1)] -z-0"></span>
-                        <span class="relative z-10 font-semibold uppercase tracking-widest text-sm">
-                            <span wire:loading.remove wire:target="loadMore('projects')">{{ __('Load more') }}</span>
-                            <span wire:loading wire:target="loadMore('projects')">{{ __('Loading...') }}</span>
-                        </span>
-                        <x-ri-arrow-down-long-line class="relative z-10 w-4 wire:loading:hidden" wire:loading.remove
-                            wire:target="loadMore('projects')" />
+            <div class="projects-rail-progress"><i id="projects-rail-progress"></i></div>
+
+            @if ($this->canLoadMore('projects'))
+                <div class="section-header" style="margin-top: 40px; padding: 0 var(--site-gutter);">
+                    <button type="button" class="button-outline-link" wire:click="loadMore('projects')" wire:loading.attr="disabled"
+                        data-pan="cta-projects-load-more">
+                        <span wire:loading.remove wire:target="loadMore('projects')">{{ __('Load more') }}</span>
+                        <span wire:loading wire:target="loadMore('projects')">{{ __('Loading...') }}</span>
                     </button>
                 </div>
             @endif
-        @endif
-    </section>
+        </section>
+    @endif
 
-    <x-cta-section wire:ignore>
-        <x-slot:title>{{ __('Have a project in mind?') }}</x-slot:title>
-        <x-slot:subtitle>{{ __("Let's make it happen.") }}</x-slot:subtitle>
-
-        <x-button :href="route('contacts')" data-pan="cta-projects-contacts">{{ __("Let's talk") }}</x-button>
-        <x-button :href="route('services')" variant="secondary" data-pan="cta-projects-services">{{ __('Explore services') }}</x-button>
-    </x-cta-section>
+    <x-contact-band />
 </div>

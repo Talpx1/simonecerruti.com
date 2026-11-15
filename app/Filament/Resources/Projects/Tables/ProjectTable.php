@@ -26,7 +26,7 @@ class ProjectTable {
                     ->sortable()
                     ->limit(50),
 
-                TextColumn::make('client')
+                TextColumn::make('client.name')
                     ->label('Cliente')
                     ->searchable()
                     ->sortable(),

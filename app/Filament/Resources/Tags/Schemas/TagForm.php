@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Tags\Schemas;
 
+use App\Enums\ServiceAreas;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -30,6 +33,16 @@ class TagForm {
                     ->required()
                     ->unique('tags', "slug->{$schema->getLivewire()->activeLocale}")
                     ->maxLength(255),
+
+                Textarea::make('description')
+                    ->label('Descrizione')
+                    ->rows(3),
+
+                Select::make('service')
+                    ->label('Servizio')
+                    ->options(ServiceAreas::class)
+                    ->placeholder('Nessuno')
+                    ->helperText('Collega il tag alla pagina di un servizio.'),
             ]);
     }
 }

@@ -91,6 +91,7 @@ arch('filament resources extend the base resource')
         'App\Filament\Resources\Projects\ProjectResource',
         'App\Filament\Resources\Tags\TagResource',
         'App\Filament\Resources\Leads\LeadResource',
+        'App\Filament\Resources\Clients\ClientResource',
     ])
     ->toExtend('Filament\Resources\Resource');
 

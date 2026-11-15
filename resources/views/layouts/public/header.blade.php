@@ -1,83 +1,40 @@
-<header id="main-header"
-    {{ $attributes->merge(['class' => 'p-2 lg:p-4 flex justify-between items-center sticky top-0 z-[999] h-[100px] min-h-[100px] max-h-[100px] overflow-x-clip']) }}>
+@php
+    $nav_links = [
+        ['projects', __('Works'), route('projects')],
+        ['how_i_work', __('Method'), route('how_i_work')],
+        ['services', __('Services'), route('services')],
+        ['about', __('About'), route('about')],
+        ['blog', __('Blog'), route('blog')],
+        ['contacts', __('Contacts'), route('contacts')],
+    ];
+@endphp
 
-    <a class="flex items-center h-full max-w-[180px] p-4 backdrop-blur-md rounded-2xl" id="header-logo"
-        href="{{ route('home') }}" wire:navigate>
-        <x-app-logo alt="{{ config('app.name') }} logo" class="aspect-auto h-1/2 lg:h-full" />
-    </a>
+<header class="site-nav">
+    <div class="site-nav-inner">
+        <a class="site-brand" href="{{ route('home') }}" wire:navigate data-pan="cta-nav-home"
+            aria-label="{{ config('company.friendly_name') }}, {{ __('Home') }}">
+            <x-app-logo class="site-brand-logo" width="52" height="28" color="currentColor" aria-hidden="true" />
+            <b>{{ config('company.friendly_name') }}</b><i>{{ __('tailor-made') }}</i>
+        </a>
 
+        <nav class="site-nav-links" aria-label="{{ __('Main') }}">
+            @foreach ($nav_links as [$slug, $label, $url])
+                <a href="{{ $url }}" wire:navigate data-pan="cta-nav-{{ $slug }}" @if (str_starts_with(request()->url(), $url)) class="is-current" aria-current="page" @endif>{{ $label }}</a>
+            @endforeach
+        </nav>
 
-
-    <div class="flex items-center gap-2 lg:gap-8" id="header-tools">
-        <x-lang-switcher />
-
-        <button x-on:click="isMenuOpen=!isMenuOpen" id="open-menu"
-            class="backdrop-blur-md p-2 lg:p-4 rounded-2xl uppercase text-xl cursor-pointer w-12 min-w-12 max-w-12 overflow-hidden">
-            <x-ri-menu-fill class="w-6 lg:w-8" x-show="!isMenuOpen" />
-            <x-ri-close-large-fill class="w-6 lg:w-8" x-show="isMenuOpen" />
-        </button>
+        <div class="site-nav-language" role="group" aria-label="{{ __('Language') }}">
+            @foreach (App::supportedLocales() as $locale_code => $properties)
+                <a href="{{ Route::localizedUrl(locale: $locale_code, force_default_location: true) }}"
+                    lang="{{ $locale_code }}" hreflang="{{ $locale_code }}" aria-label="{{ $properties['native'] }}"
+                    @if (App::getLocale() === $locale_code) aria-current="true" @endif>{{ str($locale_code)->upper() }}</a>
+            @endforeach
+        </div>
     </div>
+
+    <a class="button-primary magnetic-hover site-nav-cta" href="{{ route('contacts') }}" wire:navigate data-pan="cta-nav-cta" tabindex="-1"
+        aria-hidden="true"><span>{{ __('Let\'s talk') }}</span><span class="button-arrow">→</span></a>
+
+    <button class="site-nav-toggle" type="button" id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu"
+        data-label-open="{{ __('Menu') }}" data-label-close="{{ __('Close') }}">{{ __('Menu') }}</button>
 </header>
-
-@push('scripts')
-    <script>
-        document.addEventListener('livewire:navigated', () => {
-            const logo = document.querySelector("#header-logo");
-            const tools = document.querySelector("#header-tools");
-
-            let lastScrollY = window.scrollY;
-            let isHidden = false;
-
-            const onScroll = () => {
-                const currentScrollY = window.scrollY;
-                const menuOpen = document.body?._x_dataStack?.[0]?.isMenuOpen ?? false;
-
-                if (currentScrollY > lastScrollY && !isHidden && currentScrollY > 50 && !menuOpen) {
-                    isHidden = true;
-                    gsap.to(logo, {
-                        x: "-100%",
-                        opacity: 0,
-                        duration: 0.5,
-                        ease: "power2.out"
-                    });
-                    gsap.to(tools, {
-                        x: "100%",
-                        opacity: 0,
-                        duration: 0.5,
-                        ease: "power2.out"
-                    });
-                }
-
-                if (currentScrollY < lastScrollY && isHidden) {
-                    isHidden = false;
-                    gsap.to(logo, {
-                        x: "0%",
-                        opacity: 1,
-                        duration: 0.5,
-                        ease: "power2.out"
-                    });
-                    gsap.to(tools, {
-                        x: "0%",
-                        opacity: 1,
-                        duration: 0.5,
-                        ease: "power2.out"
-                    });
-                }
-
-                lastScrollY = currentScrollY;
-            };
-
-            window.addEventListener("scroll", onScroll);
-
-            // The header re-renders on every wire:navigate, so drop the listener
-            // before the next page swaps in to avoid stacking duplicates.
-            document.addEventListener('livewire:navigating', () => {
-                window.removeEventListener("scroll", onScroll);
-            }, {
-                once: true
-            });
-        }, {
-            once: true
-        })
-    </script>
-@endpush

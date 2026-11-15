@@ -38,23 +38,24 @@
 
         window.__appEnv = '{{ app()->environment() }}';
         window._clarityId = '{{ config('services.clarity.id') }}';
-
-        // Failsafe: if the reveal pipeline (public.js) fails to load or throws,
-        // reveal all [data-reveal] content instead of leaving it stuck hidden.
-        setTimeout(() => {
-            if (!window.__revealReady) {
-                document.documentElement.classList.add('reveal-fallback');
-            }
-        }, 2500);
     </script>
 </head>
 
-<body class="antialiased bg-dark text-light min-h-screen grid grid-cols-1 grid-rows-[auto_1fr_auto]"
-    x-data="{ 'isMenuOpen': false }" x-on:keydown.escape="isMenuOpen=false">
+<body>
+    @persist('persisted-effect-layers')
+        <div id="persisted-effect-layers" aria-hidden="true">
+            <div class="effect-vignette"></div>
+            <div class="effect-grain"></div>
+            <div class="scroll-progress"></div>
+            <div class="cursor-ring"><span></span></div>
+            <div class="cursor-dot"></div>
+        </div>
+    @endpersist
+
     @if (!($canvas ?? false))
         @if ($header ?? true)
-            <x-layouts::public.menu />
             <x-layouts::public.header />
+            <x-layouts::public.menu />
         @endif
 
         <main>
@@ -62,11 +63,11 @@
             <x-layouts::public.work-in-progress-banner />
 
             {{ $slot }}
-        </main>
 
-        @if ($footer ?? true)
-            <x-layouts::public.footer />
-        @endif
+            @if ($footer ?? true)
+                <x-layouts::public.footer />
+            @endif
+        </main>
     @else
         {{ $slot }}
     @endif
@@ -75,13 +76,6 @@
 
     @filamentScripts
     <script data-navigate-once>
-        document.addEventListener('livewire:navigating', () => {
-            gsapScrollTrigger.getAll().forEach(t => t.kill());
-            gsap.globalTimeline.clear();
-        }, {
-            once: true
-        })
-
         loadRecaptcha();
         document.addEventListener('livewire:navigated', loadRecaptcha);
 

@@ -8,9 +8,9 @@ use App\Enums\Concerns\HasLocalizedLabel;
 use App\Enums\Concerns\HasModel;
 use App\Enums\Concerns\SeedDb;
 use App\Enums\Contracts\SyncsToDatabase;
+use App\Models\Tag;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
-use Spatie\Tags\Tag;
 
 enum BlogCategories: int implements SyncsToDatabase {
     /** @use HasModel<Tag> */

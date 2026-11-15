@@ -16,7 +16,7 @@ class ProjectList extends Component {
     private function projectsBaseQuery(): Builder {
         return Project::query()
             ->where('published', true)
-            ->with(['tags', 'media'])
+            ->with(['tags', 'media', 'client'])
             ->orderByDesc('featured')->latest();
     }
 

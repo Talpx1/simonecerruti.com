@@ -21,6 +21,14 @@
         ['key' => 'bluesky', 'label' => 'BlueSky', 'icon' => 'fab-bluesky'],
         ['key' => 'x', 'label' => 'X / Twitter', 'icon' => 'fab-x-twitter'],
     ];
+
+    $line_icons = [
+        'linkedin' => '<rect x="3" y="3" width="18" height="18"/><path d="M8 10v7M8 7v.01M12 17v-7M12 13c0-2 1.5-3 3-3s2 1 2 3v4"/>',
+        'instagram' => '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5v.01"/>',
+        'github' => '<path d="M9 19c-4 1.3-4-2-6-2.5M15 21v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/>',
+        'bluesky' => '<path d="M12 11.5C10.6 8.8 6.8 3.8 4 3.5c-1.8-.2-1.5 2.6-1 5 .5 2.3 2.4 4 5.5 3.5-3 .7-4.3 2.3-2.5 4.3 3.1 3.4 5 .2 6-2.3 1 2.5 2.9 5.7 6 2.3 1.8-2 .5-3.6-2.5-4.3 3.1.5 5-1.2 5.5-3.5.5-2.4.8-5.2-1-5-2.8.3-6.6 5.3-8 8z"/>',
+        'x' => '<path d="M4 4l16 16M20 4L4 20" transform="scale(.82) translate(2.6 2.6)"/>',
+    ];
 @endphp
 
 @switch($variant)
@@ -34,6 +42,18 @@
                 </a>
             @endforeach
         </div>
+    @break
+
+    @case('foot')
+        <nav class="site-footer-social" aria-label="{{ __('Social') }}">
+            @foreach ($socials as $social)
+                <a class="social-icon magnetic-hover" href="{{ config('company.socials.' . $social['key'] . '.link') }}" target="_blank"
+                    rel="noopener" aria-label="{{ $social['label'] }}" data-cursor="{{ $social['label'] }}"
+                    data-pan="cta-social-{{ $social['key'] }}-{{ $placement }}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">{!! $line_icons[$social['key']] !!}</svg>
+                </a>
+            @endforeach
+        </nav>
     @break
 
     @case('menu')

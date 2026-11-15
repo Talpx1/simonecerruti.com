@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\DataTransferObjects\SeoConfig;
 use App\Enums\SchemaType;
+use App\Enums\TagTypes;
 use App\Models\Concerns\HasRoutableSlug;
 use App\Models\Concerns\HasSeo;
 use App\Models\Concerns\HasSitemapTag;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Mcamara\LaravelLocalization\Interfaces\LocalizedUrlRoutable;
@@ -37,14 +39,21 @@ use Spatie\Translatable\HasTranslations;
  * @property string $description
  * @property string $slug
  * @property string|null $external_link
- * @property string|null $client
+ * @property int|null $client_id
+ * @property string|null $starting_point
+ * @property string|null $goal
+ * @property string|null $outcome
+ * @property list<array{title: string, description: string}>|null $features
+ * @property string|null $home_summary
  * @property Collection<int, array{url: string}> $links
  * @property bool $published
  * @property bool $featured
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read string $featured_image_url
+ * @property-read string $kind_names
  * @property-read string $short_description_or_excerpt
+ * @property-read Client|null $client
  * @property-read Seo|null $seo
  */
 class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapable {
@@ -58,6 +67,11 @@ class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapab
         'description',
         'slug',
         'external_link',
+        'starting_point',
+        'goal',
+        'outcome',
+        'features',
+        'home_summary',
     ];
 
     protected function casts(): array {
@@ -66,6 +80,11 @@ class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapab
             'published' => 'boolean',
             'featured' => 'boolean',
         ];
+    }
+
+    /** @return BelongsTo<Client, $this> */
+    public function client(): BelongsTo {
+        return $this->belongsTo(Client::class);
     }
 
     public function registerMediaCollections(): void {
@@ -145,10 +164,12 @@ class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapab
      * @return array<string, string>
      */
     protected function seoVariables(): array {
+        $client = $this->loadMissing('client')->client;
+
         return [
             'title' => $this->title,
             'excerpt' => $this->short_description_or_excerpt,
-            'client' => $this->client ?? '',
+            'client' => $client instanceof Client ? $client->name : '',
             'tags' => $this->tags->pluck('name')->implode(', '),
             'featured_image' => $this->featured_image_url,
             'created_iso' => $this->created_at->toIso8601String(),
@@ -163,6 +184,13 @@ class Project extends Model implements HasMedia, LocalizedUrlRoutable, Sitemapab
     /** @return Attribute<string, never> */
     protected function shortDescriptionOrExcerpt(): Attribute {
         return Attribute::get(fn () => $this->short_description ?? Str::limit($this->description, 160, preserveWords: true));
+    }
+
+    /** @return Attribute<string, never> */
+    protected function kindNames(): Attribute {
+        return Attribute::get(
+            fn (): string => $this->tags->where('type', TagTypes::PROJECT_KIND->value)->pluck('name')->implode(' + ')
+        );
     }
 
     /** @return Attribute<string, never> */
