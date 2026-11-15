@@ -52,5 +52,5 @@ it('renders featured projects as features and every project in the rail with its
 });
 
 it('shows the empty message when there are no projects', function () {
-    livewire(ProjectList::class)->assertSee('No projects yet.')->assertDontSeeHtml('id="projects-rail"');
+    livewire(ProjectList::class)->assertSeeHtml('class="blog-empty"')->assertSee('Discover my method')->assertDontSeeHtml('id="projects-rail"');
 });
