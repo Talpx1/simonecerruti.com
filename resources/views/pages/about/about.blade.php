@@ -31,11 +31,7 @@
 
     <section class="section">
         <div class="about-intro">
-            <div class="portrait-frame" data-effect="portrait-smudge" data-cursor="{{ __('Hi') }}">
-                <img src="{{ asset('images/about_protrait.webp') }}" alt="{{ __('Portrait of Simone Cerruti') }}"
-                    loading="lazy">
-                <span class="before-after-screen-watermark" aria-hidden="true">SC</span>
-            </div>
+            <x-portrait-showcase :alternative-text="__('Portrait of Simone Cerruti')" data-cursor="{{ __('Hi') }}" />
             <div>
                 <h2 class="section-title reveal">{!! __('I do not<br><em>just build websites.</em>') !!}</h2>
                 <p class="section-lead reveal" style="margin-top: 28px">{{ __('I develop complex, bespoke software: management systems, ERPs, CRMs, web platforms, automations and AI-based tools. Performance, reliability and scalability are not optional.') }}</p>

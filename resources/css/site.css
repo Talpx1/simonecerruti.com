@@ -223,10 +223,6 @@ main { position: relative; z-index: 2; }
 
 /* ---------- about ---------- */
 .about-intro { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 6vw, 110px); align-items: center; }
-.portrait-frame { position: relative; aspect-ratio: 4 / 5; max-width: 500px; border: 1px solid var(--site-color-border); background: radial-gradient(100% 80% at 30% 20%, #1E1E1D, #0C0C0C); overflow: hidden; display: flex; align-items: flex-end; padding: 18px; clip-path: inset(calc((1 - var(--portrait-reveal-progress, 1)) * 100%) 0 0 0); }
-.portrait-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.05); }
-.portrait-frame .ph { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--site-color-text-muted); font-weight: 650; position: relative; }
-.portrait-frame .before-after-screen-watermark { position: absolute; left: -6%; top: -10%; font-family: var(--site-font-display); font-weight: 900; font-size: clamp(200px, 30vw, 480px); line-height: .8; letter-spacing: -.08em; color: rgba(241,240,236,.035); }
 .about-paint { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 6vw, 110px); align-items: center; }
 .about-paint-screen { position: relative; border: 1px solid var(--site-color-border); background: #0d0d0d; padding: 14px; }
 .about-paint-screen-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 4px 4px 12px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--site-color-text-muted); }
@@ -845,9 +841,14 @@ a:hover .project-cover::after, .project-feature:hover .project-cover::after { tr
 .home-about-facts li::before { content: ''; position: absolute; left: 2px; top: 50%; width: 8px; height: 8px; margin-top: -4px; background: var(--site-color-accent); }
 .home-about-more { margin-top: 40px; }
 
-.portrait-smudge { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; filter: grayscale(1) contrast(1.05); }
-.portrait-frame[data-effect="portrait-smudge"] { cursor: grab; }
-.portrait-frame[data-effect="portrait-smudge"]:active { cursor: grabbing; }
+.portrait-showcase { position: relative; width: 100%; max-width: 500px; }
+.portrait-showcase-photo-card { position: relative; z-index: 1; aspect-ratio: 4 / 5; border: 1px solid var(--site-color-border); background: radial-gradient(100% 80% at 30% 20%, #1E1E1D, #0C0C0C); overflow: hidden; }
+.portrait-showcase-photo-card picture { position: absolute; inset: 0; }
+.portrait-showcase-photo-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.04); transform: scale(1.06) translate(calc(var(--portrait-parallax-x, 0) * -1.6%), calc(var(--portrait-parallax-y, 0) * -1.2%)); }
+.portrait-showcase-cursor-glow { position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0; mix-blend-mode: color; background: radial-gradient(circle 95px at var(--portrait-glow-x, 50%) var(--portrait-glow-y, 40%), rgba(255,74,28,.95), rgba(255,74,28,.5) 45%, transparent 100%); }
+.portrait-showcase-logo-wave { position: absolute; z-index: 3; left: 57%; top: 57%; width: 58%; height: auto; overflow: visible; pointer-events: none; transform: translate(calc(var(--portrait-parallax-x, 0) * 22px), calc((1 - var(--portrait-logo-draw-progress, 1)) * 50px + var(--portrait-parallax-y, 0) * 16px)); }
+.portrait-showcase-logo-wave path { fill: none; stroke: var(--site-color-accent); stroke-width: 5; stroke-linecap: square; stroke-linejoin: bevel; stroke-dasharray: 186; stroke-dashoffset: 186; filter: drop-shadow(0 0 10px rgba(255,74,28,.35)); }
+@media (max-width: 900px) { .portrait-showcase-logo-wave { left: 54%; width: 52%; } }
 
 html.has-custom-scrollbar { scrollbar-width: none; }
 html.has-custom-scrollbar::-webkit-scrollbar { display: none; }
@@ -855,3 +856,7 @@ html.has-custom-scrollbar::-webkit-scrollbar { display: none; }
 .site-scrollbar.is-scrollable { display: block; }
 .site-scrollbar.is-awake, .site-scrollbar:hover { opacity: 1; }
 
+
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: clip; }
