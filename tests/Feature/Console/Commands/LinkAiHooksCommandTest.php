@@ -25,7 +25,7 @@ test('links .ai/hooks into .claude, creating the folder', function (): void {
 
     expect(is_link("{$project}/.claude/hooks"))->toBeTrue()
         ->and(readlink("{$project}/.claude/hooks"))->toBe('../.ai/hooks')
-        ->and(is_file("{$project}/.claude/hooks/guard.sh"))->toBeTrue()
+        ->and("{$project}/.claude/hooks/guard.sh")->toBeFile()
         ->and(file_exists("{$project}/.codex"))->toBeFalse();
 });
 

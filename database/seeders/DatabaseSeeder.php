@@ -5,15 +5,19 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Seeders\Concerns\RunsOnlyInLocalEnvironment;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
-class DatabaseSeeder extends Seeder {
+final class DatabaseSeeder extends Seeder {
+    use RunsOnlyInLocalEnvironment;
+
     /**
      * Seed the application's database.
      */
     public function run(): void {
+        $this->assertLocalEnvironment();
+
         if (app()->isLocal()) {
             User::factory()->create([
                 'name' => 'Simone',

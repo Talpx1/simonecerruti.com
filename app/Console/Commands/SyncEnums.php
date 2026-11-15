@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Enums\Contracts\SyncsToDatabase;
+use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use ReflectionEnum;
@@ -12,9 +13,8 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use UnitEnum;
 
 #[AsCommand(name: 'enums:sync')]
+#[Description('Sync all enums that implement SyncsToDatabase to the database')]
 class SyncEnums extends Command {
-    protected $description = 'Sync all enums that implement SyncsToDatabase to the database';
-
     public function handle(): int {
         $enum_files = File::allFiles(app_path('Enums'));
 
