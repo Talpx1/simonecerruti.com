@@ -63,6 +63,26 @@ arch('the blog category enum is integer backed')
     ->expect('App\Enums\BlogCategories')
     ->toBeIntBackedEnums();
 
+arch('the AI enums are string backed')
+    ->expect(['App\Enums\Abilities', 'App\Enums\GeneratableFields'])
+    ->toBeStringBackedEnums();
+
+/*
+|--------------------------------------------------------------------------
+| AI
+|--------------------------------------------------------------------------
+*/
+
+arch('AI agents implement the agent contract')
+    ->expect('App\Ai\Agents')
+    ->classes()
+    ->toImplement('Laravel\Ai\Contracts\Agent');
+
+arch('AI agents are final')
+    ->expect('App\Ai\Agents')
+    ->classes()
+    ->toBeFinal();
+
 /*
 |--------------------------------------------------------------------------
 | Data

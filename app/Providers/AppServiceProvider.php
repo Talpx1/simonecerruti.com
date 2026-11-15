@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Enums\Abilities;
 use App\Http\Middleware\TrackVisit;
+use App\Models\User;
 use App\View\Composers\SeoComposer;
 use Carbon\CarbonImmutable;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Infolists\Components\TextEntry;
@@ -19,6 +22,7 @@ use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -73,6 +77,9 @@ class AppServiceProvider extends ServiceProvider {
 
         Storage::extend('google', $this->makeGoogleDriveFilesystem(...));
 
+        Gate::define(Abilities::GENERATE_AI_CONTENT->value, $this->canAccessAdminPanel(...));
+        Gate::define(Abilities::MANAGE_AI_SETTINGS->value, $this->canAccessAdminPanel(...));
+
         RouteServiceProvider::loadCachedRoutesUsing(fn () => $this->loadCachedRoutes());
 
         DateTimePicker::configureUsing(function (DateTimePicker $component) {
@@ -91,6 +98,10 @@ class AppServiceProvider extends ServiceProvider {
         /** @var array<int, string> $allowed_analytics */
         $allowed_analytics = config()->array('analytics.pan.allowed_analytics');
         PanConfiguration::allowedAnalytics($allowed_analytics);
+    }
+
+    private function canAccessAdminPanel(User $user): bool {
+        return $user->canAccessPanel(Filament::getDefaultPanel());
     }
 
     /**
