@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\BlogArticle;
 
+use App\Actions\AddHeadingIds;
 use App\Actions\BuildTableOfContents;
 use App\Filament\RichContentBlocks\GalleryBlock;
 use App\Models\BlogArticle;
@@ -26,15 +27,15 @@ class BlogArticleShow extends Component {
     }
 
     public function render(BlogSettings $blog_settings): View {
-        $content = BuildTableOfContents::run(
+        $content_html = AddHeadingIds::run(
             RichContentRenderer::make($this->blog_article->content)->customBlocks([GalleryBlock::class])->toHtml()
         );
 
         $view = view('pages.blog-article.show')
             ->with([
                 'related_blog_articles' => $this->blog_article->relatedBlogArticles(),
-                'content_html' => $content['html'],
-                'table_of_contents' => $content['items'],
+                'content_html' => $content_html,
+                'table_of_contents' => BuildTableOfContents::run($content_html),
                 'author_bio' => $blog_settings->getAuthorBioForCurrentLocale(),
             ]);
 

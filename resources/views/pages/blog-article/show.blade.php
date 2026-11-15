@@ -32,7 +32,7 @@
             @if (count($table_of_contents) > 0)
                 <nav class="article-toc" aria-label="{{ __('Contents') }}">
                     @foreach ($table_of_contents as $entry)
-                        <a @class(['article-toc-link--h3' => $entry['level'] === 3]) href="#{{ $entry['id'] }}">{{ $entry['title'] }}</a>
+                        <a @class(['article-toc-link--h3' => $entry->level === 3]) href="#{{ $entry->id }}">{{ $entry->title }}</a>
                     @endforeach
                 </nav>
             @else

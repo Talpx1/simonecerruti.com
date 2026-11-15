@@ -54,6 +54,15 @@ it('exposes previous and next published articles', function () {
         ->and($component->instance()->next->id)->toBe($newer->id);
 });
 
+it('exposes no previous or next article when it is the only published one', function () {
+    $current = BlogArticle::factory()->published()->create();
+
+    $component = livewire(BlogArticleShow::class, ['blog_article' => $current]);
+
+    expect($component->instance()->previous)->toBeNull()
+        ->and($component->instance()->next)->toBeNull();
+});
+
 it('renders reading time, table of contents with heading ids and author bio', function () {
     $settings = resolve(BlogSettings::class);
     $settings->author_bio = [app()->getLocale() => 'Author bio text'];
