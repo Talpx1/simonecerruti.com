@@ -32,7 +32,7 @@ Deploys come from the `laravel-containerized-starter-kit` deploy module. The ref
 - Variables: `DEPLOY_HOST`, `DOCKERHUB_USERNAME`, `DOCKERHUB_NAMESPACE`, `RELEASE_APP_ID`.
 - Secrets: `DEPLOY_SSH_KEY_STAGING`, `DEPLOY_SSH_KEY_PRODUCTION`, `DEPLOY_KNOWN_HOSTS`, `DOTENV_STAGING`, `DOTENV_PRODUCTION`, `DOCKERHUB_TOKEN`, `DOCKERHUB_PULL_TOKEN`, `RELEASE_APP_PRIVATE_KEY`. Optional: `SECURITY_ALERT_WEBHOOK_URL`, `GITLEAKS_LICENSE`.
 - Environments `staging` and `production`, a `staging` branch, and branch protection on `main`, `staging` and `production` with the `pr-checks` checks required.
-- `DOTENV_PRODUCTION` must set `APP_URL`, `APP_HOST`, `DB_*`, every `PHP_OPCACHE_*` value (no defaults) and the application keys (reCAPTCHA, `BACKUP_*`, `GOOGLE_DRIVE_*`, Slack, mail). Drop `COMPOSE_PROJECT_NAME`.
+- `DOTENV_PRODUCTION` must set `APP_URL`, `APP_HOST`, `DB_*`, every `PHP_OPCACHE_*` value (no defaults) and the application keys (reCAPTCHA, `BACKUP_*`, `GOOGLE_DRIVE_*`, `ANTHROPIC_API_KEY` for the [AI content generation](ai-content-generation.md), Slack, mail). Drop `COMPOSE_PROJECT_NAME`.
 
 ## Backups
 
