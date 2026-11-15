@@ -7,6 +7,7 @@ namespace App\Filament\Resources\BlogArticles\Schemas;
 use App\Enums\BlogArticleStatuses;
 use App\Enums\TagTypes;
 use App\Filament\Components\SeoFields;
+use App\Filament\Components\TranslateTagsAction;
 use App\Filament\RichContentBlocks\GalleryBlock;
 use App\Models\Project;
 use Filament\Forms\Components\DateTimePicker;
@@ -130,12 +131,14 @@ class BlogArticleForm {
                     ->schema([
                         SpatieTagsInput::make('categories')
                             ->type(TagTypes::BLOG_CATEGORY->value)
+                            ->hintAction(TranslateTagsAction::make())
                             ->label('Categorie')
                             ->splitKeys(['Tab', ','])
                             ->columnSpanFull(),
 
                         SpatieTagsInput::make('tags')
                             ->type(TagTypes::TAG->value)
+                            ->hintAction(TranslateTagsAction::make())
                             ->label('Tags')
                             ->columnSpanFull(),
                     ])

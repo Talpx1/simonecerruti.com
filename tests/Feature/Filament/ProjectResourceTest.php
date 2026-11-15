@@ -9,6 +9,7 @@ use App\Filament\Resources\Projects\Pages\EditProject;
 use App\Filament\Resources\Projects\Pages\ListProjects;
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\Tag;
 use Filament\Actions\Testing\TestAction;
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -67,6 +68,20 @@ it('creates a client from the project form select', function () {
 
     assertDatabaseHas(Client::class, ['name' => 'Brand New Client']);
     expect(Project::query()->firstOrFail()->client?->name)->toBe('Brand New Client');
+});
+
+it('translates the tags of a project from the tags input', function () {
+    $project = Project::factory()->create();
+    $project->syncTagsWithType(['Gestionale'], TagTypes::TAG->value);
+    $tag = Tag::query()->where('type', TagTypes::TAG->value)->firstOrFail();
+
+    livewire(EditProject::class, ['record' => $project->id])
+        ->callAction(TestAction::make('translateTags')->schemaComponent('tags'), [
+            'tags' => [['id' => $tag->id, 'names' => ['it' => 'Gestionale', 'en' => 'Management software']]],
+        ])
+        ->assertHasNoActionErrors();
+
+    expect($tag->refresh()->getTranslationWithoutFallback('name', 'en'))->toBe('Management software');
 });
 
 it('saves the story fields of a project', function () {
