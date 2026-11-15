@@ -1,5 +1,5 @@
 <section class="home-about" id="about" data-section="about" data-pan="section-impression-cta">
-    <div class="portrait-frame" data-effect="portrait-pixelate">
+    <div class="portrait-frame" data-effect="portrait-smudge">
         <img src="{{ asset('images/about_protrait.webp') }}" alt="{{ config('company.friendly_name') }}" loading="lazy">
     </div>
 

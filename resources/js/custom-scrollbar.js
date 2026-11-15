@@ -1,5 +1,7 @@
-const MINIMUM_THUMB_HEIGHT = 56;
-const IDLE_HIDE_DELAY_MS = 900;
+const RAIL_WIDTH = 16;
+const DOT_SPACING = 14;
+const WAVE_RADIUS = 90;
+const IDLE_HIDE_DELAY_MS = 1200;
 
 export function initCustomScrollbar() {
     if (!matchMedia('(pointer: fine)').matches) {
@@ -7,106 +9,120 @@ export function initCustomScrollbar() {
     }
 
     const rootElement = document.documentElement;
-    const trackElement = document.createElement('div');
-    trackElement.className = 'site-scrollbar';
-    trackElement.setAttribute('aria-hidden', 'true');
-    trackElement.innerHTML =
-        '<div class="site-scrollbar-fill"></div>' +
-        '<div class="site-scrollbar-thumb"><span class="site-scrollbar-grip"></span><span class="site-scrollbar-label">00</span></div>';
-    const fillElement = trackElement.querySelector('.site-scrollbar-fill');
-    const thumbElement = trackElement.querySelector('.site-scrollbar-thumb');
-    const labelElement = trackElement.querySelector('.site-scrollbar-label');
+    const railElement = document.createElement('canvas');
+    railElement.className = 'site-scrollbar';
+    railElement.setAttribute('aria-hidden', 'true');
+    const railContext = railElement.getContext('2d');
 
+    let railHeight = 0;
     let hideTimeout = null;
-    let dragOffset = null;
-    let isTrackVisible = false;
+    let isDragging = false;
+    let isScrollable = false;
+    let hoverY = null;
 
-    const getMetrics = () => {
-        const scrollableHeight = Math.max(0, rootElement.scrollHeight - innerHeight);
-        const trackHeight = trackElement.clientHeight;
-        const thumbHeight = Math.max(MINIMUM_THUMB_HEIGHT, (innerHeight / rootElement.scrollHeight) * trackHeight);
-        return { scrollableHeight, trackHeight, thumbHeight, travel: Math.max(1, trackHeight - thumbHeight) };
-    };
+    const getScrollableHeight = () => Math.max(0, rootElement.scrollHeight - innerHeight);
 
     const wake = () => {
-        trackElement.classList.add('is-awake');
+        railElement.classList.add('is-awake');
         clearTimeout(hideTimeout);
         hideTimeout = setTimeout(() => {
-            if (dragOffset === null && !trackElement.matches(':hover')) {
-                trackElement.classList.remove('is-awake');
+            if (!isDragging && hoverY === null) {
+                railElement.classList.remove('is-awake');
             }
         }, IDLE_HIDE_DELAY_MS);
     };
 
-    const update = () => {
-        const { scrollableHeight, thumbHeight, travel } = getMetrics();
-        const isScrollable = scrollableHeight > 1;
-        if (isScrollable !== isTrackVisible) {
-            isTrackVisible = isScrollable;
-            trackElement.classList.toggle('is-scrollable', isScrollable);
+    const resize = () => {
+        const pixelRatio = Math.min(devicePixelRatio || 1, 2);
+        railHeight = railElement.clientHeight;
+        railElement.width = RAIL_WIDTH * pixelRatio;
+        railElement.height = railHeight * pixelRatio;
+        railContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        draw();
+    };
+
+    const draw = () => {
+        const scrollableHeight = getScrollableHeight();
+        const nextIsScrollable = scrollableHeight > 1;
+        if (nextIsScrollable !== isScrollable) {
+            isScrollable = nextIsScrollable;
+            railElement.classList.toggle('is-scrollable', isScrollable);
         }
+        railContext.clearRect(0, 0, RAIL_WIDTH, railHeight);
         if (!isScrollable) {
             return;
         }
         const progress = Math.min(1, Math.max(0, scrollY / scrollableHeight));
-        const thumbTop = progress * travel;
-        thumbElement.style.height = `${thumbHeight}px`;
-        thumbElement.style.transform = `translate3d(0, ${thumbTop}px, 0)`;
-        fillElement.style.height = `${thumbTop + thumbHeight / 2}px`;
-        labelElement.textContent = String(Math.round(progress * 100)).padStart(2, '0');
-    };
-
-    const onScroll = () => {
-        update();
-        wake();
-    };
-
-    thumbElement.addEventListener('pointerdown', (event) => {
-        event.preventDefault();
-        thumbElement.setPointerCapture(event.pointerId);
-        dragOffset = event.clientY - thumbElement.getBoundingClientRect().top;
-        trackElement.classList.add('is-dragging', 'is-awake');
-    });
-    thumbElement.addEventListener('pointermove', (event) => {
-        if (dragOffset === null) {
-            return;
+        const currentY = progress * railHeight;
+        const dotCount = Math.floor(railHeight / DOT_SPACING);
+        const dotOffset = (railHeight - (dotCount - 1) * DOT_SPACING) / 2;
+        for (let index = 0; index < dotCount; index++) {
+            const dotY = dotOffset + index * DOT_SPACING;
+            const waveDistance = Math.abs(dotY - currentY);
+            const wave = waveDistance < WAVE_RADIUS ? 1 - waveDistance / WAVE_RADIUS : 0;
+            const hoverDistance = hoverY === null ? WAVE_RADIUS : Math.abs(dotY - hoverY);
+            const hoverWave = hoverDistance < WAVE_RADIUS ? 1 - hoverDistance / WAVE_RADIUS : 0;
+            const isPassed = dotY < currentY;
+            const size = 2 + wave * wave * 7 + hoverWave * 2;
+            railContext.fillStyle =
+                wave > 0.55
+                    ? '#ff4a1c'
+                    : `rgba(241,240,236,${(isPassed ? 0.38 : 0.16) + wave * 0.4 + hoverWave * 0.25})`;
+            railContext.fillRect(RAIL_WIDTH / 2 - size / 2, dotY - size / 2, size, size);
         }
-        const { scrollableHeight, travel } = getMetrics();
-        const trackTop = trackElement.getBoundingClientRect().top;
-        const progress = Math.min(1, Math.max(0, (event.clientY - trackTop - dragOffset) / travel));
-        scrollTo({ top: progress * scrollableHeight, behavior: 'instant' });
+    };
+
+    const scrollToPointer = (event, behavior) => {
+        const bounds = railElement.getBoundingClientRect();
+        const progress = Math.min(1, Math.max(0, (event.clientY - bounds.top) / bounds.height));
+        scrollTo({ top: progress * getScrollableHeight(), behavior });
+    };
+
+    railElement.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        isDragging = true;
+        railElement.setPointerCapture(event.pointerId);
+        railElement.classList.add('is-awake');
+        scrollToPointer(event, 'smooth');
+    });
+    railElement.addEventListener('pointermove', (event) => {
+        hoverY = event.clientY - railElement.getBoundingClientRect().top;
+        if (isDragging) {
+            scrollToPointer(event, 'instant');
+        }
+        draw();
     });
     const stopDragging = () => {
-        dragOffset = null;
-        trackElement.classList.remove('is-dragging');
+        isDragging = false;
         wake();
     };
-    thumbElement.addEventListener('pointerup', stopDragging);
-    thumbElement.addEventListener('pointercancel', stopDragging);
-
-    trackElement.addEventListener('pointerdown', (event) => {
-        if (event.target.closest('.site-scrollbar-thumb')) {
-            return;
-        }
-        const { scrollableHeight, thumbHeight, travel } = getMetrics();
-        const trackTop = trackElement.getBoundingClientRect().top;
-        const progress = Math.min(1, Math.max(0, (event.clientY - trackTop - thumbHeight / 2) / travel));
-        scrollTo({ top: progress * scrollableHeight, behavior: 'smooth' });
+    railElement.addEventListener('pointerup', stopDragging);
+    railElement.addEventListener('pointercancel', stopDragging);
+    railElement.addEventListener('pointerleave', () => {
+        hoverY = null;
+        draw();
+        wake();
     });
-    trackElement.addEventListener('pointerenter', wake);
-    trackElement.addEventListener('pointerleave', wake);
+    railElement.addEventListener('pointerenter', wake);
 
-    const mountTrack = () => {
-        if (!trackElement.isConnected) {
-            document.body.appendChild(trackElement);
+    const mountRail = () => {
+        if (!railElement.isConnected) {
+            document.body.appendChild(railElement);
         }
-        update();
+        resize();
     };
 
     rootElement.classList.add('has-custom-scrollbar');
-    mountTrack();
-    addEventListener('scroll', onScroll, { passive: true });
-    addEventListener('resize', update, { passive: true });
-    document.addEventListener('livewire:navigated', mountTrack);
-    new ResizeObserver(update).observe(rootElement);
+    mountRail();
+    addEventListener(
+        'scroll',
+        () => {
+            draw();
+            wake();
+        },
+        { passive: true },
+    );
+    addEventListener('resize', resize, { passive: true });
+    document.addEventListener('livewire:navigated', mountRail);
+    new ResizeObserver(draw).observe(rootElement);
 }
