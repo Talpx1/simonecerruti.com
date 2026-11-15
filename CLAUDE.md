@@ -79,7 +79,6 @@ Prioritize the example over brevity: a slightly longer message the user understa
 - Sequential explicit logic invocation is preferred over event-driven design.
 - Actions pattern wins over Observers.
 - When creating or refactoring a behavior, prefer an **Action** (`lorisleiva/laravel-actions`) over a Support class, an helper method or similar.
-- Filament-specific behavior must be wrapped in a Filament Action. Whenever, write a generic Action and reference it from a Filament Action. Treat Filament action as adapter/wrapper over generic actions.
 - Prefer macros instead of Support classes or helpers. Eg: prefer creating macros on the `Cache` facade instead of creating a `Support\CacheHelper` class.
 - One Service Provider per macro family, registering every macro on that same macroable class: all `Config` macros in `ConfigMacroServiceProvider`, all `Str` macros in `StrMacroServiceProvider`, etc.
 - Use Services **only for external integrations**.
@@ -102,8 +101,6 @@ Prioritize the example over brevity: a slightly longer message the user understa
 - Prefer immutability whenever possible.
 - When creating a new model or controller, generate a factory too.
 - When generating links to other pages, prefer named routes and the `route()` function.
-- Reference Filament routes via `Resource::getUrl('index')`, not Laravel `route()`. Name the exact Resource, not `getResource()`.
-- Always use Filament enums (eg: `Filament\Support\Icons\Heroicon`, `Filament\Support\Enums\Operation`, ...) instead of raw strings.
 - After creating, editing or removing a feature/fix, document it in the appropriate `.md` file in the `docs` directory.
 - Update existing docs when editing/refactoring a feature. Do not append at the end or add a "modified in date" section. Edit the doc file to keep it natural, organized and fluently readable, by editing its content.
 - Use conventional commits (https://www.conventionalcommits.org/en/v1.0.0/) to craft commit messages. This is a MUST.
@@ -168,7 +165,7 @@ Before requiring an external package, check all the following:
 - IDE: VSCode
 - Host Machine: Docker container running custom image, see docker/Dockerfile.
 - Same image of production, plus some customization made in a dedicated if block in the docker/Dockerfile.
-- Runtime:  Supervisor managed processes for: nginx, php-fpm, cron, queues, vite watch build (dev only)
+- Runtime: Supervisor-managed processes: nginx, php-fpm, cron, queue workers, and (dev only) vite watch build and the Playwright orphan reaper.
 
 ### Logs
 
@@ -192,13 +189,24 @@ All logs live in `storage/logs`:
 
 ## Production Environment
 
-- Same Dockerfile (nginx, php-fpm, cron, queues): see docker/Dockerfile
-- Served by traefik
-- Custom docker-compose.yml, similar to docker-compose.local.yml, without mailpit but with watchtower
-- CI/CD by Github Actions, see .github/workflows/deploy.yml
-- After watchtower updates the container, by pulling the image from dockerhub, it triggers the /post-update.sh script (locally located in docker/scripts//post-update.sh)
-- Opcache enabled (no CLI)
-- All logs in storage/logs
+- Same Dockerfile as dev (nginx, php-fpm, cron, queue workers): see docker/Dockerfile. Opcache enabled (no CLI).
+- Traefik runs in front of the app and routes by the labels in `deploy/compose.yml`.
+- CI builds the image once, tagged with the commit SHA, and pushes it to Docker Hub. Deploys use the image digest, never a tag. See `.github/workflows`.
+- CI deploys by running `deploy/gateway.sh` with a fixed verb over a restricted SSH key. The gateway validates `deploy/compose.yml` against a policy before applying it.
+- Migrations run in a throwaway container first. Only then does a zero-downtime `docker rollout` replace the app container; `rebuild-caches.sh` rebuilds the Laravel caches afterwards.
+- Flow: merge into `staging` deploys staging; the Release workflow deploys production with the image already tested in staging; the Hotfix workflow is the only case where production builds its own image.
+- Rollback redeploys a previous tag; migrations are not rolled back (expand / contract).
+- All logs in storage/logs.
+- Details, server setup and operations: `deploy/README.md`.
+
+=== .ai/filament rules ===
+
+# Filament
+
+- Reference Filament routes via `Resource::getUrl('index')`, not Laravel `route()`. Name the exact Resource, not `getResource()`.
+- Always use Filament enums (eg: `Filament\Support\Icons\Heroicon`, `Filament\Support\Enums\Operation`, ...) instead of raw strings.
+- Filament-specific behavior must be wrapped in a Filament Action. Whenever, write a generic Action and reference it from a Filament Action. Treat Filament action as adapter/wrapper over generic actions.
+- Filament `->authorize('ability')` references the model policies / gates.
 
 === .ai/livewire rules ===
 
@@ -212,6 +220,28 @@ All logs live in `storage/logs`:
 
 Personal website for Simone Cerruti's freelancing activity: presentation, portfolio, blog and contacts.
 It is localized (via `mcamara/laravel-localization`), tracks its own analytics, and is managed through a Filament admin panel served at `/admin`.
+
+=== .ai/media rules ===
+
+# Media
+
+- Files are handled by `spatie/laravel-medialibrary` only.
+
+=== .ai/security rules ===
+
+# Security
+
+- Provide a **Policy class per model** (CRUD + record-level)
+- Use **Gates** for abilities not tied to a model (e.g. "access the panel").
+- Posture is **default-deny**.
+- Action must check authorization **explicitly inside the Action**.
+- Never use `$guarded = []` on any model.
+- Never unguard any model.
+- Cast sensible attributes as `encrypted`.  
+  Do not encrypt fields needed for important/recurring matches.  
+  For deterministic lookup on an encrypted field, add a **blind index**: a hash column alongside the encrypted one.
+- Never write PII to application logs.
+- A client-controllable value interpolated into an exception message reaches the log verbatim, so escape its control characters: `addcslashes($value, "\0..\37")`, or a submitted newline forges a log line.
 
 === .ai/translations rules ===
 
@@ -301,81 +331,5 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
 - Always use single quotes to prevent shell expansion: `php artisan tinker --execute 'Your::code();'`
   - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
-
-=== php rules ===
-
-# PHP
-
-- Always use curly braces for control structures, even for single-line bodies.
-- Use PHP 8 constructor property promotion: `public function __construct(public GitHub $github) { }`. Do not leave empty zero-parameter `__construct()` methods unless the constructor is private.
-- Use explicit return type declarations and type hints for all method parameters: `function isAccessible(User $user, ?string $path = null): bool`
-- Follow existing application Enum naming conventions.
-- Prefer PHPDoc blocks over inline comments. Only add inline comments for exceptionally complex logic.
-- Use array shape type definitions in PHPDoc blocks.
-
-=== deployments rules ===
-
-# Deployment
-
-- Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
-
-=== tests rules ===
-
-# Test Enforcement
-
-- Add or update tests for behavior and logic changes when a test provides meaningful regression coverage.
-- Pure copy, styling, and layout-only changes do not require new or updated tests.
-- When test coverage applies, run the affected tests and ensure they pass.
-- Test the changed behavior and its important failure modes, but do not add tests beyond them.
-- Read the `testing-best-practices` skill before writing tests.
-
-=== laravel/core rules ===
-
-# Do Things the Laravel Way
-
-- Use `php artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using `php artisan list` and check their parameters with `php artisan [command] --help`.
-- If you're creating a generic PHP class, use `php artisan make:class`.
-- Pass `--no-interaction` to all Artisan commands to ensure they work without user input. You should also pass the correct `--options` to ensure correct behavior.
-
-### Model Creation
-
-- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `php artisan make:model --help` to check the available options.
-
-## APIs & Eloquent Resources
-
-- For APIs, default to using Eloquent API Resources and API versioning unless existing API routes do not, then you should follow existing application convention.
-
-## URL Generation
-
-- When generating links to other pages, prefer named routes and the `route()` function.
-
-## Testing
-
-- When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
-- Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `php artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
-
-=== pint/core rules ===
-
-# Laravel Pint Code Formatter
-
-- If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
-- Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
-
-=== pest/core rules ===
-
-# Pest
-
-- This project uses Pest. Create tests with `php artisan make:test --pest {name}`.
-- Do not include the test suite directory in `{name}`. Use `SomeFeatureTest`, not `Feature/SomeFeatureTest`.
-- Read the `testing-best-practices` skill for guidance on coverage, naming, structure, dependency isolation, and review.
-- Do not delete tests or test files without approval. They are part of the application.
-
-## Running Tests
-
-- Run the narrowest set of tests that covers the change. Pass a file path or `--filter=testName` to `php artisan test --compact`.
-- Rerun a test after each change to it.
-- Run `vendor/bin/pest` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
-- After the feature tests pass, ask the user to run the complete suite with `php artisan test --compact`.
 
 </laravel-boost-guidelines>
