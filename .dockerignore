@@ -15,7 +15,10 @@
 # Env (provided at runtime)
 .env
 .env.*
-!.env.example
+
+# Cached manifests of the host (dev packages included), regenerated in the image
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
 
 # Storage / runtime
 /storage/logs/*
@@ -24,7 +27,6 @@
 /storage/framework/sessions/*
 /storage/framework/views/*
 /storage/framework/testing/*
-/storage/debugbar
 /storage/clockwork
 /storage/pail
 /storage/*.key
@@ -37,12 +39,11 @@
 /phpstan.neon
 /pint.json
 /.phpactor.json
+/.npmrc
 
 # AI / editor / IDE configs
 /.ai
 /.claude
-/.codegraph
-/.worktrees
 /.cursor
 /.copilot
 /CLAUDE.md
@@ -52,9 +53,16 @@
 /.zed
 /.nova
 /.fleet
+/.claudeignore
+/.mcp.json
+/skills-lock.json
 
 # Local dev compose
 /docker-compose.local.yml
+
+# Starter kit installer (removed after installation)
+/.starterkit
+/starter-kit.json
 
 # Docs / misc
 /README.md
@@ -66,3 +74,15 @@
 *.swp
 .DS_Store
 Thumbs.db
+/.devcontainer
+/.dockerignore
+/docs
+/.editorconfig
+/.github
+/rector-tests.php
+/rector.php
+/storage/debugbar
+/deploy
+/CHANGELOG.md
+/.codegraph
+/.worktrees
