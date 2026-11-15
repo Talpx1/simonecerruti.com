@@ -87,7 +87,11 @@ On top of the usual fields, the Project form has the case-study fields shown on 
 | `features` | Repeater of `{title, description}`. |
 | `home_summary` | Short text for the home page. |
 
-Related actions: `GetAdjacentProjects` (previous/next navigation) and `GetServiceAreaProjects`.
+Related actions: `GetAdjacentProjects` and `GetServiceAreaProjects`. Actions return DTOs from `App\DataTransferObjects`, never arrays with PHPDoc shapes.
+
+`GetAdjacentProjects` returns an `AdjacentProjectsData` with a nullable `previous` and `next` project. Navigation is circular, so a side is null only when there is no other content. With exactly two items, the first has only `next` and the last only `previous`. The current item is never returned as its own neighbour. The navigation is hidden when both are null. Articles follow the same previous/next rule.
+
+The home page works section is built from a list of `WorkCardData` (title, kind, image URL, summary HTML, URL).
 
 ### Tag
 
@@ -98,7 +102,7 @@ Tags have a `description` and an optional `service`, a `ServiceAreas` case (`man
 - `BlogSettings` (Filament settings page, group `blog`) holds the per-locale `author_bio`, shown in the article footer through `getAuthorBioForCurrentLocale()`; it is null when empty.
 - The list is paginated (`BlogArticleList::ARTICLES_PER_PAGE`, 6).
 - `GetFeaturedBlogArticles` returns the two latest published articles flagged `featured` that have a translation for the current locale.
-- `BuildTableOfContents` adds ids to the `h2`/`h3` of the article HTML and returns the table of contents; `CalculateReadingTime` gives the reading time.
+- `AddHeadingIds` adds ids to the `h2`/`h3` of the rendered article HTML. `BuildTableOfContents` is a pure read that returns a list of `TableOfContentsEntryData` (id, title, level), used by the article sidebar. `CalculateReadingTime` gives the reading time.
 - The rich editor has a `Gallery` block (`app/Filament/RichContentBlocks/GalleryBlock.php`): 2 to 12 images with optional captions, stored in `blog/gallery` on the public disk. The preview view is `rich-content.blocks.gallery-preview`.
 
 ## Translations
