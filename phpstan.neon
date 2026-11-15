@@ -35,18 +35,11 @@ parameters:
         -
             identifier: function.impossibleType
             path: app/Enums/Concerns/SeedDb.php
-        # Field text-transform macro closures are bound to a Field by Field::macro() at
-        # registration; PHPStan cannot connect $this back from the Macro::register() contract.
+        # The closure built by InstanceMacro::register() is bound to the macroable instance by
+        # Macroable::__call() at call time; PHPStan cannot see that binding from a static method.
         -
             identifier: variable.undefined
-            paths:
-                - app/Filament/Macros/Field
-                - app/Macros/Request
-        -
-            identifier: method.nonObject
-            paths:
-                - app/Filament/Macros/Field
-                - app/Macros/Request
+            path: app/Macros/Contracts/InstanceMacro.php
         # JSON-path where clauses on translatable columns ("slug->{locale}") cannot be validated
         # by checkModelProperties, which only understands literal column names.
         -
@@ -74,24 +67,6 @@ parameters:
                 - app/Filament/Resources/BlogArticles/Schemas/BlogArticleForm.php
                 - app/Filament/Resources/Projects/Schemas/ProjectForm.php
                 - app/Filament/Resources/Tags/Schemas/TagForm.php
-        # The App::supportedLocaleCodes() macro returns list<string>, but PHPStan reads a macro
-        # closure's native return type only, so its items are seen as mixed.
-        -
-            identifier: argument.type
-            paths:
-                - app/Actions/FillMissingTagTranslations.php
-                - app/Actions/UpdateTagTranslations.php
-                - app/Filament/Components/TranslateTagsAction.php
-        -
-            identifier: offsetAccess.invalidOffset
-            paths:
-                - app/Actions/UpdateTagTranslations.php
-                - app/Filament/Components/TranslateTagsAction.php
-        -
-            identifiers:
-                - encapsedStringPart.nonString
-                - return.type
-            path: app/Filament/Components/TranslateTagsAction.php
         # collect(static::cases()) yields Collection<int, case-union>; the invariant Collection
         # generic does not match Collection<int, static> even though every case is an instance.
         -
