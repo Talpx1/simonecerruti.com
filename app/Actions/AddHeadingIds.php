@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use Dom\Element;
 use Dom\HTMLDocument;
 use Dom\HTMLElement;
 use Illuminate\Support\Str;
@@ -20,6 +21,20 @@ final class AddHeadingIds {
         );
 
         $headings = $document->querySelectorAll('h2, h3');
+        $used_ids = $this->collectExistingHeadingIds($headings);
+
+        $this->assignIdsToHeadingsWithoutOne($headings, $used_ids);
+
+        $body = $document->body;
+
+        return $body instanceof HTMLElement ? $body->innerHTML : '';
+    }
+
+    /**
+     * @param  iterable<Element>  $headings
+     * @return array<string, true>
+     */
+    private function collectExistingHeadingIds(iterable $headings): array {
         $used_ids = [];
 
         foreach ($headings as $heading) {
@@ -30,6 +45,14 @@ final class AddHeadingIds {
             }
         }
 
+        return $used_ids;
+    }
+
+    /**
+     * @param  iterable<Element>  $headings
+     * @param  array<string, true>  $used_ids
+     */
+    private function assignIdsToHeadingsWithoutOne(iterable $headings, array &$used_ids): void {
         foreach ($headings as $heading) {
             $existing_id = $heading->getAttribute('id');
 
@@ -37,10 +60,6 @@ final class AddHeadingIds {
                 $heading->setAttribute('id', $this->makeUniqueId(\trim((string) $heading->textContent), $used_ids));
             }
         }
-
-        $body = $document->body;
-
-        return $body instanceof HTMLElement ? $body->innerHTML : '';
     }
 
     /**
