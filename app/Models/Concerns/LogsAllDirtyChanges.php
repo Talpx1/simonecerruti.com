@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models\Concerns;
 
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Collection;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
+/**
+ * @property-read Collection<int, Activity> $activitiesAsSubject
+ */
 trait LogsAllDirtyChanges {
     use LogsActivity;
 
@@ -14,6 +19,6 @@ trait LogsAllDirtyChanges {
         return LogOptions::defaults()
             ->logAll()
             ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
+            ->dontLogEmptyChanges();
     }
 }

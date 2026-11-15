@@ -8,6 +8,8 @@ use App\Enums\SchemaType;
 use App\Models\Concerns\LogsAllDirtyChanges;
 use Carbon\CarbonImmutable;
 use Database\Factories\SeoSettingFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
@@ -18,7 +20,7 @@ use Spatie\Translatable\HasTranslations;
 /**
  * Site-wide SEO identity and defaults — a single-row settings record.
  *
- * @property int $id
+ * @property string $id
  * @property SchemaType $type
  * @property string|null $name
  * @property string|null $description
@@ -29,9 +31,10 @@ use Spatie\Translatable\HasTranslations;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
-class SeoSetting extends Model {
+#[Fillable(['type', 'name', 'description', 'social_profiles', 'default_og_image', 'title_separator', 'website_schema'])]
+final class SeoSetting extends Model {
     /** @use HasFactory<SeoSettingFactory> */
-    use HasFactory, HasTranslations, LogsAllDirtyChanges;
+    use HasFactory, HasTranslations, HasUuids, LogsAllDirtyChanges;
 
     private const string CACHE_KEY = 'seo_settings';
 
@@ -68,8 +71,8 @@ class SeoSetting extends Model {
     }
 
     protected static function booted(): void {
-        static::saved(fn () => Cache::forget(self::CACHE_KEY));
-        static::deleted(fn () => Cache::forget(self::CACHE_KEY));
+        self::saved(fn () => Cache::forget(self::CACHE_KEY));
+        self::deleted(fn () => Cache::forget(self::CACHE_KEY));
     }
 
     /**

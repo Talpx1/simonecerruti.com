@@ -15,6 +15,7 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 
@@ -98,6 +99,8 @@ final class TranslateTagsAction {
 
         $created = Tag::findOrCreate($names, \is_string($type) ? $type : null);
 
-        return Tag::query()->whereKey(collect($created)->pluck('id')->all())->get();
+        $created_tags = $created instanceof SupportCollection ? $created : collect([$created]);
+
+        return Tag::query()->whereKey($created_tags->pluck('id')->all())->get();
     }
 }

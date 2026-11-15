@@ -144,7 +144,7 @@ class TrackVisit {
     private function hasAnalyticsConsent(): bool {
         $cookie_consent = view()->shared('cookieConsent');
 
-        return is_array($cookie_consent) && ($cookie_consent['analytics'] ?? false);
+        return \is_array($cookie_consent) && ($cookie_consent['analytics'] ?? false);
     }
 
     private function recoverAsNewSession(Request $request, ExistingSessionState $state): NewSessionState {
@@ -180,7 +180,7 @@ class TrackVisit {
             $minutes,
             '/',
             null,
-            (bool) config('session.secure'),
+            config()->boolean('session.secure'),
             true,
             false,
             'Lax',
@@ -255,7 +255,7 @@ class TrackVisit {
      * @return array{device_type: DeviceType|null, bot_score: int}
      */
     private function classifyVisitor(Request $request, ?string $user_agent): array {
-        $device_type = is_string($user_agent) && $user_agent !== ''
+        $device_type = \is_string($user_agent) && $user_agent !== ''
             ? DeviceTypeDetector::detect($user_agent)
             : null;
 

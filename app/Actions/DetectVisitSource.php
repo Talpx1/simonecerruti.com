@@ -13,7 +13,7 @@ use Safe\Exceptions\UrlException;
 
 use function Safe\parse_url;
 
-class DetectVisitSource {
+final class DetectVisitSource {
     use AsAction;
 
     public function handle(
@@ -123,7 +123,7 @@ class DetectVisitSource {
             return null;
         }
 
-        return is_string($host) ? strtolower($host) : null;
+        return \is_string($host) ? strtolower($host) : null;
     }
 
     private function matchSocial(?string $host): ?string {

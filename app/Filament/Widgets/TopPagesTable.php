@@ -13,7 +13,7 @@ class TopPagesTable extends TableWidget {
     public function table(Table $table): Table {
         $inner = PageView::query()
             ->where('viewed_at', '>=', now()->subDays(30))
-            ->selectRaw('MIN(id) as id, url_path, route_name, COUNT(*) as total')
+            ->selectRaw('MIN(id::text)::uuid as id,url_path, route_name, COUNT(*) as total')
             ->groupBy('url_path', 'route_name');
 
         return $table

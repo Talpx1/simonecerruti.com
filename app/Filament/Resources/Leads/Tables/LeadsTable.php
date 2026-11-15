@@ -35,7 +35,7 @@ class LeadsTable {
             ])
             ->recordActions([
                 ViewAction::make()->mountUsing(function (Lead $record) {
-                    if (is_null($record->read_at)) {
+                    if (\is_null($record->read_at)) {
                         $record->update(['read_at' => now()]);
                     }
                 }),

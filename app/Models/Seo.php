@@ -9,6 +9,9 @@ use App\Enums\TwitterCard;
 use App\Models\Concerns\LogsAllDirtyChanges;
 use Carbon\CarbonImmutable;
 use Database\Factories\SeoFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -18,9 +21,9 @@ use Spatie\Translatable\HasTranslations;
  * Per-record SEO overrides. Every column is nullable: a null value means
  * "fall back to the model's default" (resolved by the HasSeo trait in Fase 3).
  *
- * @property int $id
+ * @property string $id
  * @property string $seoable_type
- * @property int $seoable_id
+ * @property string $seoable_id
  * @property string|null $title
  * @property string|null $description
  * @property string|null $og_title
@@ -37,11 +40,11 @@ use Spatie\Translatable\HasTranslations;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
-class Seo extends Model {
+#[Fillable(['seoable_type', 'seoable_id', 'title', 'description', 'og_title', 'og_description', 'og_image', 'twitter_title', 'twitter_description', 'twitter_image', 'canonical', 'robots', 'schema_overrides', 'schema_type', 'twitter_card'])]
+#[Table(name: 'seo')]
+final class Seo extends Model {
     /** @use HasFactory<SeoFactory> */
-    use HasFactory, HasTranslations, LogsAllDirtyChanges;
-
-    protected $table = 'seo';
+    use HasFactory, HasTranslations, HasUuids, LogsAllDirtyChanges;
 
     /** @var list<string> */
     public array $translatable = [

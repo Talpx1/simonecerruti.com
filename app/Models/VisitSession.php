@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\DeviceType;
 use Carbon\CarbonImmutable;
 use Database\Factories\VisitSessionFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $visitor_id
  * @property string $source
  * @property string|null $medium
- * @property int|null $campaign_id
+ * @property string|null $campaign_id
  * @property string|null $utm_source
  * @property string|null $utm_medium
  * @property string|null $utm_campaign
@@ -43,7 +44,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable $updated_at
  * @property-read Campaign|null $campaign
  */
-class VisitSession extends Model {
+#[Fillable(['id', 'visitor_id', 'source', 'medium', 'campaign_id', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'referrer_url', 'referrer_host', 'landing_path', 'landing_route_name', 'locale', 'ip', 'user_agent', 'device_type', 'country', 'consent_analytics', 'started_at', 'last_activity_at', 'pageview_count', 'bot_score'])]
+final class VisitSession extends Model {
     /** @use HasFactory<VisitSessionFactory> */
     use HasFactory, HasUuids;
 
