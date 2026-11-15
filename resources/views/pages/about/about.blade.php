@@ -31,7 +31,7 @@
 
     <section class="section">
         <div class="about-intro">
-            <div class="portrait-frame" data-cursor="{{ __('Hi') }}">
+            <div class="portrait-frame" data-effect="portrait-pixelate" data-cursor="{{ __('Hi') }}">
                 <img src="{{ asset('images/about_protrait.webp') }}" alt="{{ __('Portrait of Simone Cerruti') }}"
                     loading="lazy">
                 <span class="before-after-screen-watermark" aria-hidden="true">SC</span>

@@ -1,3 +1,5 @@
+import { initCustomScrollbar } from './custom-scrollbar';
+
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
 const clamp = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value));
@@ -29,6 +31,8 @@ const siteRuntime = (window.siteRuntime = {
 });
 
 const effectLoaders = import.meta.glob('./pages/*.js');
+
+initCustomScrollbar();
 
 let pageState = createEmptyPageState();
 let cleanupCallbacks = [];
@@ -294,9 +298,7 @@ function renderFrame(timestamp) {
     }
 
     if (pageState.navigationCta) {
-        const shouldShow = pageState.heroCta
-            ? pageState.heroCta.getBoundingClientRect().bottom < 0
-            : scrollOffset > viewportHeight * 0.6;
+        const shouldShow = pageState.heroCta ? pageState.heroCta.getBoundingClientRect().bottom < 0 : true;
         if (shouldShow !== pageState.isNavigationCtaShown) {
             pageState.isNavigationCtaShown = shouldShow;
             pageState.navigationCta.classList.toggle('is-visible', shouldShow);
