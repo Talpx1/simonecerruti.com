@@ -13,7 +13,7 @@ class QueryStringOrDefaultMacro implements Macro {
             function (string $key, ?string $default = null): ?string {
                 $value = $this->query($key);
 
-                return is_string($value) && $value !== '' ? $value : $default;
+                return \is_string($value) && $value !== '' ? $value : $default;
             },
         ];
     }

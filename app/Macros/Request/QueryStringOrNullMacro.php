@@ -13,7 +13,7 @@ class QueryStringOrNullMacro implements Macro {
             function (string $key): ?string {
                 $value = $this->query($key);
 
-                return is_string($value) && $value !== '' ? $value : null;
+                return \is_string($value) && $value !== '' ? $value : null;
             },
         ];
     }

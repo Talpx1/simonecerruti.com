@@ -61,8 +61,8 @@ class DeviceTypeDetector {
         // are not meaningful in a human/mobile/desktop breakdown.
         $device_type = match (true) {
             $device_name === 'tablet' => DeviceType::TABLET,
-            in_array($device_name, self::MOBILE_DEVICES, true) => DeviceType::MOBILE,
-            in_array($device_name, self::DESKTOP_DEVICES, true) => DeviceType::DESKTOP,
+            \in_array($device_name, self::MOBILE_DEVICES, true) => DeviceType::MOBILE,
+            \in_array($device_name, self::DESKTOP_DEVICES, true) => DeviceType::DESKTOP,
             default => DeviceType::UNKNOWN,
         };
 

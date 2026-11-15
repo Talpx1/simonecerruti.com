@@ -13,7 +13,7 @@ class CookieStringOrDefaultMacro implements Macro {
             function (string $key, ?string $default = null): ?string {
                 $value = $this->cookie($key);
 
-                return is_string($value) && $value !== '' ? $value : $default;
+                return \is_string($value) && $value !== '' ? $value : $default;
             },
         ];
     }

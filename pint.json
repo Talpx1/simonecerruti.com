@@ -32,6 +32,13 @@
         "compact_nullable_type_declaration": true,
         "linebreak_after_opening_tag": true,
         "lowercase_cast": true,
-        "assign_null_coalescing_to_coalesce_equal": true
+        "assign_null_coalescing_to_coalesce_equal": true,
+        "native_function_invocation": {
+            "include": [
+                "@compiler_optimized"
+            ],
+            "scope": "namespaced",
+            "strict": false
+        }
     }
 }
