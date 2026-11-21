@@ -11,13 +11,14 @@ use function Safe\file_get_contents;
 use function Safe\mkdir;
 
 beforeEach(function (): void {
-    $this->public_directory = \sys_get_temp_dir().'/sitemap_'.\uniqid();
-    mkdir($this->public_directory);
-    app()->usePublicPath($this->public_directory);
+    $this->storage_directory = \sys_get_temp_dir().'/sitemap_'.\uniqid();
+    mkdir($this->storage_directory);
+    mkdir($this->storage_directory.'/app');
+    app()->useStoragePath($this->storage_directory);
 });
 
 afterEach(function (): void {
-    File::deleteDirectory($this->public_directory);
+    File::deleteDirectory($this->storage_directory);
 });
 
 describe('app:generate-sitemap', function (): void {
@@ -25,7 +26,7 @@ describe('app:generate-sitemap', function (): void {
         $article = BlogArticle::factory()->published()->create();
         $draft = BlogArticle::factory()->draft()->create();
         $project = Project::factory()->published()->create();
-        $sitemap_path = public_path('sitemap.xml');
+        $sitemap_path = storage_path('app/sitemap.xml');
 
         expect(File::exists($sitemap_path))->toBeFalse();
 
@@ -33,7 +34,7 @@ describe('app:generate-sitemap', function (): void {
 
         $sitemap = file_get_contents($sitemap_path);
 
-        expect(File::exists($this->public_directory.'/sitemap.xml'))->toBeTrue()
+        expect(File::exists($sitemap_path))->toBeTrue()
             ->and($sitemap)->toContain('<urlset')
             ->and($sitemap)->toContain(route('home'))
             ->and($sitemap)->toContain($article->getTranslation('slug', 'en'))

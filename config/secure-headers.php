@@ -147,7 +147,7 @@ return [
      * Note: Please ensure your website had set up ssl/tls before enable hsts.
      */
     'hsts' => [
-        'enable' => false,
+        'enable' => in_array(env('APP_ENV'), ['staging', 'production'], true),
 
         'max-age' => 31536000,
 
@@ -617,11 +617,12 @@ return [
      * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
      */
     'csp' => [
-        // Disabled until a policy covering Livewire, Filament, reCAPTCHA and inline scripts is written and tested.
-        'enable' => false,
+        'enable' => true,
 
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only
-        'report-only' => false,
+        // Starts in report-only mode: violations are reported, nothing is blocked. Switch to false once
+        // the policy no longer reports false positives on the real pages.
+        'report-only' => true,
 
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/report-to
         'report-to' => '',
@@ -639,7 +640,7 @@ return [
 
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/base-uri
         'base-uri' => [
-            //
+            'self' => true,
         ],
 
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/child-src
@@ -654,7 +655,7 @@ return [
 
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/default-src
         'default-src' => [
-            //
+            'self' => true,
         ],
 
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/fenced-frame-src
@@ -669,12 +670,12 @@ return [
 
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/form-action
         'form-action' => [
-            //
+            'self' => true,
         ],
 
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
         'frame-ancestors' => [
-            //
+            'self' => true,
         ],
 
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-src
@@ -699,7 +700,7 @@ return [
 
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/object-src
         'object-src' => [
-            //
+            'none' => true,
         ],
 
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/prefetch-src

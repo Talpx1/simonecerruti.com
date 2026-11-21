@@ -2,9 +2,41 @@
 
 declare(strict_types=1);
 
-it('sends the baseline security headers on web responses', function (): void {
-    $this->get(route('contacts'))
-        ->assertHeader('X-Content-Type-Options', 'nosniff')
-        ->assertHeader('X-Frame-Options', 'sameorigin')
-        ->assertHeaderMissing('Content-Security-Policy');
+use function Pest\Laravel\get;
+use function Safe\putenv;
+
+describe('web responses', function (): void {
+    it('sends the baseline security headers', function (): void {
+        get(route('contacts'))
+            ->assertHeader('X-Content-Type-Options', 'nosniff')
+            ->assertHeader('X-Frame-Options', 'sameorigin');
+    });
+
+    it('starts the content security policy in report-only mode', function (): void {
+        $response = get(route('contacts'));
+
+        expect($response->headers->get('Content-Security-Policy-Report-Only'))->toContain("default-src 'self'")
+            ->and($response->headers->has('Content-Security-Policy'))->toBeFalse();
+    });
+
+    it('does not send HSTS outside staging and production', function (): void {
+        get(route('contacts'))->assertHeaderMissing('Strict-Transport-Security');
+    });
+});
+
+it('enables HSTS only in staging and production', function (string $environment, bool $expected): void {
+    $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = $environment;
+    putenv("APP_ENV={$environment}");
+
+    $config = require config_path('secure-headers.php');
+
+    expect($config['hsts']['enable'])->toBe($expected);
+})->with([
+    'local' => ['local', false],
+    'testing' => ['testing', false],
+    'staging' => ['staging', true],
+    'production' => ['production', true],
+])->after(function (): void {
+    $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = 'testing';
+    putenv('APP_ENV=testing');
 });

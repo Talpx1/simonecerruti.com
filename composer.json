@@ -180,6 +180,8 @@
             "@php artisan filament:upgrade"
         ],
         "ai:update": [
+            "@putenv WSL_DISTRO_NAME=",
+            "@putenv IS_WSL=",
             "@php artisan boost:update --ansi",
             "@php artisan ai:link-hooks --ansi"
         ],

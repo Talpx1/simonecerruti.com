@@ -46,8 +46,7 @@ if [ -f /var/www/html/.env ]; then
     done < /var/www/html/.env
 fi
 
-export REAL_IP_HEADER=CF-Connecting-IP
-export REAL_IP_HEADER=${REAL_IP_HEADER:-X-Forwarded-For}
+export REAL_IP_HEADER=${REAL_IP_HEADER:-CF-Connecting-IP}
 export APP_WORKERS_AMOUNT=${APP_WORKERS_AMOUNT:-2}
 export APP_WORKERS_MEMORY_LIMIT=${APP_WORKERS_MEMORY_LIMIT:-256M}
 export FASTCGI_HTTPS=${FASTCGI_HTTPS:-$([ "$APP_ENV" = "local" ] && echo off || echo on)}
@@ -171,6 +170,10 @@ if [ -x /usr/local/bin/cloudflare-ips.sh ]; then
 fi
 
 if [ -f /var/www/html/artisan ]; then
+    if [ ! -L /var/www/html/public/sitemap.xml ]; then
+        ln -sfn ../storage/app/sitemap.xml /var/www/html/public/sitemap.xml \
+            || echo "[WARN] sitemap symlink failed (non-blocking)"
+    fi
     su www-data -s /bin/bash -c "php /var/www/html/artisan app:generate-sitemap" \
         || echo "[WARN] sitemap generation failed (non-blocking)"
 fi

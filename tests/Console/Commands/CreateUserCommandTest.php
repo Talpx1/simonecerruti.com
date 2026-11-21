@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use Illuminate\Support\Facades\App;
 
 use function Pest\Laravel\artisan;
 
@@ -12,7 +13,7 @@ it('creates a verified user from the answers', function (): void {
     artisan('users:create')
         ->expectsQuestion('Name', 'Ada Lovelace')
         ->expectsQuestion('Email', 'ada@example.com')
-        ->expectsQuestion('Password', 'a-long-password')
+        ->expectsQuestion('Password', 'Str0ng-Passw0rd!')
         ->expectsOutputToContain('User ada@example.com created.')
         ->assertSuccessful();
 
@@ -23,7 +24,7 @@ it('creates a verified user from the answers', function (): void {
 
 it('takes the name and the email from the options', function (): void {
     artisan('users:create', ['--name' => 'Ada Lovelace', '--email' => 'ada@example.com'])
-        ->expectsQuestion('Password', 'a-long-password')
+        ->expectsQuestion('Password', 'Str0ng-Passw0rd!')
         ->assertSuccessful();
 
     expect(User::query()->where('email', 'ada@example.com')->exists())->toBeTrue();
@@ -40,26 +41,33 @@ it('fails when a user with the same email already exists', function (): void {
 });
 
 it('creates the user without prompts when every option is given', function (): void {
-    artisan('users:create', ['--name' => '0', '--email' => 'ada@example.com', '--password' => 'a-long-password'])
+    artisan('users:create', ['--name' => '0', '--email' => 'ada@example.com', '--password' => 'Str0ng-Passw0rd!'])
         ->assertSuccessful();
 
     expect(User::query()->where('email', 'ada@example.com')->firstOrFail()->name)->toBe('0');
 });
 
-it('validates the email and the password given as options', function (string $option, string $value): void {
-    artisan('users:create', ['--name' => 'Ada Lovelace', '--email' => 'ada@example.com', '--password' => 'a-long-password', $option => $value])
+it('validates the email and the password given as options', function (string $option, string $value, string $message): void {
+    App::setLocale('en');
+
+    artisan('users:create', ['--name' => 'Ada Lovelace', '--email' => 'ada@example.com', '--password' => 'Str0ng-Passw0rd!', $option => $value])
+        ->expectsOutputToContain($message)
         ->assertFailed();
 
     expect(User::query()->count())->toBe(0);
 })->with([
-    'invalid email' => ['--email', 'not-an-email'],
-    'short password' => ['--password', 'short'],
+    'invalid email' => ['--email', 'not-an-email', 'email'],
+    'short password' => ['--password', 'Sh0rt-pw!', 'at least 12'],
+    'password without symbols' => ['--password', 'NoSymbolsHere1234', 'symbol'],
+    'password without numbers' => ['--password', 'No-Numbers-Here-Abc', 'number'],
+    'password without uppercase' => ['--password', 'no-uppercase-1234!', 'uppercase and one lowercase'],
+    'password without letters' => ['--password', '1234-5678-9012!', 'letter'],
 ]);
 
 it('treats the email as case insensitive when looking for a duplicate', function (): void {
     User::factory()->create(['email' => 'ada@example.com']);
 
-    artisan('users:create', ['--name' => 'Ada Lovelace', '--email' => 'Ada@Example.com', '--password' => 'a-long-password'])
+    artisan('users:create', ['--name' => 'Ada Lovelace', '--email' => 'Ada@Example.com', '--password' => 'Str0ng-Passw0rd!'])
         ->expectsOutputToContain('already exists')
         ->assertFailed();
 });

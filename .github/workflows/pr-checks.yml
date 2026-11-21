@@ -2,23 +2,13 @@ name: PR checks
 
 on:
   pull_request:
-    branches: [staging, production]
+    branches: [main, production]
+
+permissions:
+  contents: read
 
 jobs:
-  target:
-    if: github.base_ref == 'production'
-    runs-on: ubuntu-latest
-    steps:
-      # Fail PRs to production that do not come from a hotfix/ branch
-      - name: Only hotfixes target production
-        env:
-          HEAD_REF: ${{ github.head_ref }}
-        run: |
-          [[ "$HEAD_REF" == hotfix/* ]] || { echo "::error::PRs to production must come from a hotfix/ branch"; exit 1; }
-
   changelog:
-    # the sync PR brings into staging the version sections created on production: it is the only exception
-    if: "!(startsWith(github.head_ref, 'sync/') && github.event.pull_request.user.type == 'Bot')"
     runs-on: ubuntu-latest
     steps:
       # Check out the PR with full history, needed to read CHANGELOG.md from the base commit
@@ -26,14 +16,80 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Compare CHANGELOG.md with the base: only Unreleased may change, and hotfixes must add an entry
+      # Compare CHANGELOG.md with the base: only Unreleased may change
       - name: Only the Unreleased section changes
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          BASE_REF: ${{ github.base_ref }}
         run: |
           git show "$BASE_SHA:CHANGELOG.md" > "$RUNNER_TEMP/base.md"
-          flags=()
-          # a hotfix without an entry would fail its release after the merge, leaving production ahead with no tag
-          [[ "$BASE_REF" == production ]] && flags+=(--require-entry)
-          php .github/scripts/changelog.php check "$RUNNER_TEMP/base.md" CHANGELOG.md "${flags[@]}"
+          php .github/scripts/changelog.php check "$RUNNER_TEMP/base.md" CHANGELOG.md
+
+  # The server refuses a compose file that breaks the gateway policy, but only at deploy time:
+  # here the same policy, at the version the project is pinned to (deploy/gateway.version), runs on the PR
+  compose-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The file comes from the PR: only a plain version is turned into a ref
+      - name: Gateway version
+        id: gateway
+        run: |
+          version=$(tr -d '[:space:]' < deploy/gateway.version)
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::deploy/gateway.version must look like 1.2.3"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      # The gateway repository can be private: GATEWAY_REPO_TOKEN (read access to it) is then needed.
+      # The token is not left in the clone: the gateway script runs in a later step.
+      - id: clone
+        continue-on-error: true
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ secrets.GATEWAY_REPOSITORY || 'SimoneCerruti/laravel-deploy-gateway' }}
+          ref: v${{ steps.gateway.outputs.version }}
+          token: ${{ secrets.GATEWAY_REPO_TOKEN || github.token }}
+          path: .gateway
+          persist-credentials: false
+
+      - name: Gateway clone failed
+        if: steps.clone.outcome == 'failure'
+        run: |
+          echo "::error::the gateway repository could not be cloned: if it is private, set the GATEWAY_REPO_TOKEN secret (read access to it); check also the GATEWAY_REPOSITORY secret and the tag in deploy/gateway.version"
+          exit 1
+
+      # A release tag can be moved: the script that was cloned must be the reviewed one
+      - name: Verify the gateway release
+        run: |
+          expected=$(tr -d '[:space:]' < deploy/gateway.sha256)
+          if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error::deploy/gateway.sha256 must be the SHA-256 of gateway.sh at the pinned release"
+            exit 1
+          fi
+          actual=$(sha256sum .gateway/gateway.sh | cut -d' ' -f1)
+          if [[ "$actual" != "$expected" ]]; then
+            echo "::error::gateway.sh of the release differs from deploy/gateway.sha256 ($actual)"
+            exit 1
+          fi
+
+      # The gateway parses the compose file with a pinned yq (version and checksum), not the one of the runner
+      - name: Install yq
+        run: sudo .gateway/tools/install-yq.sh /usr/local/lib/deploy-gateway/yq
+
+      # Dummy values for the variables compose.yml requires: the real ones live in the environments' secrets
+      - name: Check deploy/compose.yml
+        run: |
+          {
+            echo "IMAGE_REF=docker.io/example/simone_cerruti_website@sha256:$(printf '0%.0s' {1..64})"
+            echo "APP_HOST=app.example.com"
+            echo "DB_DATABASE=app"
+            echo "DB_USERNAME=app"
+            echo "DB_PASSWORD=secret"
+          } > "$RUNNER_TEMP/policy.env"
+          .gateway/gateway.sh --check-compose --compose deploy/compose.yml --app simone_cerruti_website --env production \
+            --hosts app.example.com --images "docker.io/example/simone_cerruti_website postgres" \
+            --env-file "$RUNNER_TEMP/policy.env"

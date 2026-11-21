@@ -14,11 +14,22 @@ concurrency:
   group: release
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
+  # There is no staging: the suite runs again on the commit of main that is about to be released,
+  # and nothing is tagged or deployed if it fails
+  tests:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/tests.yml
+
   release:
+    needs: tests
     uses: ./.github/workflows/_finalize-release.yml
     with:
-      source_branch: staging
+      source_branch: main
       ff_branches: production
       bump: ${{ inputs.bump }}
     secrets: inherit

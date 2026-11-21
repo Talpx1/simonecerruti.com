@@ -19,6 +19,16 @@ describe('users:reset-mfa', function (): void {
         expect($user->fresh()->has_email_authentication)->toBeFalse();
     });
 
+    it('finds the user regardless of the email casing', function (): void {
+        $user = User::factory()->withEmailAuthentication()->create(['email' => 'ada@example.com']);
+
+        artisan('users:reset-mfa', ['email' => 'ADA@Example.COM'])
+            ->expectsOutputToContain('Multi-factor authentication reset for ada@example.com.')
+            ->assertSuccessful();
+
+        expect($user->fresh()->has_email_authentication)->toBeFalse();
+    });
+
     it('fails without resetting anything when the user does not exist', function (): void {
         $user = User::factory()->withEmailAuthentication()->create();
 
