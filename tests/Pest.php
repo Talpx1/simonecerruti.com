@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Route as RoutingRoute;
+use Illuminate\Routing\RouteCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +24,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Sleep;
@@ -39,6 +42,7 @@ use function Pest\Laravel\withoutMiddleware;
 use function Pest\Livewire\livewire;
 use function Safe\file_put_contents;
 use function Safe\mkdir;
+use function Safe\putenv;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
@@ -502,4 +506,27 @@ function assertLegalPageReadsContactEmailFromConfig(string $component): void {
     config()->set('company.contacts.email', 'legal@example.test');
 
     livewire($component)->assertSeeHtml('mailto:legal@example.test');
+}
+
+function loadRoutesForLocale(string $locale): void {
+    putenv("ROUTING_LOCALE={$locale}");
+
+    Route::setRoutes(new RouteCollection);
+    Route::middleware('web')->group(base_path('routes/web.php'));
+    Route::getRoutes()->refreshNameLookups();
+    Route::getRoutes()->refreshActionLookups();
+}
+
+/**
+ * @return list<string>
+ */
+function getLocalizedPublicRouteNames(): array {
+    return collect(Route::getRoutes()->getRoutes())
+        ->filter(fn (RoutingRoute $route): bool => \in_array('GET', $route->methods(), true)
+            && $route->getName() !== null
+            && $route->parameterNames() === []
+            && \in_array('localize', $route->gatherMiddleware(), true))
+        ->map(fn (RoutingRoute $route): string => (string) $route->getName())
+        ->values()
+        ->all();
 }

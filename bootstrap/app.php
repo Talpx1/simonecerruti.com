@@ -28,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'localeCookieRedirect' => LocaleCookieRedirect::class,
             'localeViewPath' => LaravelLocalizationViewPath::class,
         ]);
-        $middleware->trustProxies(at: '*');
+        $middleware->trustProxies(at: ['172.16.0.0/12', '10.0.0.0/8']);
         $middleware->web(append: [
             SecureHeadersMiddleware::class,
             CookieConsentMiddleware::class,

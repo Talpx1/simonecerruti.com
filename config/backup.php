@@ -15,6 +15,8 @@ use Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes;
 
 return [
 
+    'enabled' => (bool) env('BACKUP_ENABLED', true),
+
     'backup' => [
         /*
          * The name of this application. You can use this name to monitor
