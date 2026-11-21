@@ -18,7 +18,9 @@ Sessions are serialized as JSON (`session.serialization`), so a leaked `APP_KEY`
 
 ## HTTP security headers
 
-`bepsvpt/secure-headers` runs on the `web` middleware group and is configured in `config/secure-headers.php`. The Content Security Policy is disabled on purpose until a policy that covers Livewire, Filament, reCAPTCHA and the inline scripts is written and tested in a browser. Enable it with `csp.enable` and start with `report-only`.
+`bepsvpt/secure-headers` runs on the `web` middleware group and is configured in `config/secure-headers.php`. HSTS is sent only when `APP_ENV` is `production` (or `staging`, if one is ever added). The Content Security Policy runs in `report-only` mode: it reports violations without blocking anything, so Livewire, Filament, reCAPTCHA and the inline scripts keep working. Review the reports, then switch `report-only` off once the policy covers every page. `X-Frame-Options` stays `sameorigin`.
+
+Behind Cloudflare the app trusts proxies only from the Docker address ranges (`172.16.0.0/12`, `10.0.0.0/8`), and `REAL_IP_HEADER` defaults to `CF-Connecting-IP` but can be overridden from the environment.
 
 ## Slow query log
 
@@ -26,4 +28,8 @@ Sessions are serialized as JSON (`session.serialization`), so a leaked `APP_KEY`
 
 ## Activity log
 
-The activity log (`spatie/laravel-activitylog` v5) stores tracked changes in `attribute_changes`; `properties` holds only custom data. Read changes with `$activity->attribute_changes`.
+The activity log (`spatie/laravel-activitylog` v5) stores tracked changes in `attribute_changes`; `properties` holds only custom data. Read changes with `$activity->attribute_changes`. `activitylog:clean` runs daily at 02:00 and keeps `ACTIVITYLOG_RETENTION_DAYS` days (default 30).
+
+## Queue
+
+`retry_after` of the queue connections (660 seconds) must stay above the worker `--timeout` in `docker/configs/laravel-worker-supervisor.conf` (600), or a running job is handed to a second worker. A test enforces it.

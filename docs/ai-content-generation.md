@@ -7,7 +7,7 @@ Every prose field of the admin panel has a **Generate with AI** button (sparkles
 The feature uses the Anthropic API through the [Laravel AI SDK](https://laravel.com/docs/ai-sdk) (`laravel/ai`).
 
 1. In the Claude Console, link the organization to your Claude Max plan. Max includes monthly API credits ($100 for Max, $200 for Ultra). They expire every month and requests stop when they run out.
-2. Create an API key in that organization and set `ANTHROPIC_API_KEY` in the `.env` of each environment (`DOTENV_STAGING` and `DOTENV_PRODUCTION` in production). `config/ai.php` reads it.
+2. Create an API key in that organization and set `ANTHROPIC_API_KEY` in the `.env` of the environment (`DOTENV_PRODUCTION`). `config/ai.php` reads it.
 3. Nothing else is needed: the default provider is `anthropic` and the model is set on the agent (`App\Ai\Agents\ContentWriter`).
 
 The API credits do not cover Claude Code, and a generation costs a few cents at most. If the credits run out, the modal shows "The AI credits are exhausted" and the field stays unchanged.
