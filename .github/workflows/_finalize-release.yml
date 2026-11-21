@@ -34,7 +34,7 @@ jobs:
         id: app
         uses: actions/create-github-app-token@v1
         with:
-          app-id: ${{ vars.RELEASE_APP_ID }}
+          app-id: ${{ secrets.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 
       # Check out the source branch with full history and tags, needed to compute the version and the fast-forwards
@@ -61,7 +61,7 @@ jobs:
         run: |
           for b in $FF_BRANCHES; do
             if ! git merge-base --is-ancestor "origin/$b" HEAD; then
-              echo "::error::origin/$b is not an ancestor of HEAD: fast-forward impossible (sync/ PR after a hotfix still to merge?)"
+              echo "::error::origin/$b is not an ancestor of HEAD: fast-forward impossible (someone pushed to it outside the Release workflow)"
               exit 1
             fi
           done

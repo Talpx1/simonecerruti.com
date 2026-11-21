@@ -23,6 +23,8 @@ on:
       - ".github/workflows/secret-scan.yml"
       - ".github/workflows/style-audit.yml"
   workflow_dispatch:
+  # the Release workflow runs the suite on the commit it is about to release
+  workflow_call:
 
 # No push trigger: tia-baseline.yml already runs the full suite on every push to main.
 
