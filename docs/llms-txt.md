@@ -8,7 +8,7 @@ understand the site without crawling every page.
 
 A hand-written, committed Markdown file at `public/llms.txt`, served directly by
 the web server like `public/robots.txt`. It is **not** generated — unlike
-`public/sitemap.xml`, which is produced by the `app:generate-sitemap` command and
+`public/sitemap.xml` (a symlink to `storage/app/sitemap.xml`), which is produced by the `app:generate-sitemap` command and
 is git-ignored.
 
 ## Contents

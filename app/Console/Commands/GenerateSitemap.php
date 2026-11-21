@@ -29,7 +29,7 @@ class GenerateSitemap extends Command {
         $sitemap->add(BlogArticle::query()->whereCanBeCrawled()->get());
         $sitemap->add(Project::query()->wherePublished()->get());
 
-        $sitemap->writeToFile(public_path('sitemap.xml'));
+        $sitemap->writeToFile(storage_path('app/sitemap.xml'));
     }
 
     private function addStaticUrls(Sitemap $sitemap): Sitemap {
